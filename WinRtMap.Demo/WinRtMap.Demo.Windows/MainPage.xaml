@@ -1,0 +1,43 @@
+﻿<Page
+    x:Class="WinRtMap.Demo.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winRtMap="using:WinRtMap"
+    mc:Ignorable="d">
+
+	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition />
+		</Grid.RowDefinitions>
+		
+		<TextBlock Grid.Row="0"  Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+    		<Run FontSize="50" Text="sadfsadf"/>
+		</TextBlock>
+
+		<winRtMap:Map Name="m1" Grid.Row="1" Grid.Column="0" Background="Transparent">
+			
+
+			<winRtMap:MapLayer>
+				<Rectangle winRtMap:MapLayer.Location="0, 0" Stroke="Red" Width="10" Height="10" StrokeThickness="10" />
+				<Rectangle winRtMap:MapLayer.Location="0, 0" Stroke="Green" Width="1" Height="1" StrokeThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center"  />
+			</winRtMap:MapLayer>
+			
+			<winRtMap:TileLayer />
+
+			<TextBlock Text="0,0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<TextBlock Text="-300,-300" FontSize="30" winRtMap:MapLayerBase.Location="-300,-300" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<TextBlock Text="300,-300" FontSize="30" winRtMap:MapLayerBase.Location="300,-300" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<TextBlock Text="-300,300" FontSize="30" winRtMap:MapLayerBase.Location="-300,300" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<TextBlock Text="300,300" FontSize="30" winRtMap:MapLayerBase.Location="300,300" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			
+			<TextBlock Text="{Binding MapCenter, ElementName=m1}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+
+		</winRtMap:Map>
+	</Grid>
+</Page>
