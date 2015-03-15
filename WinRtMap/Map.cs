@@ -4,22 +4,25 @@ using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using WinRtMap.Projections;
+using WinRtMap.Utils;
 
 namespace WinRtMap
 {
 	public class Map : MapLayerBase
 	{
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Point), typeof(Map), new PropertyMetadata(new Point()));
+			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location()));
 
-		private Point _mapCenterBeforeManipulation;
+		protected static readonly Wgs84WebMercatorProjection ViewPortProjection = new Wgs84WebMercatorProjection();
+		private Point _initialManipulationPosition;
 		private float _rotation;
 		private float _rotationBeforeManipulation;
 		private Point _viewPortCenter;
+		private Point _viewPortCenterBeforeManipulation;
 		private Matrix _viewPortMatrix;
 		private Matrix _viewPortMatrixBeforeManipulation;
 		private Rect _visibleMapWindow;
-		private Point _initialManipulationPosition;
 
 		public Map()
 		{
@@ -32,7 +35,7 @@ namespace WinRtMap
 			ManipulationCompleted += OnManipulationCompleted;
 			ManipulationDelta += OnManipulationDelta;
 
-			MapCenter = new Point(0, 0);
+			MapCenter = new Location(0, 0);
 		}
 
 		public Matrix ViewPortMatrix
@@ -48,34 +51,20 @@ namespace WinRtMap
 			}
 		}
 
-		public Point ViewPortCenter
-		{
-			get { return _viewPortCenter; }
-		}
-
 		public Rect VisibleMapWindow
 		{
 			get { return _visibleMapWindow; }
 		}
 
-		public Point MapCenter
+		public Location MapCenter
 		{
-			get { return (Point)GetValue(MapCenterProperty); }
+			get { return (Location)GetValue(MapCenterProperty); }
 			set
 			{
 				SetValue(MapCenterProperty, value);
 				OnMapCenterChanged(value);
 				UpdateViewPort();
 			}
-		}
-
-		private void UpdateViewPort()
-		{
-			Point mapCenter = MapCenter;
-            double dx = mapCenter.X - (ActualWidth / 2);
-			double dy = mapCenter.Y - (ActualHeight / 2);
-			_viewPortMatrix = Matrix.Identity.RotateAt(_rotation, mapCenter).Translate(-dx, -dy);
-			InvalidateArrange();
 		}
 
 		public float Rotation
@@ -91,11 +80,20 @@ namespace WinRtMap
 			}
 		}
 
-		public event EventHandler<Point> MapCenterChangedEvent;
-
-		protected virtual void OnMapCenterChanged(Point newCenter)
+		private void UpdateViewPort()
 		{
-			EventHandler<Point> mapCenterChangedEvent = MapCenterChangedEvent;
+			Point viewPortCenter = ViewPortProjection.ToViewPortPoint(MapCenter, 5);
+			double dx = viewPortCenter.X - (ActualWidth / 2);
+			double dy = viewPortCenter.Y - (ActualHeight / 2);
+			_viewPortMatrix = Matrix.Identity.RotateAt(_rotation, viewPortCenter).Translate(-dx, -dy);
+			InvalidateArrange();
+		}
+
+		public event EventHandler<Location> MapCenterChangedEvent;
+
+		protected virtual void OnMapCenterChanged(Location newCenter)
+		{
+			EventHandler<Location> mapCenterChangedEvent = MapCenterChangedEvent;
 			if (mapCenterChangedEvent != null)
 			{
 				mapCenterChangedEvent(this, newCenter);
@@ -122,17 +120,18 @@ namespace WinRtMap
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
 			_rotation = (_rotationBeforeManipulation + delta.Rotation) % 360;
-			Matrix matrix = Matrix.Identity.RotateAt(_rotation, _mapCenterBeforeManipulation).Translate(delta.Translation.X, delta.Translation.Y).Invert();
-			MapCenter = matrix.Transform(_mapCenterBeforeManipulation);
+			Matrix matrix = Matrix.Identity.RotateAt(_rotation, _viewPortCenterBeforeManipulation).Translate(delta.Translation.X, delta.Translation.Y).Invert();
+			Point transformedPoint = matrix.Transform(_viewPortCenterBeforeManipulation);
+			MapCenter = ViewPortProjection.FromViewPortPoint(transformedPoint, 5);
 		}
 
 		private void OnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
 		{
 			_rotationBeforeManipulation = Rotation;
 			_viewPortMatrixBeforeManipulation = _viewPortMatrix;
-			_mapCenterBeforeManipulation = MapCenter;
+			_viewPortCenterBeforeManipulation = ViewPortProjection.ToViewPortPoint(MapCenter, 5);
 			_initialManipulationPosition = e.Position;
-            e.Handled = true;
+			e.Handled = true;
 		}
 
 		protected override Size ArrangeOverride(Size finalSize)
