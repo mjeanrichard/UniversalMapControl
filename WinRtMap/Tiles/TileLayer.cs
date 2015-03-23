@@ -12,15 +12,11 @@ namespace WinRtMap.Tiles
 {
 	public class TileLayer : MapLayerBase
 	{
-		private const int TileSize = 256;
 		private static readonly Wgs84WebMercatorProjection Projection = new Wgs84WebMercatorProjection();
-
+		private TileLoader _tileLoader = new TileLoader();
 
 		public TileLayer()
 		{
-			Tiles = new List<BaseTile>();
-
-
 			Loaded += TileLayer_Loaded;
 		}
 
@@ -33,28 +29,16 @@ namespace WinRtMap.Tiles
 		protected virtual void RefreshTiles()
 		{
 			Map parentMap = GetParentMap();
-			List<BaseTile> tiles = new List<BaseTile>();
 
-			int zoomLevel = 5;
-			int xTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualWidth / TileSize)) + 1;
-			int yTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualHeight / TileSize)) + 1;
+			_tileLoader.RefreshTiles(parentMap);
 
-			int tileCount = Math.Max(xTileCount, yTileCount);
-
-			Location mapCenter = parentMap.MapCenter;
-			Point centerTileIndex = Projection.GetTileIndex(mapCenter, zoomLevel);
-			Point location = Projection.GetViewPortPositionFromTileIndex(centerTileIndex, zoomLevel);
-			tiles.Add(new WebTile((int)centerTileIndex.X, (int)centerTileIndex.Y, zoomLevel, location));
 
 			Children.Clear();
-			Tiles = tiles;
-			foreach (BaseTile tile in Tiles)
+			foreach (BaseTile tile in _tileLoader.GetTiles())
 			{
-				this.Children.Add(tile.Element);
+				Children.Add(tile.Element);
 			}
 		}
-
-		public List<BaseTile> Tiles { get; protected set; }
 
 		private void ParentMap_MapCenterChangedEvent(object sender, Location e)
 		{
@@ -74,7 +58,7 @@ namespace WinRtMap.Tiles
 			transform.Matrix = parentMap.ViewPortMatrix;
 			RenderTransform = transform;
 
-			foreach (BaseTile tile in Tiles)
+			foreach (BaseTile tile in _tileLoader.GetTiles())
 			{
 				tile.Element.Arrange(new Rect(tile.Position, new Size(256, 256)));
 			}

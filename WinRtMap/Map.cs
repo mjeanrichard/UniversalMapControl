@@ -14,7 +14,7 @@ namespace WinRtMap
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
 			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location()));
 
-		protected static readonly Wgs84WebMercatorProjection ViewPortProjection = new Wgs84WebMercatorProjection();
+		public readonly Wgs84WebMercatorProjection ViewPortProjection = new Wgs84WebMercatorProjection();
 		private Point _initialManipulationPosition;
 		private float _rotation;
 		private float _rotationBeforeManipulation;

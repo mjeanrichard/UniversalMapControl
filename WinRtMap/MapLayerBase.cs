@@ -4,6 +4,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using WinRtMap.Tiles;
+using WinRtMap.Utils;
 
 namespace WinRtMap
 {
@@ -180,7 +181,8 @@ namespace WinRtMap
 		{
 			Map parentMap = GetParentMap();
 			Size desiredSize = element.DesiredSize;
-			Point position = location;
+
+			Point position = parentMap.ViewPortProjection.ToViewPortPoint(new Location(location.X, location.Y), 5);
 
 			FrameworkElement frameworkElement = element as FrameworkElement;
 			if (frameworkElement != null)

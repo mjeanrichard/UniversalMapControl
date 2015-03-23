@@ -11,10 +11,10 @@ namespace WinRtMap.Tests
 	{
 		[DataTestMethod]
 		[DataRow(0, 0, 4, 0, 0)]
-		[DataRow(0, 40.979898069620155, 4, 0, 512)]
-		[DataRow(22.5, -21.943045533438166, 4, 256, -256)]
-		[DataRow(22.5, -40.979898069620134, 4, 256, -512)]
-		[DataRow(-56.25, - 21.943045533438166, 5, -1280, -512)]
+		[DataRow(0, 40.979898069620155, 4, 0, -512)]
+		[DataRow(22.5, -21.943045533438166, 4, 256, 256)]
+		[DataRow(22.5, -40.979898069620134, 4, 256, 512)]
+		[DataRow(-56.25, - 21.943045533438166, 5, -1280, 512)]
 		public void CanConvertToCartesian(double lon, double lat, int zoom,  double x, double y)
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
