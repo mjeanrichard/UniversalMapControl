@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Foundation;
+using Windows.Graphics.Display;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -12,7 +14,6 @@ namespace WinRtMap.Tiles
 {
 	public class TileLayer : MapLayerBase
 	{
-		private static readonly Wgs84WebMercatorProjection Projection = new Wgs84WebMercatorProjection();
 		private TileLoader _tileLoader = new TileLoader();
 
 		public TileLayer()
@@ -23,7 +24,7 @@ namespace WinRtMap.Tiles
 		private void TileLayer_Loaded(object sender, RoutedEventArgs e)
 		{
 			Map parentMap = GetParentMap();
-			parentMap.MapCenterChangedEvent += ParentMap_MapCenterChangedEvent;
+			parentMap.ViewPortChangedEvent += ParentMap_ViewPortChangedEvent;
 		}
 
 		protected virtual void RefreshTiles()
@@ -40,7 +41,7 @@ namespace WinRtMap.Tiles
 			}
 		}
 
-		private void ParentMap_MapCenterChangedEvent(object sender, Location e)
+		private void ParentMap_ViewPortChangedEvent(object sender, EventArgs e)
 		{
 			RefreshTiles();
 		}
@@ -48,19 +49,25 @@ namespace WinRtMap.Tiles
 		protected override Size ArrangeOverride(Size finalSize)
 		{
 			Map parentMap = GetParentMap();
+			RenderTransform = parentMap.ViewPortTransform;
 
-			MatrixTransform transform = RenderTransform as MatrixTransform;
-			if (transform == null)
-			{
-				transform = new MatrixTransform();
-				RenderTransform = transform;
-			}
-			transform.Matrix = parentMap.ViewPortMatrix;
-			RenderTransform = transform;
-
+			double viewPortCenterX = parentMap.ViewPortCenter.X;
+			double width = (2 << (int)parentMap.ZoomLevel)*64;
 			foreach (BaseTile tile in _tileLoader.GetTiles())
 			{
-				tile.Element.Arrange(new Rect(tile.Position, new Size(256, 256)));
+				double posX = tile.Position.X;
+				if (Math.Abs(viewPortCenterX - posX) > width)
+				{
+					if (posX < 0)
+					{
+						posX = posX + width * 2;
+					}
+					else
+					{
+						posX = posX - width * 2;
+					}
+				}
+				tile.Element.Arrange(new Rect(posX, tile.Position.Y, 256, 256));
 			}
 
 			return finalSize;

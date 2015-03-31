@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using WinRtMap.Utils;
 
@@ -32,49 +34,80 @@ namespace WinRtMap.Tiles
 		{
 			Dictionary<string, WebTile> newTiles = new Dictionary<string, WebTile>();
 
-			int zoomLevel = 5;
 			int xTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualWidth / TileSize)) + 1;
 			int yTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualHeight / TileSize)) + 1;
 
 			int tileCount = (int)(Math.Ceiling(Math.Max(xTileCount, yTileCount) / 2d) + 1);
 
 			Location mapCenter = parentMap.MapCenter;
-			Point centerTileIndex = parentMap.ViewPortProjection.GetTileIndex(mapCenter, zoomLevel);
+			Point centerTileIndex = parentMap.ViewPortProjection.GetTileIndex(mapCenter, (int)parentMap.ZoomLevel);
+
+
+			WebTile tile;
+			while (_tilesToLoad.TryDequeue(out tile))
+			{ }
 
 			for (int dx = -tileCount; dx < tileCount; dx++)
 			{
 				for (int dy = -tileCount; dy < tileCount; dy++)
 				{
-					int x = (int)(centerTileIndex.X) + dx;
-					int y = (int)(centerTileIndex.Y) + dy;
+                    int x = parentMap.ViewPortProjection.SanitizeIndex((int)(centerTileIndex.X) + dx, (int)parentMap.ZoomLevel);
+					int y = parentMap.ViewPortProjection.SanitizeIndex((int)(centerTileIndex.Y) + dy, (int)parentMap.ZoomLevel);
 
-					string key = string.Join("/", x, y, zoomLevel);
+					string key = string.Join("/", x, y, (int)parentMap.ZoomLevel);
 
-					WebTile tile;
+					if (newTiles.ContainsKey(key))
+					{
+						continue;
+					}
 					if (_tiles.TryGetValue(key, out tile))
 					{
 						newTiles.Add(key, tile);
+						Enqueue(tile);
 					}
 					else
 					{
-						Point location = parentMap.ViewPortProjection.GetViewPortPositionFromTileIndex(new Point(x, y), zoomLevel);
-						tile = new WebTile(x, y, zoomLevel, location);
-						_tilesToLoad.Enqueue(tile);
+						Point location = parentMap.ViewPortProjection.GetViewPortPositionFromTileIndex(new Point(x, y), (int)parentMap.ZoomLevel);
+						tile = new WebTile(x, y, (int)parentMap.ZoomLevel, location);
+						Enqueue(tile);
 						newTiles.Add(key, tile);
 					}
 				}
 			}
 			_tiles = newTiles;
-			StartDownloading();
 		}
+
+		protected void Enqueue(WebTile tile)
+		{
+			if (!tile.HasImage)
+			{
+				_tilesToLoad.Enqueue(tile);
+				StartDownloading();
+			}
+		}
+
+
+		private volatile int _taskCount = 0;
+		 
 
 		private void StartDownloading()
 		{
+			if (_taskCount >= 5)
+			{
+				return;
+			}
+			Interlocked.Increment(ref _taskCount);
+			Debug.WriteLine(_taskCount);
+
 			Task.Run(async () =>
 			{
 				WebTile tile;
 				while (_tilesToLoad.TryDequeue(out tile))
 				{
+					if (tile.HasImage)
+					{
+						continue;
+					}
 					try
 					{
 						Uri uri = tile.Uri;
@@ -96,6 +129,7 @@ namespace WinRtMap.Tiles
 					catch (Exception e)
 					{}
 				}
+				Interlocked.Decrement(ref _taskCount);
 			});
 		}
 
@@ -123,11 +157,13 @@ namespace WinRtMap.Tiles
 			image.Width = 256;
 			image.Height = 256;
 			image.IsHitTestVisible = false;
+			image.Stretch = Stretch.None;
 			_bitmap = new BitmapImage();
 			image.Source = _bitmap;
 			_image = image;
 		}
 
+		public bool HasImage { get; protected set; }
 		public int X { get; protected set; }
 		public int Y { get; protected set; }
 		public int Zoom { get; protected set; }
@@ -150,6 +186,7 @@ namespace WinRtMap.Tiles
 		public async Task SetImage(IRandomAccessStream imageStream)
 		{
 			await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { _bitmap.SetSource(imageStream); });
+			HasImage = true;
 		}
 	}
 }

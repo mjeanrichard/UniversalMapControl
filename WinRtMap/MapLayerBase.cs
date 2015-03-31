@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -81,12 +82,14 @@ namespace WinRtMap
 
 		protected override Size ArrangeOverride(Size finalSize)
 		{
+			Clip = new RectangleGeometry { Rect = new Rect(0, 0, finalSize.Width, finalSize.Height) };
+
 			foreach (UIElement element in Children)
 			{
 				ArrangeElement(element, finalSize);
 			}
 
-			return finalSize;
+			return base.ArrangeOverride(finalSize);
 		}
 
 		private void ArrangeElement(UIElement element, Size finalSize)
@@ -102,10 +105,11 @@ namespace WinRtMap
 				location = GetLocationIfSet(element);
 			}
 
+			Map parentMap = GetParentMap();
 			Point finalPosition;
 			if (location.HasValue)
 			{
-				finalPosition = GetPositionForElementWithLocation(location.Value, element);
+				finalPosition = GetPositionForElementWithLocation(location.Value, element, parentMap);
 			}
 			else
 			{
@@ -117,7 +121,7 @@ namespace WinRtMap
 			bool rotateWithMap = GetRotateWithMap(element);
 			if (rotateWithMap)
 			{
-				float rotation = GetParentMap().Rotation;
+				double rotation = parentMap.Heading;
 				TransformGroup transform = GetMapTransformGroup(element);
 				RotateTransform rotateTransform = transform.Children.OfType<RotateTransform>().FirstOrDefault();
 				if (rotateTransform == null)
@@ -128,11 +132,6 @@ namespace WinRtMap
 				rotateTransform.Angle = rotation;
 				rotateTransform.CenterX = elementDesiredSize.Width / 2;
 				rotateTransform.CenterY = elementDesiredSize.Height / 2;
-			}
-
-			if (element is MapLayerBase)
-			{
-				element.InvalidateArrange();
 			}
 
 			element.Arrange(new Rect(finalPosition, elementDesiredSize));
@@ -177,12 +176,26 @@ namespace WinRtMap
 			return position;
 		}
 
-		protected virtual Point GetPositionForElementWithLocation(Point location, UIElement element)
+		protected virtual Point GetPositionForElementWithLocation(Point location, UIElement element, Map parentMap)
 		{
-			Map parentMap = GetParentMap();
 			Size desiredSize = element.DesiredSize;
+			Point position = parentMap.ViewPortProjection.ToViewPortPoint(new Location(location.X, location.Y), (int)parentMap.ZoomLevel, parentMap.MapCenter.Longitude);
 
-			Point position = parentMap.ViewPortProjection.ToViewPortPoint(new Location(location.X, location.Y), 5);
+
+			double mapWidth = (2 << (int)parentMap.ZoomLevel) * 64;
+			if (Math.Abs(parentMap.ViewPortCenter.X - position.X) > mapWidth)
+			{
+				if (position.X < 0)
+				{
+					position.X = position.X + mapWidth * 2;
+				}
+				else
+				{
+					position.X = position.X - mapWidth * 2;
+				}
+			}
+
+			position = parentMap.ViewPortTransform.TransformPoint(position);
 
 			FrameworkElement frameworkElement = element as FrameworkElement;
 			if (frameworkElement != null)
@@ -209,7 +222,9 @@ namespace WinRtMap
 						break;
 				}
 			}
-			return parentMap.ViewPortMatrix.Transform(position);
+
+
+			return position;
 		}
 
 		private TransformGroup GetMapTransformGroup(UIElement element)

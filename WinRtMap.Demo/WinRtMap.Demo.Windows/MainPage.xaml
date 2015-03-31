@@ -12,29 +12,66 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition />
+			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
 		
 		<TextBlock Grid.Row="0"  Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
     		<Run FontSize="50" Text="sadfsadf"/>
 		</TextBlock>
-
-		<winRtMap:Map Name="m1" Grid.Row="1" Grid.Column="0" Background="Transparent">
+		
+		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="90">
 
 			<tiles:TileLayer />
 			
 			<winRtMap:MapLayer>
 			</winRtMap:MapLayer>
 			
-			<TextBlock Text="0,0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			<TextBlock Text="-5,-5" FontSize="30" winRtMap:MapLayerBase.Location="-5,-5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			<TextBlock Text="5,-5" FontSize="30" winRtMap:MapLayerBase.Location="5,-5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			<TextBlock Text="-5,5" FontSize="30" winRtMap:MapLayerBase.Location="-5,5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			<TextBlock Text="5,5" FontSize="30" winRtMap:MapLayerBase.Location="5,5" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<TextBlock Text="0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="10" FontSize="30" winRtMap:MapLayerBase.Location="10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="20" FontSize="30" winRtMap:MapLayerBase.Location="20,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="30" FontSize="30" winRtMap:MapLayerBase.Location="30,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="40" FontSize="30" winRtMap:MapLayerBase.Location="40,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="50" FontSize="30" winRtMap:MapLayerBase.Location="50,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="60" FontSize="30" winRtMap:MapLayerBase.Location="60,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="70" FontSize="30" winRtMap:MapLayerBase.Location="70,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="80" FontSize="30" winRtMap:MapLayerBase.Location="80,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="90" FontSize="30" winRtMap:MapLayerBase.Location="90,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="100" FontSize="30" winRtMap:MapLayerBase.Location="100,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="110" FontSize="30" winRtMap:MapLayerBase.Location="110,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="120" FontSize="30" winRtMap:MapLayerBase.Location="120,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="130" FontSize="30" winRtMap:MapLayerBase.Location="130,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="140" FontSize="30" winRtMap:MapLayerBase.Location="140,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="150" FontSize="30" winRtMap:MapLayerBase.Location="150,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="160" FontSize="30" winRtMap:MapLayerBase.Location="160,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="170" FontSize="30" winRtMap:MapLayerBase.Location="170,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="180" FontSize="30" winRtMap:MapLayerBase.Location="180,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-10" FontSize="30" winRtMap:MapLayerBase.Location="-10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-20" FontSize="30" winRtMap:MapLayerBase.Location="-20,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-30" FontSize="30" winRtMap:MapLayerBase.Location="-30,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-40" FontSize="30" winRtMap:MapLayerBase.Location="-40,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-50" FontSize="30" winRtMap:MapLayerBase.Location="-50,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-60" FontSize="30" winRtMap:MapLayerBase.Location="-60,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-70" FontSize="30" winRtMap:MapLayerBase.Location="-70,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-80" FontSize="30" winRtMap:MapLayerBase.Location="-80,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-90" FontSize="30" winRtMap:MapLayerBase.Location="-90,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-100" FontSize="30" winRtMap:MapLayerBase.Location="-100,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-110" FontSize="30" winRtMap:MapLayerBase.Location="-110,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-120" FontSize="30" winRtMap:MapLayerBase.Location="-120,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-130" FontSize="30" winRtMap:MapLayerBase.Location="-130,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-140" FontSize="30" winRtMap:MapLayerBase.Location="-140,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-150" FontSize="30" winRtMap:MapLayerBase.Location="-150,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-160" FontSize="30" winRtMap:MapLayerBase.Location="-160,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-170" FontSize="30" winRtMap:MapLayerBase.Location="-170,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 
 			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			
-			<TextBlock Text="{Binding MapCenter, ElementName=m1}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+
+			<TextBlock Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
 		</winRtMap:Map>
+
+		<StackPanel Grid.Row="2" Orientation="Horizontal">
+			<Slider Width="200" Minimum="0" Maximum="360" Value="{Binding Heading, ElementName=map, Mode=TwoWay}" SmallChange="5" LargeChange="45" />
+			<Slider Width="200" Minimum="1" Maximum="5" Value="{Binding ZoomLevel, ElementName=map, Mode=TwoWay}" SmallChange="1" LargeChange="1" />
+		</StackPanel>
 	</Grid>
 </Page>
