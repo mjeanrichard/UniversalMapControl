@@ -16,9 +16,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinRtMap.Tests", "WinRtMap.Tests\WinRtMap.Tests.csproj", "{28F121B5-1135-466D-AE44-33786F2AB701}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		WinRtMap.Demo\WinRtMap.Demo.Shared\WinRtMap.Demo.Shared.projitems*{eeda266d-1207-460c-8d30-39216c1eacd0}*SharedItemsImports = 4
 		WinRtMap.Demo\WinRtMap.Demo.Shared\WinRtMap.Demo.Shared.projitems*{30098da6-a194-438d-baba-b874863ee37e}*SharedItemsImports = 4

@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Tiles\BaseTile.cs" />
+    <Compile Include="Tiles\TileLoader.cs" />
+    <Compile Include="Tiles\WebTile.cs" />
     <Compile Include="Utils\Location.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapLayer.cs" />
