@@ -143,10 +143,17 @@ namespace WinRtMap
 
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
-			Matrix matrix = Matrix.Identity.Translate(-delta.Translation.X, -delta.Translation.Y).RotateAt(-_headingBeforeManipulation, _viewPortCenterBeforeManipulation);
+			TransformGroup transform = new TransformGroup();
+			TranslateTransform translate = new TranslateTransform{X = -delta.Translation.X, Y = -delta.Translation.Y };
+			RotateTransform mapRotation = new RotateTransform{Angle = -_headingBeforeManipulation, CenterX = _viewPortCenterBeforeManipulation.X, CenterY = _viewPortCenterBeforeManipulation.Y };
+
+			transform.Children.Add(translate);
+			transform.Children.Add(mapRotation);
+
 			if (delta.Rotation != 0)
 			{
-				matrix = matrix.RotateAt(-delta.Rotation, _manipulationRotationPoint);
+				RotateTransform manipulationRotation = new RotateTransform { Angle = -delta.Rotation, CenterX = _manipulationRotationPoint.X, CenterY = _manipulationRotationPoint.Y };
+				transform.Children.Add(manipulationRotation);
 				double newHeading = (_headingBeforeManipulation + delta.Rotation) % 360;
 				if (newHeading < 0)
 				{
@@ -154,7 +161,7 @@ namespace WinRtMap
 				}
 				Heading = newHeading;
 			}
-			ViewPortCenter = matrix.Transform(_viewPortCenterBeforeManipulation);
+			ViewPortCenter = transform.TransformPoint(_viewPortCenterBeforeManipulation);
 			UpdateMapTransform();
 		}
 
