@@ -11,16 +11,49 @@ namespace WinRtMap
 {
 	public class Map : MapLayerBase
 	{
+		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
+			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location(), MapCenterChanged));
+
+		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
+			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingChanged));
+
+		public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
+			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelChanged));
+
+		private static void HeadingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			Map map = (Map)d;
+			map.OnMapHeadingChanged((double)e.NewValue);
+		}
+
+		private static void MapCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			Map map = (Map)d;
+			map.OnMapCenterChanged((Location)e.NewValue);
+		}
+
+		private static void ZoomLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			Map map = (Map)d;
+			map.OnZoomLevelChanged((double)e.NewValue);
+		}
+
+		public event EventHandler<Location> MapCenterChangedEvent;
+		public event EventHandler<double> MapHeadingChangedEvent;
+		public event EventHandler ViewPortChangedEvent;
+		public event EventHandler<double> ZoomLevelChangedEvent;
 		public readonly Wgs84WebMercatorProjection ViewPortProjection = new Wgs84WebMercatorProjection();
 		private double _headingBeforeManipulation;
+		private Point _manipulationStartPoint;
 		private Point _viewPortCenter;
 		private Point _viewPortCenterBeforeManipulation;
+		private double _zoomBeforeManipulation;
 
 		public Map()
 		{
 			ViewPortTransform = new TranslateTransform();
 
-			ZoomLevel = 8;
+			ZoomLevel = 1;
 			SizeChanged += Map_SizeChanged;
 
 			ManipulationMode = ManipulationModes.All;
@@ -50,6 +83,9 @@ namespace WinRtMap
 		}
 
 		public Transform ViewPortTransform { get; set; }
+		public ScaleTransform ViewPortScale { get; set; }
+		public RotateTransform ViewPortRotation { get; set; }
+		public TranslateTransform ViewPortTranslation { get; set; }
 
 		public Point ViewPortCenter
 		{
@@ -59,9 +95,30 @@ namespace WinRtMap
 				if (_viewPortCenter != value)
 				{
 					_viewPortCenter = value;
-					MapCenter = ViewPortProjection.FromViewPortPoint(value, (int)ZoomLevel);
+					MapCenter = ViewPortProjection.ToWgs84(value);
 				}
 			}
+		}
+
+		protected override Map GetParentMap()
+		{
+			return this;
+		}
+
+		private void Map_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			UpdateViewPortTransform();
+		}
+
+		protected virtual void OnMapHeadingChanged(double newHeading)
+		{
+			EventHandler<double> mapHeadingChangedEvent = MapHeadingChangedEvent;
+			if (mapHeadingChangedEvent != null)
+			{
+				mapHeadingChangedEvent(this, newHeading);
+			}
+			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
+			UpdateViewPortTransform();
 		}
 
 		protected virtual void OnViewPortChangedEvent()
@@ -73,35 +130,6 @@ namespace WinRtMap
 			}
 		}
 
-		public event EventHandler<Location> MapCenterChangedEvent;
-		public event EventHandler<double> MapHeadingChangedEvent;
-		public event EventHandler<double> ZoomLevelChangedEvent;
-		public event EventHandler ViewPortChangedEvent;
-
-		private void UpdateMapTransform()
-		{
-			double dx = Math.Round(ViewPortCenter.X - (ActualWidth / 2));
-			double dy = Math.Round(ViewPortCenter.Y - (ActualHeight / 2));
-
-			TransformGroup transform = new TransformGroup();
-			transform.Children.Add(new RotateTransform {Angle = Heading, CenterX = Math.Round(ViewPortCenter.X), CenterY = Math.Round(ViewPortCenter.Y)});
-			transform.Children.Add(new TranslateTransform {X = -dx, Y = -dy});
-			ViewPortTransform = transform;
-			InvalidateArrange();
-			OnViewPortChangedEvent();
-		}
-
-		protected virtual void OnMapHeadingChanged(double newHeading)
-		{
-			EventHandler<double> mapHeadingChangedEvent = MapHeadingChangedEvent;
-			if (mapHeadingChangedEvent != null)
-			{
-				mapHeadingChangedEvent(this, newHeading);
-			}
-			_viewPortCenter = ViewPortProjection.ToViewPortPoint(MapCenter, (int)ZoomLevel);
-			UpdateMapTransform();
-		}
-
 		protected virtual void OnZoomLevelChanged(double newZoomLevel)
 		{
 			EventHandler<double> zoomLevelChangedEvent = ZoomLevelChangedEvent;
@@ -109,8 +137,55 @@ namespace WinRtMap
 			{
 				zoomLevelChangedEvent(this, newZoomLevel);
 			}
-			_viewPortCenter = ViewPortProjection.ToViewPortPoint(MapCenter, (int)ZoomLevel);
-			UpdateMapTransform();
+			UpdateViewPortTransform();
+		}
+
+		/// <summary>
+		/// Calculates the ViewPortTransfrom for the Current Heading and ViewPortCenter. 
+		/// Invalidates the ViewPort to schedule a redraw.
+		/// </summary>
+		protected virtual void UpdateViewPortTransform()
+		{
+			double centerX = ViewPortCenter.X;
+			double centerY = ViewPortCenter.Y;
+			double scaleFactor = GetScaleFactor(ZoomLevel);
+			double dx = centerX - (ActualWidth / 2);
+			double dy = centerY - (ActualHeight / 2);
+
+			ViewPortScale = new ScaleTransform {ScaleY = scaleFactor, ScaleX = scaleFactor, CenterX = centerX, CenterY = centerY};
+			ViewPortRotation = new RotateTransform {Angle = Heading, CenterX = centerX, CenterY = centerY};
+			ViewPortTranslation = new TranslateTransform {X = -dx, Y = -dy};
+
+			TransformGroup transform = new TransformGroup();
+			transform.Children.Add(ViewPortScale);
+			transform.Children.Add(ViewPortRotation);
+			transform.Children.Add(ViewPortTranslation);
+			ViewPortTransform = transform;
+			InvalidateArrange();
+			OnViewPortChangedEvent();
+		}
+
+		#region Manipulation
+
+		private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+		{
+			UpdateManipulation(e.Cumulative);
+			e.Handled = true;
+		}
+
+		private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+		{
+			UpdateManipulation(e.Cumulative);
+			e.Handled = true;
+		}
+
+		private void OnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+		{
+			_headingBeforeManipulation = Heading;
+			_zoomBeforeManipulation = ZoomLevel;
+			_viewPortCenterBeforeManipulation = ViewPortCenter;
+			_manipulationStartPoint = ViewPortTransform.Inverse.TransformPoint(e.Position);
+			e.Handled = true;
 		}
 
 		protected virtual void OnMapCenterChanged(Location newCenter)
@@ -120,91 +195,57 @@ namespace WinRtMap
 			{
 				mapCenterChangedEvent(this, newCenter);
 			}
-			_viewPortCenter = ViewPortProjection.ToViewPortPoint(MapCenter, (int)ZoomLevel);
-			UpdateMapTransform();
+			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
+			UpdateViewPortTransform();
 		}
 
-		private void Map_SizeChanged(object sender, SizeChangedEventArgs e)
+		/// <summary>
+		/// This ZoomLevel implementation is based on the Zoomlevels use in online maps. If the zoomlevel is increased by 1 the scale factor doubles.
+		/// This should probably not be implemented here (Projection?).
+		/// </summary>
+		public double GetScaleFactor(double zoom)
 		{
-			UpdateMapTransform();
-		}
-
-		private void OnManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
-		{
-			UpdateManipulation(e.Cumulative);
-			e.Handled = true;
-		}
-
-		private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-		{
-			UpdateManipulation(e.Cumulative);
-			e.Handled = true;
+			return Math.Pow(2, zoom);
 		}
 
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
-			TransformGroup transform = new TransformGroup();
-			TranslateTransform translate = new TranslateTransform{X = -delta.Translation.X, Y = -delta.Translation.Y };
-			RotateTransform mapRotation = new RotateTransform{Angle = -_headingBeforeManipulation, CenterX = _viewPortCenterBeforeManipulation.X, CenterY = _viewPortCenterBeforeManipulation.Y };
+			double newZoomLevel = _zoomBeforeManipulation + Math.Log(delta.Scale, 2);
+			double newHeading = _headingBeforeManipulation;
 
+			TransformGroup transform = new TransformGroup();
+
+			double translationScaleFactor = 1 / GetScaleFactor(_zoomBeforeManipulation);
+			TranslateTransform translate = new TranslateTransform {X = -delta.Translation.X * translationScaleFactor, Y = -delta.Translation.Y * translationScaleFactor};
 			transform.Children.Add(translate);
+
+			//Revert current Rotation of the Map (this Rotation was centered around the original ViewPortCenter)
+			RotateTransform mapRotation = new RotateTransform {Angle = -_headingBeforeManipulation, CenterX = _viewPortCenterBeforeManipulation.X, CenterY = _viewPortCenterBeforeManipulation.Y};
 			transform.Children.Add(mapRotation);
 
 			if (delta.Rotation != 0)
 			{
-				RotateTransform manipulationRotation = new RotateTransform { Angle = -delta.Rotation, CenterX = _manipulationRotationPoint.X, CenterY = _manipulationRotationPoint.Y };
+				//Add the Rotation from the Manipulation
+				RotateTransform manipulationRotation = new RotateTransform {Angle = -delta.Rotation, CenterX = _manipulationStartPoint.X, CenterY = _manipulationStartPoint.Y};
 				transform.Children.Add(manipulationRotation);
-				double newHeading = (_headingBeforeManipulation + delta.Rotation) % 360;
+				newHeading = (_headingBeforeManipulation + delta.Rotation) % 360;
 				if (newHeading < 0)
 				{
 					newHeading += 360;
 				}
-				Heading = newHeading;
 			}
+
+			double scaleFactor = GetScaleFactor(_zoomBeforeManipulation - newZoomLevel);
+			Transform scale = new ScaleTransform {ScaleX = scaleFactor, ScaleY = scaleFactor, CenterX = _manipulationStartPoint.X, CenterY = _manipulationStartPoint.Y};
+			transform.Children.Add(scale);
+
+			Heading = newHeading;
+			ZoomLevel = newZoomLevel;
+
 			ViewPortCenter = transform.TransformPoint(_viewPortCenterBeforeManipulation);
-			UpdateMapTransform();
+			UpdateViewPortTransform();
 		}
 
-		private void OnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
-		{
-			_headingBeforeManipulation = Heading;
-			_viewPortCenterBeforeManipulation = ViewPortCenter;
-			_manipulationRotationPoint = ViewPortTransform.Inverse.TransformPoint(e.Position);
-			e.Handled = true;
-		}
-
-		protected override Map GetParentMap()
-		{
-			return this;
-		}
-
-		private static void HeadingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			Map map = (Map)d;
-			map.OnMapHeadingChanged((double)e.NewValue);
-		}
-
-		private static void ZoomLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			Map map = (Map)d;
-			map.OnZoomLevelChanged((double)e.NewValue);
-		}
-
-		private static void MapCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			Map map = (Map)d;
-			map.OnMapCenterChanged((Location)e.NewValue);
-		}
-
-		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location(), MapCenterChanged));
-
-		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
-			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingChanged));
-
-		public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
-			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelChanged));
-
-		private Point _manipulationRotationPoint;
+		#endregion
 	}
 }

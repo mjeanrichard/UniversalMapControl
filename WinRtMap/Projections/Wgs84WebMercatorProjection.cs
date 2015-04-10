@@ -4,17 +4,34 @@ using WinRtMap.Utils;
 
 namespace WinRtMap.Projections
 {
+	/// <summary>
+	/// This is an implementation of the WebMercator Projection.
+	/// It project any location (Longitude -180 .. 180 and Latitude -85.0511 .. 85.0511) to a 
+	/// cartesian square (x and y -128..128). The overall size of the projected gris it 256 which 
+	/// makes it easy to work with tiles that contain 265x256 pixels. 
+	/// </summary>
 	public class Wgs84WebMercatorProjection
 	{
-		public Point ToViewPortPoint(Location wgs84, int zoom)
+		private const double MapWidth = 256;
+		private const int HalfMapWidth = 128;
+		public const double LatNorthBound = 85.051128779803d;
+
+		public Point ToCartesian(Location wgs84)
 		{
-			return ToViewPortPoint(wgs84, zoom, wgs84.Longitude);
+			return ToCartesian(wgs84, wgs84.Longitude);
 		}
 
-		public Point ToViewPortPoint(Location wgs84, int zoom, double referenceLong) 
+		/// <summary>
+		/// Projects a Location to the respective cartesian coordinates.
+		/// The Longitude component of the given wgs84 parameter is adjusted to be as close 
+		/// as possible to the provided referenceLong even if that means using a Longitude 
+		/// greater than 180.
+		/// </summary>
+		/// <param name="wgs84"></param>
+		/// <param name="referenceLong"></param>
+		/// <returns></returns>
+		public Point ToCartesian(Location wgs84, double referenceLong) 
 		{
-			int zoomFactor = (1 << zoom) * 128;
-
 			double longitude = wgs84.Longitude % 360;
 			if (longitude < -180)
 			{
@@ -25,19 +42,36 @@ namespace WinRtMap.Projections
 				longitude -= 360;
 			}
 
-			double x = longitude * zoomFactor / 180;
-			double y = Math.Log(Math.Tan((90 + wgs84.Latitude) * Math.PI / 360)) / (Math.PI / 180);
-			y = y * (zoomFactor) / 180;
+			double latitude = wgs84.Latitude;
+			if (latitude > LatNorthBound)
+			{
+				latitude = LatNorthBound;
+			}
+			else if (latitude < -LatNorthBound)
+			{
+				latitude = -LatNorthBound;
+			}
+
+			if (referenceLong - longitude > 180)
+			{
+				longitude += 360;
+			}
+			else if (referenceLong - longitude < -180)
+			{
+				longitude -= 360;
+			}
+
+			double x = longitude * MapWidth / 360;
+			double y = Math.Log(Math.Tan((90 + latitude) * Math.PI / 360)) / (Math.PI / 180);
+			y = y * MapWidth / 360;
 
 			return new Point(x, -y);
 		}
 
-		public Location FromViewPortPoint(Point point, int zoom)
+		public Location ToWgs84(Point point)
 		{
-			int zoomFactor = (1 << zoom) * 128;
-
-			double lon = (point.X / zoomFactor) * 180;
-			double lat = (point.Y / zoomFactor) * 180;
+			double lon = (point.X / MapWidth) * 360;
+			double lat = (-point.Y / MapWidth) * 360;
 			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
 
 			lon = lon % 360;
@@ -50,17 +84,18 @@ namespace WinRtMap.Projections
 				lon -= 360;
 			}
 
-			return new Location(lon, -lat);
+			return new Location(lon, lat);
 		}
 
-		public Point GetTileIndex(Location location, int zoom)
+		public Point GetTileIndex(Location wgs84, int zoom)
 		{
-            int offset = (1 << zoom) / 2;
+			int z = (1 << zoom);
+			double q = MapWidth / z;
 
-			Point viewPortPoint = ToViewPortPoint(location, zoom);
+			Point viewPortPoint = ToCartesian(wgs84);
 
-			int x = (int)Math.Floor(viewPortPoint.X / 256) + offset;
-			int y = (int)Math.Floor(viewPortPoint.Y / 256) + offset;
+			int x = (int)Math.Floor(viewPortPoint.X / q) - z / 2;
+			int y = (int)Math.Floor(viewPortPoint.Y / q) + z / 2;
 
 			return new Point(SanitizeIndex(x, zoom), SanitizeIndex(y, zoom));
 		}
@@ -79,10 +114,11 @@ namespace WinRtMap.Projections
 
 		public Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom)
 		{
-			int offset = (1 << zoom) / 2;
+			int z = (1 << zoom);
+			double q = MapWidth / z;
 
-			double x = (tileIndex.X - offset) * 256;
-			double y = (tileIndex.Y - offset) * 256;
+			double x = (tileIndex.X * q) - HalfMapWidth;
+			double y = (tileIndex.Y * q) - HalfMapWidth;
 			return new Point(x, y);
 		}
 	}

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -92,7 +93,7 @@ namespace WinRtMap
 			return base.ArrangeOverride(finalSize);
 		}
 
-		private void ArrangeElement(UIElement element, Size finalSize)
+		protected void ArrangeElement(UIElement element, Size finalSize)
 		{
 			IHasLocation elementWithLocation = element as IHasLocation;
 			Point? location;
@@ -179,21 +180,7 @@ namespace WinRtMap
 		protected virtual Point GetPositionForElementWithLocation(Point location, UIElement element, Map parentMap)
 		{
 			Size desiredSize = element.DesiredSize;
-			Point position = parentMap.ViewPortProjection.ToViewPortPoint(new Location(location.X, location.Y), (int)parentMap.ZoomLevel, parentMap.MapCenter.Longitude);
-
-
-			double mapWidth = (2 << (int)parentMap.ZoomLevel) * 64;
-			if (Math.Abs(parentMap.ViewPortCenter.X - position.X) > mapWidth)
-			{
-				if (position.X < 0)
-				{
-					position.X = position.X + mapWidth * 2;
-				}
-				else
-				{
-					position.X = position.X - mapWidth * 2;
-				}
-			}
+			Point position = parentMap.ViewPortProjection.ToCartesian(new Location(location.X, location.Y), parentMap.MapCenter.Longitude);
 
 			position = parentMap.ViewPortTransform.TransformPoint(position);
 

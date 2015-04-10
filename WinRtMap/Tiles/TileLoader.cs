@@ -18,9 +18,15 @@ namespace WinRtMap.Tiles
 		private const int TileSize = 256;
 		private readonly HttpClient _client = new HttpClient();
 		private readonly ConcurrentBag<WebTile> _tilesToLoad = new ConcurrentBag<WebTile>();
-		private volatile int _taskCount = 0;
-		private Dictionary<string, WebTile> _tiles = new Dictionary<string, WebTile>();
+		private volatile int _taskCount;
+		private readonly Dictionary<string, WebTile> _tiles = new Dictionary<string, WebTile>();
 
+		/// <summary>
+		/// This method calculates all required tiles for the current Map. The function calculates the smallest axis-aligned 
+		/// bounding box possible for the current ViewPort and returns the Tiles required for the calculated bounding box. 
+		/// This means that if the current Map has a Heading that is not a multiple of 90° 
+		/// this function will return too many tiles.
+		/// </summary>
 		protected virtual IEnumerable<Point> GetTileIndizes(Map parentMap)
 		{
 			int xTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualWidth / TileSize) / 2d);
@@ -48,10 +54,11 @@ namespace WinRtMap.Tiles
 			WebTile tile;
 			foreach (Point index in GetTileIndizes(parentMap))
 			{
-				int x = parentMap.ViewPortProjection.SanitizeIndex((int)Math.Round(index.X), (int)parentMap.ZoomLevel);
-				int y = parentMap.ViewPortProjection.SanitizeIndex((int)Math.Round(index.Y), (int)parentMap.ZoomLevel);
+				int zoomLevel = (int)parentMap.ZoomLevel;
+				int x = parentMap.ViewPortProjection.SanitizeIndex((int)Math.Round(index.X), zoomLevel);
+				int y = parentMap.ViewPortProjection.SanitizeIndex((int)Math.Round(index.Y), zoomLevel);
 
-				string key = string.Join("/", x, y, (int)parentMap.ZoomLevel);
+				string key = string.Join("/", x, y, zoomLevel);
 
 				if (_tiles.ContainsKey(key))
 				{
@@ -60,8 +67,9 @@ namespace WinRtMap.Tiles
 				}
 				if (!_tiles.ContainsKey(key))
 				{
-					Point location = parentMap.ViewPortProjection.GetViewPortPositionFromTileIndex(new Point(x, y), (int)parentMap.ZoomLevel);
-					tile = new WebTile(x, y, (int)parentMap.ZoomLevel, location);
+					Point position = parentMap.ViewPortProjection.GetViewPortPositionFromTileIndex(new Point(x, y), zoomLevel);
+					Location location = parentMap.ViewPortProjection.ToWgs84(position);
+					tile = new WebTile(x, y, zoomLevel, location);
 					Enqueue(tile);
 					_tiles.Add(key, tile);
 				}
@@ -89,7 +97,6 @@ namespace WinRtMap.Tiles
 				return;
 			}
 			Interlocked.Increment(ref _taskCount);
-			Debug.WriteLine(_taskCount);
 
 			Task.Run(async () =>
 			{
@@ -103,7 +110,6 @@ namespace WinRtMap.Tiles
 					try
 					{
 						Uri uri = tile.Uri;
-						Debug.WriteLine("Downloading Tile " + tile.X + "/" + tile.Y);
 
 						using (HttpResponseMessage response = await _client.GetAsync(uri))
 						{
@@ -119,7 +125,10 @@ namespace WinRtMap.Tiles
 						}
 					}
 					catch (Exception e)
-					{}
+					{
+						//If one Tile could not be donwloaded continue with the next.
+						//TODO: Implement some proper Error Handling here. Retry?
+					}
 				}
 				Interlocked.Decrement(ref _taskCount);
 			});

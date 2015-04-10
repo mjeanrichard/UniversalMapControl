@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Windows.Foundation;
 using Windows.Graphics.Display;
@@ -49,25 +50,21 @@ namespace WinRtMap.Tiles
 		protected override Size ArrangeOverride(Size finalSize)
 		{
 			Map parentMap = GetParentMap();
-			RenderTransform = parentMap.ViewPortTransform;
 
-			double viewPortCenterX = parentMap.ViewPortCenter.X;
-			double width = (2 << (int)parentMap.ZoomLevel)*64;
+			TransformGroup tileTransform = new TransformGroup();
+			// The tiles need to be scaled according to ZoomLevel. The integer part is already taken care of by the image.
+			// TODO: It might be better to sacle images down instead of up. I.e. use the image with the higher zoomlevel instead
+			double tileScaleFactor = parentMap.GetScaleFactor(parentMap.ZoomLevel % 1);
+			tileTransform.Children.Add(new ScaleTransform { ScaleY = tileScaleFactor, ScaleX = tileScaleFactor });
+			tileTransform.Children.Add(new RotateTransform { Angle = parentMap.Heading });
+
+			double centerLongitude = parentMap.MapCenter.Longitude;
 			foreach (BaseTile tile in _tileLoader.GetTiles())
 			{
-				double posX = tile.Position.X;
-				if (Math.Abs(viewPortCenterX - posX) > width)
-				{
-					if (posX < 0)
-					{
-						posX = posX + width * 2;
-					}
-					else
-					{
-						posX = posX - width * 2;
-					}
-				}
-				tile.Element.Arrange(new Rect(posX, tile.Position.Y, 256, 256));
+				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, centerLongitude);
+				Point tileOrigin = parentMap.ViewPortTransform.TransformPoint(position);
+                tile.Element.Arrange(new Rect(tileOrigin.X, tileOrigin.Y, 256, 256));
+				tile.Element.RenderTransform = tileTransform;
 			}
 
 			return finalSize;

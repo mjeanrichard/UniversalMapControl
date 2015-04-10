@@ -19,7 +19,7 @@
     		<Run FontSize="50" Text="sadfsadf"/>
 		</TextBlock>
 		
-		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="90">
+		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0">
 
 			<tiles:TileLayer />
 			
@@ -71,7 +71,7 @@
 
 		<StackPanel Grid.Row="2" Orientation="Horizontal">
 			<Slider Width="200" Minimum="0" Maximum="360" Value="{Binding Heading, ElementName=map, Mode=TwoWay}" SmallChange="5" LargeChange="45" />
-			<Slider Width="200" Minimum="1" Maximum="5" Value="{Binding ZoomLevel, ElementName=map, Mode=TwoWay}" SmallChange="1" LargeChange="1" />
+			<Slider Width="200" Minimum="0" Maximum="18" Value="{Binding ZoomLevel, ElementName=map, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" />
 		</StackPanel>
 	</Grid>
 </Page>
