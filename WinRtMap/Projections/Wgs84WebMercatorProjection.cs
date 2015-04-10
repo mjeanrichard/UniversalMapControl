@@ -1,6 +1,5 @@
 ﻿using System;
 using Windows.Foundation;
-using WinRtMap.Utils;
 
 namespace WinRtMap.Projections
 {
@@ -16,9 +15,9 @@ namespace WinRtMap.Projections
 		private const int HalfMapWidth = 128;
 		public const double LatNorthBound = 85.051128779803d;
 
-		public Point ToCartesian(Location wgs84)
+		public Point ToCartesian(Point wgs84)
 		{
-			return ToCartesian(wgs84, wgs84.Longitude);
+			return ToCartesian(wgs84, wgs84.X);
 		}
 
 		/// <summary>
@@ -30,9 +29,9 @@ namespace WinRtMap.Projections
 		/// <param name="wgs84"></param>
 		/// <param name="referenceLong"></param>
 		/// <returns></returns>
-		public Point ToCartesian(Location wgs84, double referenceLong) 
+		public Point ToCartesian(Point wgs84, double referenceLong) 
 		{
-			double longitude = wgs84.Longitude % 360;
+			double longitude = wgs84.X % 360;
 			if (longitude < -180)
 			{
 				longitude += 360;
@@ -42,7 +41,7 @@ namespace WinRtMap.Projections
 				longitude -= 360;
 			}
 
-			double latitude = wgs84.Latitude;
+			double latitude = wgs84.Y;
 			if (latitude > LatNorthBound)
 			{
 				latitude = LatNorthBound;
@@ -68,7 +67,7 @@ namespace WinRtMap.Projections
 			return new Point(x, -y);
 		}
 
-		public Location ToWgs84(Point point)
+		public Point ToWgs84(Point point)
 		{
 			double lon = (point.X / MapWidth) * 360;
 			double lat = (-point.Y / MapWidth) * 360;
@@ -84,10 +83,10 @@ namespace WinRtMap.Projections
 				lon -= 360;
 			}
 
-			return new Location(lon, lat);
+			return new Point(lon, lat);
 		}
 
-		public Point GetTileIndex(Location wgs84, int zoom)
+		public Point GetTileIndex(Point wgs84, int zoom)
 		{
 			int z = (1 << zoom);
 			double q = MapWidth / z;

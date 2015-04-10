@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Windows.Foundation;
-using Windows.Graphics.Display;
-using Windows.UI;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using WinRtMap.Projections;
-using WinRtMap.Utils;
 
 namespace WinRtMap.Tiles
 {
@@ -55,15 +47,15 @@ namespace WinRtMap.Tiles
 			// The tiles need to be scaled according to ZoomLevel. The integer part is already taken care of by the image.
 			// TODO: It might be better to sacle images down instead of up. I.e. use the image with the higher zoomlevel instead
 			double tileScaleFactor = parentMap.GetScaleFactor(parentMap.ZoomLevel % 1);
-			tileTransform.Children.Add(new ScaleTransform { ScaleY = tileScaleFactor, ScaleX = tileScaleFactor });
-			tileTransform.Children.Add(new RotateTransform { Angle = parentMap.Heading });
+			tileTransform.Children.Add(new ScaleTransform {ScaleY = tileScaleFactor, ScaleX = tileScaleFactor});
+			tileTransform.Children.Add(new RotateTransform {Angle = parentMap.Heading});
 
-			double centerLongitude = parentMap.MapCenter.Longitude;
+			double centerLongitude = parentMap.MapCenter.X;
 			foreach (BaseTile tile in _tileLoader.GetTiles())
 			{
 				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, centerLongitude);
 				Point tileOrigin = parentMap.ViewPortTransform.TransformPoint(position);
-                tile.Element.Arrange(new Rect(tileOrigin.X, tileOrigin.Y, 256, 256));
+				tile.Element.Arrange(new Rect(tileOrigin.X, tileOrigin.Y, 256, 256));
 				tile.Element.RenderTransform = tileTransform;
 			}
 

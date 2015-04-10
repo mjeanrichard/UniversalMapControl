@@ -5,14 +5,13 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using WinRtMap.Projections;
-using WinRtMap.Utils;
 
 namespace WinRtMap
 {
 	public class Map : MapLayerBase
 	{
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location(), MapCenterChanged));
+			"MapCenter", typeof(Point), typeof(Map), new PropertyMetadata(new Point(), MapCenterChanged));
 
 		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
 			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingChanged));
@@ -29,7 +28,7 @@ namespace WinRtMap
 		private static void MapCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
-			map.OnMapCenterChanged((Location)e.NewValue);
+			map.OnMapCenterChanged((Point)e.NewValue);
 		}
 
 		private static void ZoomLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -38,7 +37,7 @@ namespace WinRtMap
 			map.OnZoomLevelChanged((double)e.NewValue);
 		}
 
-		public event EventHandler<Location> MapCenterChangedEvent;
+		public event EventHandler<Point> MapCenterChangedEvent;
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
@@ -53,6 +52,10 @@ namespace WinRtMap
 		{
 			ViewPortTransform = new TranslateTransform();
 
+			ScaleTransform = new ScaleTransform();
+			RotateTransform = new RotateTransform();
+			ScaleRotateTransform = new TransformGroup {Children = {ScaleTransform, RotateTransform}};
+
 			ZoomLevel = 1;
 			SizeChanged += Map_SizeChanged;
 
@@ -61,12 +64,12 @@ namespace WinRtMap
 			ManipulationCompleted += OnManipulationCompleted;
 			ManipulationDelta += OnManipulationDelta;
 
-			MapCenter = new Location(0, 0);
+			MapCenter = new Point(0, 0);
 		}
 
-		public Location MapCenter
+		public Point MapCenter
 		{
-			get { return (Location)GetValue(MapCenterProperty); }
+			get { return (Point)GetValue(MapCenterProperty); }
 			set { SetValue(MapCenterProperty, value); }
 		}
 
@@ -83,8 +86,10 @@ namespace WinRtMap
 		}
 
 		public Transform ViewPortTransform { get; set; }
-		public ScaleTransform ViewPortScale { get; set; }
-		public RotateTransform ViewPortRotation { get; set; }
+		public ScaleTransform ScaleTransform { get; }
+		public RotateTransform RotateTransform { get; }
+		public TransformGroup ScaleRotateTransform { get; }
+
 		public TranslateTransform ViewPortTranslation { get; set; }
 
 		public Point ViewPortCenter
@@ -152,14 +157,18 @@ namespace WinRtMap
 			double dx = centerX - (ActualWidth / 2);
 			double dy = centerY - (ActualHeight / 2);
 
-			ViewPortScale = new ScaleTransform {ScaleY = scaleFactor, ScaleX = scaleFactor, CenterX = centerX, CenterY = centerY};
-			ViewPortRotation = new RotateTransform {Angle = Heading, CenterX = centerX, CenterY = centerY};
-			ViewPortTranslation = new TranslateTransform {X = -dx, Y = -dy};
+			ScaleTransform viewPortScale = new ScaleTransform {ScaleY = scaleFactor, ScaleX = scaleFactor, CenterX = centerX, CenterY = centerY};
+			RotateTransform viewPortRotation = new RotateTransform {Angle = Heading, CenterX = centerX, CenterY = centerY};
+			TranslateTransform viewPortTranslation = new TranslateTransform {X = -dx, Y = -dy};
+
+			ScaleTransform.ScaleX = scaleFactor;
+			ScaleTransform.ScaleY = scaleFactor;
+			RotateTransform.Angle = Heading;
 
 			TransformGroup transform = new TransformGroup();
-			transform.Children.Add(ViewPortScale);
-			transform.Children.Add(ViewPortRotation);
-			transform.Children.Add(ViewPortTranslation);
+			transform.Children.Add(viewPortScale);
+			transform.Children.Add(viewPortRotation);
+			transform.Children.Add(viewPortTranslation);
 			ViewPortTransform = transform;
 			InvalidateArrange();
 			OnViewPortChangedEvent();
@@ -188,9 +197,9 @@ namespace WinRtMap
 			e.Handled = true;
 		}
 
-		protected virtual void OnMapCenterChanged(Location newCenter)
+		protected virtual void OnMapCenterChanged(Point newCenter)
 		{
-			EventHandler<Location> mapCenterChangedEvent = MapCenterChangedEvent;
+			EventHandler<Point> mapCenterChangedEvent = MapCenterChangedEvent;
 			if (mapCenterChangedEvent != null)
 			{
 				mapCenterChangedEvent(this, newCenter);

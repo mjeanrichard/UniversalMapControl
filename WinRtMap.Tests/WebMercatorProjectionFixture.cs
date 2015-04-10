@@ -2,7 +2,6 @@
 using Windows.Foundation;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using WinRtMap.Projections;
-using WinRtMap.Utils;
 
 namespace WinRtMap.Tests
 {
@@ -20,7 +19,7 @@ namespace WinRtMap.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			Point point = projection.ToCartesian(new Location(lon, lat));
+			Point point = projection.ToCartesian(new Point(lon, lat));
 			if (Math.Abs(x - point.X) > 0.0000001)
 			{
 				Assert.Fail("The Value for X ({0}) is not close enough to the expected Value '{1}' ({2}).", point.X, x, Math.Abs(x - point.X));
@@ -37,14 +36,14 @@ namespace WinRtMap.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			Location loc = projection.ToWgs84(new Point(x, y));
-			if (Math.Abs(lat - loc.Latitude) > 0.0000001)
+			Point loc = projection.ToWgs84(new Point(x, y));
+			if (Math.Abs(lat - loc.Y) > 0.0000001)
 			{
-				Assert.Fail("The Value for Latitude ({0}) is not close enough to the expected Value '{1}' ({2}).", loc.Latitude, lat, Math.Abs(lat - loc.Latitude));
+				Assert.Fail("The Value for Latitude ({0}) is not close enough to the expected Value '{1}' ({2}).", loc.Y, lat, Math.Abs(lat - loc.Y));
 			}
-			if (Math.Abs(lon - loc.Longitude) > 0.0000001)
+			if (Math.Abs(lon - loc.X) > 0.0000001)
 			{
-				Assert.Fail("The Value for Longitude ({0}) is not close enough to the expected Value '{1}' ({2}).", loc.Longitude, lon, Math.Abs(lon - loc.Longitude));
+				Assert.Fail("The Value for Longitude ({0}) is not close enough to the expected Value '{1}' ({2}).", loc.X, lon, Math.Abs(lon - loc.X));
 			}
 		}
 
@@ -58,14 +57,14 @@ namespace WinRtMap.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			Location result = projection.ToWgs84(projection.ToCartesian(new Location(lon, lat)));
-			if (Math.Abs(lon - result.Longitude) > 0.0000001)
+			Point result = projection.ToWgs84(projection.ToCartesian(new Point(lon, lat)));
+			if (Math.Abs(lon - result.X) > 0.0000001)
 			{
-				Assert.Fail("The Value for Lon ({0}) is not close enough to the expected Value ({1}).", result.Longitude, lon);
+				Assert.Fail("The Value for Lon ({0}) is not close enough to the expected Value ({1}).", result.X, lon);
 			}
-			if (Math.Abs(lat - result.Latitude) > 0.0000001)
+			if (Math.Abs(lat - result.Y) > 0.0000001)
 			{
-				Assert.Fail("The Value for Lat ({0}) is not close enough to the expected Value ({1}).", result.Latitude, lat);
+				Assert.Fail("The Value for Lat ({0}) is not close enough to the expected Value ({1}).", result.Y, lat);
 			}
 		}
 
@@ -81,7 +80,7 @@ namespace WinRtMap.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			Point tileIndex = projection.GetTileIndex(new Location(lon, lat), zoom);
+			Point tileIndex = projection.GetTileIndex(new Point(lon, lat), zoom);
 			Assert.AreEqual(new Point(x, y), tileIndex);
 		}
 
@@ -116,15 +115,15 @@ namespace WinRtMap.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			Location result = projection.ToWgs84(projection.GetViewPortPositionFromTileIndex(projection.GetTileIndex(new Location(lon, lat), zoom), zoom));
+			Point result = projection.ToWgs84(projection.GetViewPortPositionFromTileIndex(projection.GetTileIndex(new Point(lon, lat), zoom), zoom));
 
-			if (Math.Abs(lon - result.Longitude) > 0.0000001)
+			if (Math.Abs(lon - result.X) > 0.0000001)
 			{
-				Assert.Fail("The Value for Longitude ({0}) is not close enough to the expected Value ({1}).", result.Longitude, lon);
+				Assert.Fail("The Value for Longitude ({0}) is not close enough to the expected Value ({1}).", result.X, lon);
 			}
-			if (Math.Abs(lat - result.Latitude) > 0.0000001)
+			if (Math.Abs(lat - result.Y) > 0.0000001)
 			{
-				Assert.Fail("The Value for Latitude ({0}) is not close enough to the expected Value ({1}).", result.Latitude, lat);
+				Assert.Fail("The Value for Latitude ({0}) is not close enough to the expected Value ({1}).", result.Y, lat);
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media;
-using WinRtMap.Utils;
 
 namespace WinRtMap.Tiles
 {
@@ -17,9 +15,9 @@ namespace WinRtMap.Tiles
 	{
 		private const int TileSize = 256;
 		private readonly HttpClient _client = new HttpClient();
+		private readonly Dictionary<string, WebTile> _tiles = new Dictionary<string, WebTile>();
 		private readonly ConcurrentBag<WebTile> _tilesToLoad = new ConcurrentBag<WebTile>();
 		private volatile int _taskCount;
-		private readonly Dictionary<string, WebTile> _tiles = new Dictionary<string, WebTile>();
 
 		/// <summary>
 		/// This method calculates all required tiles for the current Map. The function calculates the smallest axis-aligned 
@@ -68,7 +66,7 @@ namespace WinRtMap.Tiles
 				if (!_tiles.ContainsKey(key))
 				{
 					Point position = parentMap.ViewPortProjection.GetViewPortPositionFromTileIndex(new Point(x, y), zoomLevel);
-					Location location = parentMap.ViewPortProjection.ToWgs84(position);
+					Point location = parentMap.ViewPortProjection.ToWgs84(position);
 					tile = new WebTile(x, y, zoomLevel, location);
 					Enqueue(tile);
 					_tiles.Add(key, tile);

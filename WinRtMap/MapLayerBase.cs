@@ -1,20 +1,30 @@
-using System;
-using System.Diagnostics;
-using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using WinRtMap.Tiles;
-using WinRtMap.Utils;
 
 namespace WinRtMap
 {
 	public class MapLayerBase : Panel
 	{
-		protected MapLayerBase()
+		public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
+			typeof(Point),
+			typeof(MapLayer),
+			new PropertyMetadata(null, OnLocationPropertyChange));
+
+		public static Point GetLocation(DependencyObject child)
 		{
-			Loaded += OnLoaded;
+			return (Point)child.GetValue(LocationProperty);
+		}
+
+		private static void OnLocationPropertyChange(DependencyObject child, DependencyPropertyChangedEventArgs e)
+		{
+			MapLayerBase mapLayer = VisualTreeHelper.GetParent(child) as MapLayerBase;
+			if (mapLayer != null)
+			{
+				mapLayer.InvalidateArrange();
+			}
 		}
 
 		public static void SetLocation(DependencyObject child, Point value)
@@ -22,20 +32,8 @@ namespace WinRtMap
 			child.SetValue(LocationProperty, value);
 		}
 
-		public static Point GetLocation(DependencyObject child)
-		{
-			return (Point)child.GetValue(LocationProperty);
-		}
-
-		public static void SetRotateWithMap(DependencyObject child, bool value)
-		{
-			child.SetValue(RotateWithMapProperty, value);
-		}
-
-		public static bool GetRotateWithMap(DependencyObject child)
-		{
-			return (bool)child.GetValue(RotateWithMapProperty);
-		}
+		protected MapLayerBase()
+		{}
 
 		protected virtual Point? GetLocationIfSet(DependencyObject child)
 		{
@@ -57,20 +55,6 @@ namespace WinRtMap
 			return parent;
 		}
 
-		private static void OnLocationPropertyChange(DependencyObject child, DependencyPropertyChangedEventArgs e)
-		{
-			MapLayerBase mapLayer = VisualTreeHelper.GetParent(child) as MapLayerBase;
-			if (mapLayer != null)
-			{
-				mapLayer.InvalidateArrange();
-			}
-		}
-
-		private void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
-		{
-			Map parentMap = GetParentMap();
-		}
-
 		protected override Size MeasureOverride(Size availableSize)
 		{
 			foreach (UIElement element in Children)
@@ -83,7 +67,7 @@ namespace WinRtMap
 
 		protected override Size ArrangeOverride(Size finalSize)
 		{
-			Clip = new RectangleGeometry { Rect = new Rect(0, 0, finalSize.Width, finalSize.Height) };
+			Clip = new RectangleGeometry {Rect = new Rect(0, 0, finalSize.Width, finalSize.Height)};
 
 			foreach (UIElement element in Children)
 			{
@@ -117,25 +101,7 @@ namespace WinRtMap
 				finalPosition = GetPositionForElementWithoutLocation(element, finalSize);
 			}
 
-			Size elementDesiredSize = element.DesiredSize;
-
-			bool rotateWithMap = GetRotateWithMap(element);
-			if (rotateWithMap)
-			{
-				double rotation = parentMap.Heading;
-				TransformGroup transform = GetMapTransformGroup(element);
-				RotateTransform rotateTransform = transform.Children.OfType<RotateTransform>().FirstOrDefault();
-				if (rotateTransform == null)
-				{
-					rotateTransform = new RotateTransform();
-					transform.Children.Add(rotateTransform);
-				}
-				rotateTransform.Angle = rotation;
-				rotateTransform.CenterX = elementDesiredSize.Width / 2;
-				rotateTransform.CenterY = elementDesiredSize.Height / 2;
-			}
-
-			element.Arrange(new Rect(finalPosition, elementDesiredSize));
+			element.Arrange(new Rect(finalPosition, element.DesiredSize));
 		}
 
 		protected virtual Point GetPositionForElementWithoutLocation(UIElement element, Size finalPanelSize)
@@ -180,7 +146,7 @@ namespace WinRtMap
 		protected virtual Point GetPositionForElementWithLocation(Point location, UIElement element, Map parentMap)
 		{
 			Size desiredSize = element.DesiredSize;
-			Point position = parentMap.ViewPortProjection.ToCartesian(new Location(location.X, location.Y), parentMap.MapCenter.Longitude);
+			Point position = parentMap.ViewPortProjection.ToCartesian(new Point(location.X, location.Y), parentMap.MapCenter.X);
 
 			position = parentMap.ViewPortTransform.TransformPoint(position);
 
@@ -213,28 +179,5 @@ namespace WinRtMap
 
 			return position;
 		}
-
-		private TransformGroup GetMapTransformGroup(UIElement element)
-		{
-			TransformGroup transform = element.RenderTransform as TransformGroup;
-
-			if (transform == null)
-			{
-				transform = new TransformGroup();
-				element.RenderTransform = transform;
-			}
-
-			return transform;
-		}
-
-		public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
-			typeof(Point),
-			typeof(MapLayer),
-			new PropertyMetadata(null, OnLocationPropertyChange));
-
-		public static readonly DependencyProperty RotateWithMapProperty = DependencyProperty.RegisterAttached("RotateWithMap",
-			typeof(bool),
-			typeof(MapLayer),
-			new PropertyMetadata(false));
 	}
 }

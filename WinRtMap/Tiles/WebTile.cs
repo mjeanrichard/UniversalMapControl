@@ -7,17 +7,16 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using WinRtMap.Utils;
 
 namespace WinRtMap.Tiles
 {
 	public class WebTile : BaseTile
 	{
-		private readonly Location _location;
+		private readonly Point _location;
 		private BitmapImage _bitmap;
 		private Image _image;
 
-		public WebTile(int x, int y, int zoom, Location location)
+		public WebTile(int x, int y, int zoom, Point location)
 		{
 			X = x;
 			Y = y;
@@ -46,7 +45,7 @@ namespace WinRtMap.Tiles
 			get { return _image; }
 		}
 
-		public override Location Location
+		public override Point Location
 		{
 			get { return _location; }
 		}
