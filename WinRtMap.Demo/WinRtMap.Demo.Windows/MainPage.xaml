@@ -28,9 +28,6 @@
 			
 			<tiles:TileLayer />
 			
-			<winRtMap:MapLayer>
-			</winRtMap:MapLayer>
-			
 			<TextBlock Text="0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 			<TextBlock Text="10" FontSize="30" winRtMap:MapLayerBase.Location="10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 			<TextBlock Text="20" FontSize="30" winRtMap:MapLayerBase.Location="20,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
@@ -72,10 +69,10 @@
 			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-			<!-- Rectangle around Sardegna Scales and Rotates with Map -->
+			<!-- Rectangle around Sardegna; scales and rotates with the Map -->
 			<Rectangle Width="1.8" Height="2.6" Stroke="DarkGreen" StrokeThickness="0.2" winRtMap:MapLayerBase.Location="7.7,41.6" RenderTransform="{Binding ScaleRotateTransform, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-			<!-- Scale Path with Map -->
+			<!-- Circle around Paris; scale path with the Map -->
 			<Path Stroke="Blue" StrokeThickness="3" winRtMap:MapLayerBase.Location="2.33,48.84">
 				<Path.Data>
 					<EllipseGeometry RadiusX="0.2" RadiusY="0.2" Transform="{Binding ScaleTransform, ElementName=map}" />
