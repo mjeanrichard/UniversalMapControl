@@ -79,6 +79,12 @@ namespace WinRtMap
 
 		protected void ArrangeElement(UIElement element, Size finalSize)
 		{
+			if (element is MapLayerBase)
+			{
+				element.Arrange(new Rect(new Point(0, 0), finalSize));
+				return;
+			}
+
 			IHasLocation elementWithLocation = element as IHasLocation;
 			Point? location;
 			if (elementWithLocation != null)

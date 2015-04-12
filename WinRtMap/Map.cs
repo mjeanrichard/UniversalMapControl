@@ -50,6 +50,7 @@ namespace WinRtMap
 
 			ScaleTransform = new ScaleTransform();
 			RotateTransform = new RotateTransform();
+			TranslationTransform = new TranslateTransform();
 			ScaleRotateTransform = new TransformGroup {Children = {ScaleTransform, RotateTransform}};
 
 			ZoomLevel = 1;
@@ -82,7 +83,7 @@ namespace WinRtMap
 		public ScaleTransform ScaleTransform { get; }
 		public RotateTransform RotateTransform { get; }
 		public TransformGroup ScaleRotateTransform { get; }
-		public TranslateTransform ViewPortTranslation { get; set; }
+		public TranslateTransform TranslationTransform { get; set; }
 
 		public Point ViewPortCenter
 		{
@@ -156,7 +157,9 @@ namespace WinRtMap
 			ScaleTransform.ScaleX = scaleFactor;
 			ScaleTransform.ScaleY = scaleFactor;
 			RotateTransform.Angle = Heading;
-
+			TranslationTransform.X = -dx;
+			TranslationTransform.Y = -dy;
+			
 			TransformGroup transform = new TransformGroup();
 			transform.Children.Add(viewPortScale);
 			transform.Children.Add(viewPortRotation);

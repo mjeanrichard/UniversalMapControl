@@ -19,18 +19,25 @@ namespace WinRtMap.Tiles
 		private readonly ConcurrentBag<WebTile> _tilesToLoad = new ConcurrentBag<WebTile>();
 		private volatile int _taskCount;
 
+		public double ZoomLevelOffset { get; set; }
+
+		public TileLoader()
+		{
+			ZoomLevelOffset = 0.25;
+		}
+
 		/// <summary>
 		/// This method calculates all required tiles for the current Map. The function calculates the smallest axis-aligned 
 		/// bounding box possible for the current ViewPort and returns the Tiles required for the calculated bounding box. 
 		/// This means that if the current Map has a Heading that is not a multiple of 90° 
 		/// this function will return too many tiles.
 		/// </summary>
-		protected virtual IEnumerable<Point> GetTileIndizes(Map parentMap)
+		protected virtual IEnumerable<Point> GetTileIndizes(Map parentMap, int zoomLevel)
 		{
 			int xTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualWidth / TileSize) / 2d);
 			int yTileCount = (int)Math.Ceiling(Math.Abs(parentMap.ActualHeight / TileSize) / 2d);
 
-			Point centerTileIndex = parentMap.ViewPortProjection.GetTileIndex(parentMap.MapCenter, (int)parentMap.ZoomLevel);
+			Point centerTileIndex = parentMap.ViewPortProjection.GetTileIndex(parentMap.MapCenter, zoomLevel);
 
 			RotateTransform rotation = new RotateTransform() {Angle = parentMap.Heading, CenterY = centerTileIndex.Y, CenterX = centerTileIndex.X};
 
@@ -49,10 +56,11 @@ namespace WinRtMap.Tiles
 		{
 			Dictionary<string, WebTile> oldTiles = new Dictionary<string, WebTile>(_tiles);
 
+			int zoomLevel = (int)Math.Floor(parentMap.ZoomLevel + ZoomLevelOffset);
+
 			WebTile tile;
-			foreach (Point index in GetTileIndizes(parentMap))
+			foreach (Point index in GetTileIndizes(parentMap, zoomLevel))
 			{
-				int zoomLevel = (int)parentMap.ZoomLevel;
 				int x = parentMap.ViewPortProjection.SanitizeIndex((int)Math.Round(index.X), zoomLevel);
 				int y = parentMap.ViewPortProjection.SanitizeIndex((int)Math.Round(index.Y), zoomLevel);
 
