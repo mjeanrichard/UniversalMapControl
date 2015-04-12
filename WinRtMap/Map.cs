@@ -1,6 +1,5 @@
 using System;
 using Windows.Foundation;
-using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -53,6 +52,9 @@ namespace WinRtMap
 			TranslationTransform = new TranslateTransform();
 			ScaleRotateTransform = new TransformGroup {Children = {ScaleTransform, RotateTransform}};
 
+			MinZoomLevel = 0;
+			MaxZoomLevel = 18;
+
 			ZoomLevel = 1;
 			SizeChanged += Map_SizeChanged;
 
@@ -76,9 +78,22 @@ namespace WinRtMap
 		public double ZoomLevel
 		{
 			get { return (double)GetValue(ZoomLevelProperty); }
-			set { SetValue(ZoomLevelProperty, value); }
+			set
+			{
+				if (value < MinZoomLevel)
+				{
+					value = MinZoomLevel;
+				}
+				else if (value > MaxZoomLevel)
+				{
+					value = MaxZoomLevel;
+				}
+				SetValue(ZoomLevelProperty, value);
+			}
 		}
 
+		public double MinZoomLevel { get; set; }
+		public double MaxZoomLevel { get; set; }
 		public Transform ViewPortTransform { get; set; }
 		public ScaleTransform ScaleTransform { get; }
 		public RotateTransform RotateTransform { get; }
@@ -159,7 +174,7 @@ namespace WinRtMap
 			RotateTransform.Angle = Heading;
 			TranslationTransform.X = -dx;
 			TranslationTransform.Y = -dy;
-			
+
 			TransformGroup transform = new TransformGroup();
 			transform.Children.Add(viewPortScale);
 			transform.Children.Add(viewPortRotation);

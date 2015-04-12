@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 
 namespace WinRtMap.Tiles
 {
 	public class TileLayer : MapLayerBase
 	{
-
 		private readonly TileLoader _tileLoader = new TileLoader();
 
 		public TileLayer()
@@ -31,7 +27,7 @@ namespace WinRtMap.Tiles
 
 
 			Children.Clear();
-			foreach (BaseTile tile in _tileLoader.GetTiles())
+			foreach (BaseTile tile in _tileLoader.GetTiles(parentMap.ZoomLevel))
 			{
 				Children.Add(tile.Element);
 			}
@@ -45,11 +41,9 @@ namespace WinRtMap.Tiles
 		protected override Size ArrangeOverride(Size finalSize)
 		{
 			Map parentMap = GetParentMap();
-
-			double centerLongitude = parentMap.MapCenter.X;
-			foreach (BaseTile tile in _tileLoader.GetTiles())
+			foreach (BaseTile tile in _tileLoader.GetTiles(parentMap.ZoomLevel))
 			{
-				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, centerLongitude);
+				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, false);
 				Point tileOrigin = parentMap.ViewPortTransform.TransformPoint(position);
 				tile.Element.Arrange(new Rect((tileOrigin.X), (tileOrigin.Y), 256, 256));
 				tile.UpdateTransform(parentMap.ZoomLevel, parentMap.Heading, parentMap);

@@ -11,13 +11,13 @@ namespace WinRtMap.Projections
 	/// </summary>
 	public class Wgs84WebMercatorProjection
 	{
-		private const double MapWidth = 256;
 		private const int HalfMapWidth = 128;
 		public const double LatNorthBound = 85.051128779803d;
+		private const double MapWidth = 256;
 
-		public Point ToCartesian(Point wgs84)
+		public Point ToCartesian(Point wgs84, bool sanitize = true)
 		{
-			return ToCartesian(wgs84, wgs84.X);
+			return ToCartesian(wgs84, wgs84.X, sanitize);
 		}
 
 		/// <summary>
@@ -26,29 +26,14 @@ namespace WinRtMap.Projections
 		/// as possible to the provided referenceLong even if that means using a Longitude 
 		/// greater than 180.
 		/// </summary>
-		/// <param name="wgs84"></param>
-		/// <param name="referenceLong"></param>
-		/// <returns></returns>
-		public Point ToCartesian(Point wgs84, double referenceLong) 
+		public Point ToCartesian(Point wgs84, double referenceLong, bool sanitize = true)
 		{
-			double longitude = wgs84.X % 360;
-			if (longitude < -180)
-			{
-				longitude += 360;
-			}
-			else if (longitude > 180)
-			{
-				longitude -= 360;
-			}
-
+			double longitude = wgs84.X;
 			double latitude = wgs84.Y;
-			if (latitude > LatNorthBound)
+			if (sanitize)
 			{
-				latitude = LatNorthBound;
-			}
-			else if (latitude < -LatNorthBound)
-			{
-				latitude = -LatNorthBound;
+				longitude = SanitizeLongitude(longitude);
+				latitude = SanitizeLatitude(latitude);
 			}
 
 			if (referenceLong - longitude > 180)
@@ -67,25 +52,6 @@ namespace WinRtMap.Projections
 			return new Point(x, -y);
 		}
 
-		public Point ToWgs84(Point point)
-		{
-			double lon = (point.X / MapWidth) * 360;
-			double lat = (-point.Y / MapWidth) * 360;
-			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
-
-			lon = lon % 360;
-			if (lon < -180)
-			{
-				lon += 360;
-			}
-			else if (lon > 180)
-			{
-				lon -= 360;
-			}
-
-			return new Point(lon, lat);
-		}
-
 		public Point GetTileIndex(Point wgs84, int zoom)
 		{
 			int z = (1 << zoom);
@@ -99,16 +65,19 @@ namespace WinRtMap.Projections
 			return new Point(SanitizeIndex(x, zoom), SanitizeIndex(y, zoom));
 		}
 
-		public int SanitizeIndex(int index, int zoom)
+		public Point ToWgs84(Point point, bool sanitize = true)
 		{
-			int tileCount = 1 << zoom;
+			double lon = (point.X / MapWidth) * 360;
+			double lat = (-point.Y / MapWidth) * 360;
+			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
 
-			index = index % tileCount;
-			if (index < 0)
+			if (sanitize)
 			{
-				index += tileCount;
+				lon = SanitizeLongitude(lon);
+				lat = SanitizeLatitude(lat);
 			}
-			return index;
+
+			return new Point(lon, lat);
 		}
 
 		public Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom)
@@ -119,6 +88,45 @@ namespace WinRtMap.Projections
 			double x = (tileIndex.X * q) - HalfMapWidth;
 			double y = (tileIndex.Y * q) - HalfMapWidth;
 			return new Point(x, y);
+		}
+
+		private double SanitizeLongitude(double longitude)
+		{
+			longitude = longitude % 360;
+			if (longitude < -180)
+			{
+				longitude += 360;
+			}
+			else if (longitude > 180)
+			{
+				longitude -= 360;
+			}
+			return longitude;
+		}
+
+		private double SanitizeLatitude(double lat)
+		{
+			if (lat > LatNorthBound)
+			{
+				lat = LatNorthBound;
+			}
+			else if (lat < -LatNorthBound)
+			{
+				lat = -LatNorthBound;
+			}
+			return lat;
+		}
+
+		public int SanitizeIndex(int index, int zoom)
+		{
+			int tileCount = 1 << zoom;
+
+			index = index % tileCount;
+			if (index < 0)
+			{
+				index += tileCount;
+			}
+			return index;
 		}
 	}
 }
