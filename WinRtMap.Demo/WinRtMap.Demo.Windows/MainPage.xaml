@@ -18,7 +18,7 @@
 		</Grid.RowDefinitions>
 		
 		<TextBlock Grid.Row="0"  Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-    		<Run FontSize="50" Text="sadfsadf"/>
+    		<Run FontSize="50" Text="WinRtMap Example"/>
 		</TextBlock>
 		
 		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="5" MapCenter="8.05,47.38">
