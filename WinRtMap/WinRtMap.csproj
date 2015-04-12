@@ -47,9 +47,18 @@
     <Compile Include="Projections\Wgs84WebMercatorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tiles\TileLayer.cs" />
+    <Compile Include="Behaviors\TouchMapBehavior.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="IBehaviorP">
+      <HintPath>..\packages\IBehaviorPortable.1.0.0\lib\portable-win81+wpa81\IBehaviorP.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -4,8 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:winRtMap="using:WinRtMap"
+	xmlns:i="using:Microsoft.Xaml.Interactivity"
+	xmlns:winRtMap="using:WinRtMap"
     xmlns:tiles="using:WinRtMap.Tiles"
+    xmlns:b="using:WinRtMap.Behaviors"
     mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -20,7 +22,10 @@
 		</TextBlock>
 		
 		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="5" MapCenter="8.05,47.38">
-	
+			<i:Interaction.Behaviors>
+				<b:TouchMapBehavior />
+			</i:Interaction.Behaviors>
+			
 			<tiles:TileLayer />
 			
 			<winRtMap:MapLayer>
@@ -63,6 +68,7 @@
 			<TextBlock Text="-160" FontSize="30" winRtMap:MapLayerBase.Location="-160,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 			<TextBlock Text="-170" FontSize="30" winRtMap:MapLayerBase.Location="-170,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 
+			<!-- Crosshair; doesn't move with Map -->
 			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
