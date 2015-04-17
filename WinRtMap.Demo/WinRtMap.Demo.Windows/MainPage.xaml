@@ -25,8 +25,8 @@
 			<i:Interaction.Behaviors>
 				<b:TouchMapBehavior />
 			</i:Interaction.Behaviors>
-			
-			<tiles:TileLayer />
+
+			<tiles:WebTileLayer />
 			
 			<TextBlock Text="0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 			<TextBlock Text="10" FontSize="30" winRtMap:MapLayerBase.Location="10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />

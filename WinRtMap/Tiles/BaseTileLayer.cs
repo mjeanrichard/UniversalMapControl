@@ -8,14 +8,15 @@ using WinRtMap.Projections;
 
 namespace WinRtMap.Tiles
 {
-	public class TileLayer : MapLayerBase
+	public abstract class BaseTileLayer<TTile> : MapLayerBase where TTile : BaseTile
 	{
 		protected const int TileWidth = 256;
-		private readonly TileLoader _tileLoader = new TileLoader();
-		private readonly Dictionary<int, Dictionary<string, Tile>> _tileCache = new Dictionary<int, Dictionary<string, Tile>>();
+		private readonly BaseTileLoader<TTile> _tileLoader;
+		private readonly Dictionary<int, Dictionary<string, TTile>> _tileCache = new Dictionary<int, Dictionary<string, TTile>>();
 
-		public TileLayer()
+		protected BaseTileLayer(BaseTileLoader<TTile> tileLoader)
 		{
+			_tileLoader = tileLoader;
 			ZoomLevelOffset = 0.25;
 			LowerZoomLevelsToLoad = int.MaxValue;
 
@@ -83,13 +84,13 @@ namespace WinRtMap.Tiles
 				int maxY = (1 << z) - 1;
 				int bottom = (int)Math.Min(Math.Ceiling(bounds.Bottom / factor), maxY);
 
-				Dictionary<string, Tile> tiles;
+				Dictionary<string, TTile> tiles;
 				if (!_tileCache.TryGetValue(z, out tiles))
 				{
-					tiles = new Dictionary<string, Tile>();
+					tiles = new Dictionary<string, TTile>();
 					_tileCache.Add(z, tiles);
 				}
-				Dictionary<string, Tile> tilesToRemove = new Dictionary<string, Tile>(tiles);
+				Dictionary<string, TTile> tilesToRemove = new Dictionary<string, TTile>(tiles);
 
 				for (int x = left; x <= right; x++)
 				{
@@ -104,13 +105,13 @@ namespace WinRtMap.Tiles
 						}
 						if (!tiles.ContainsKey(key))
 						{
-							int indexX = SanitizeIndex(x, z);
 							Point position = GetViewPortPositionFromTileIndex(new Point(x, y), z);
 							Point location = parentMap.ViewPortProjection.ToWgs84(position, false);
-							Tile tile = new Tile(indexX, y, z, location);
+							int indexX = SanitizeIndex(x, z);
+							TTile tile = CreateNewTile(indexX, z, y, location);
 
-							//Check if we already have a Tile with the same Image...
-							Tile sameImageTile = tiles.Values.FirstOrDefault(t => t.HasImage && t.X == indexX && t.Y == y);
+							//Check if we already have a TTile with the same Image...
+							TTile sameImageTile = tiles.Values.FirstOrDefault(t => t.HasImage && t.X == tile.X && t.Y == tile.Y);
 							if (sameImageTile != null)
 							{
 								tile.SetImage(sameImageTile);
@@ -132,23 +133,25 @@ namespace WinRtMap.Tiles
 			}
 
 			Children.Clear();
-			foreach (Tile tile in GetTiles(parentMap.ZoomLevel))
+			foreach (TTile tile in GetTiles(parentMap.ZoomLevel))
 			{
 				Children.Add(tile.Element);
 			}
 		}
 
-		protected virtual IEnumerable<Tile> GetTiles(double zoomLevel)
+		protected abstract TTile CreateNewTile(int x, int z, int y, Point location);
+
+		protected virtual IEnumerable<TTile> GetTiles(double zoomLevel)
 		{
 			int tileZoomLevel = (int)Math.Floor(zoomLevel + ZoomLevelOffset);
 
-			foreach (KeyValuePair<int, Dictionary<string, Tile>> tileLayer in _tileCache.OrderBy(t => t.Key))
+			foreach (KeyValuePair<int, Dictionary<string, TTile>> tileLayer in _tileCache.OrderBy(t => t.Key))
 			{
 				if (tileLayer.Key > tileZoomLevel)
 				{
 					continue;
 				}
-				foreach (Tile tile in tileLayer.Value.Values)
+				foreach (TTile tile in tileLayer.Value.Values)
 				{
 					yield return tile;
 				}
@@ -158,7 +161,7 @@ namespace WinRtMap.Tiles
 		protected override Size ArrangeOverride(Size finalSize)
 		{
 			Map parentMap = GetParentMap();
-			foreach (Tile tile in GetTiles(parentMap.ZoomLevel))
+			foreach (TTile tile in GetTiles(parentMap.ZoomLevel))
 			{
 				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, false);
 				Point tileOrigin = parentMap.ViewPortTransform.TransformPoint(position);

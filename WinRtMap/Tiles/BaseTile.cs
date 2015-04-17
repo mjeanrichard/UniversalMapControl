@@ -12,12 +12,12 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace WinRtMap.Tiles
 {
-	public class Tile
+	public abstract class BaseTile
 	{
 		private BitmapImage _bitmap;
 		private Image _image;
 
-		public Tile(int x, int y, int zoom, Point location)
+		protected BaseTile(int x, int y, int zoom, Point location)
 		{
 			X = x;
 			Y = y;
@@ -32,6 +32,7 @@ namespace WinRtMap.Tiles
 			image.Height = 256;
 			image.Stretch = Stretch.None;
 			_bitmap = new BitmapImage();
+			_bitmap.ImageFailed += BitmapOnImageFailed;
 			image.Source = _bitmap;
 			_image = image;
 
@@ -41,6 +42,10 @@ namespace WinRtMap.Tiles
 			TileTransform.Children.Add(ScaleTransform);
 			TileTransform.Children.Add(RotateTransform);
 			_image.RenderTransform = TileTransform;
+		}
+
+		private void BitmapOnImageFailed(object sender, ExceptionRoutedEventArgs exceptionRoutedEventArgs)
+		{
 		}
 
 		protected TransformGroup TileTransform { get; }
@@ -73,7 +78,7 @@ namespace WinRtMap.Tiles
 			HasImage = true;
 		}
 
-		public void SetImage(Tile tile)
+		public void SetImage(BaseTile tile)
 		{
 			if (tile.HasImage)
 			{
