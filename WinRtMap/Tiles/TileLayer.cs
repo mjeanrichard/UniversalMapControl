@@ -27,7 +27,7 @@ namespace WinRtMap.Tiles
 		/// <summary>
 		/// Specifies how many lower zoom level should automatically be loaded.
 		/// Use 0 to disable loading of lower layers, use int.MaxValue to load all lower levels.
-		/// Default is int.MaxValue
+		/// Default is int.MaxValue.
 		/// </summary>
 		public int LowerZoomLevelsToLoad { get; set; }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
@@ -10,9 +11,14 @@ namespace WinRtMap.Tiles
 {
 	public class TileLoader
 	{
-		private readonly HttpClient _client = new HttpClient();
+		private readonly HttpClient _client;
 		private readonly ConcurrentBag<Tile> _tilesToLoad = new ConcurrentBag<Tile>();
 		private volatile int _taskCount;
+
+		public TileLoader()
+		{
+			_client = new HttpClient();
+		}
 
 		public void Enqueue(Tile tile)
 		{
@@ -42,16 +48,18 @@ namespace WinRtMap.Tiles
 					}
 					try
 					{
-						Uri uri = new Uri(string.Format("http://a.tile.openstreetmap.org/{0}/{1}/{2}.png", tile.Zoom, tile.X, tile.Y));
-						using (HttpResponseMessage response = await _client.GetAsync(uri))
+						using (HttpRequestMessage tileRequest = BuildRequest(tile))
 						{
-							using (MemoryStream memStream = new MemoryStream())
+							using (HttpResponseMessage response = await _client.SendAsync(tileRequest))
 							{
-								await response.Content.CopyToAsync(memStream);
-								memStream.Position = 0;
-								using (IRandomAccessStream ras = memStream.AsRandomAccessStream())
+								using (MemoryStream memStream = new MemoryStream())
 								{
-									await tile.SetImage(ras);
+									await response.Content.CopyToAsync(memStream);
+									memStream.Position = 0;
+									using (IRandomAccessStream ras = memStream.AsRandomAccessStream())
+									{
+										await tile.SetImage(ras);
+									}
 								}
 							}
 						}
@@ -64,6 +72,14 @@ namespace WinRtMap.Tiles
 				}
 				Interlocked.Decrement(ref _taskCount);
 			});
+		}
+
+		protected virtual HttpRequestMessage BuildRequest(Tile tile)
+		{
+			Uri uri = new Uri(string.Format("http://a.tile.openstreetmap.org/{0}/{1}/{2}.png", tile.Zoom, tile.X, tile.Y));
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+			request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36");
+            return request;
 		}
 	}
 }
