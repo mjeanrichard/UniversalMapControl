@@ -10,27 +10,27 @@ namespace WinRtMap
 	public class Map : MapLayerBase
 	{
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Point), typeof(Map), new PropertyMetadata(new Point(), MapCenterChanged));
+			"MapCenter", typeof(Point), typeof(Map), new PropertyMetadata(new Point(), MapCenterPropertyChanged));
 
 		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
-			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingChanged));
+			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingPropertyChanged));
 
 		public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
-			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelChanged));
+			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelPropertyChanged));
 
-		private static void HeadingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void HeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
 			map.OnMapHeadingChanged((double)e.NewValue);
 		}
 
-		private static void MapCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void MapCenterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
 			map.OnMapCenterChanged((Point)e.NewValue);
 		}
 
-		private static void ZoomLevelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void ZoomLevelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
 			map.OnZoomLevelChanged((double)e.NewValue);
@@ -107,7 +107,7 @@ namespace WinRtMap
 			{
 				if (_viewPortCenter != value)
 				{
-					_viewPortCenter = value;
+					_viewPortCenter = ViewPortProjection.SanitizeCartesian(value);
 					MapCenter = ViewPortProjection.ToWgs84(value);
 				}
 			}
@@ -130,7 +130,6 @@ namespace WinRtMap
 			{
 				mapHeadingChangedEvent(this, newHeading);
 			}
-			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
 			UpdateViewPortTransform();
 		}
 
@@ -161,7 +160,7 @@ namespace WinRtMap
 		{
 			double centerX = ViewPortCenter.X;
 			double centerY = ViewPortCenter.Y;
-			double scaleFactor = GetScaleFactor(ZoomLevel);
+			double scaleFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
 			double dx = centerX - (ActualWidth / 2);
 			double dy = centerY - (ActualHeight / 2);
 
@@ -192,16 +191,9 @@ namespace WinRtMap
 				mapCenterChangedEvent(this, newCenter);
 			}
 			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
+			if (_viewPortCenter.X > 128 || _viewPortCenter.X < -128)
+			{ }
 			UpdateViewPortTransform();
-		}
-
-		/// <summary>
-		/// This ZoomLevel implementation is based on the Zoomlevels use in online maps. If the zoomlevel is increased by 1 the scale factor doubles.
-		/// This should probably not be implemented here (Projection?).
-		/// </summary>
-		public double GetScaleFactor(double zoom)
-		{
-			return Math.Pow(2, zoom);
 		}
 	}
 }

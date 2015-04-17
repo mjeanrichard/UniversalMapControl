@@ -56,12 +56,12 @@ namespace WinRtMap.Behaviors
 
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
-			double newZoomLevel = _zoomBeforeManipulation + Math.Log(delta.Scale, 2);
+			double newZoomLevel = _zoomBeforeManipulation + _map.ViewPortProjection.GetZoomLevel(delta.Scale);
 			double newHeading = _headingBeforeManipulation;
 
 			TransformGroup transform = new TransformGroup();
 
-			double translationScaleFactor = 1 / _map.GetScaleFactor(_zoomBeforeManipulation);
+			double translationScaleFactor = 1 / _map.ViewPortProjection.GetZoomFactor(_zoomBeforeManipulation);
 
 			if (TranslationEnabled)
 			{
@@ -87,7 +87,7 @@ namespace WinRtMap.Behaviors
 
 			if (ZoomEnabled)
 			{
-				double scaleFactor = _map.GetScaleFactor(_zoomBeforeManipulation - newZoomLevel);
+				double scaleFactor = _map.ViewPortProjection.GetZoomFactor(_zoomBeforeManipulation - newZoomLevel);
 				Transform scale = new ScaleTransform {ScaleX = scaleFactor, ScaleY = scaleFactor, CenterX = _manipulationStartPoint.X, CenterY = _manipulationStartPoint.Y};
 				transform.Children.Add(scale);
 			}

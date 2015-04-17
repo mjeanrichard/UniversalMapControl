@@ -11,9 +11,9 @@ namespace WinRtMap.Projections
 	/// </summary>
 	public class Wgs84WebMercatorProjection
 	{
-		private const int HalfMapWidth = 128;
+		public const double MapWidth = 256;
+		public const int HalfMapWidth = 128;
 		public const double LatNorthBound = 85.051128779803d;
-		private const double MapWidth = 256;
 
 		public Point ToCartesian(Point wgs84, bool sanitize = true)
 		{
@@ -52,19 +52,6 @@ namespace WinRtMap.Projections
 			return new Point(x, -y);
 		}
 
-		public Point GetTileIndex(Point wgs84, int zoom)
-		{
-			int z = (1 << zoom);
-			double q = MapWidth / z;
-
-			Point viewPortPoint = ToCartesian(wgs84);
-
-			int x = (int)Math.Floor(viewPortPoint.X / q) - z / 2;
-			int y = (int)Math.Floor(viewPortPoint.Y / q) + z / 2;
-
-			return new Point(SanitizeIndex(x, zoom), SanitizeIndex(y, zoom));
-		}
-
 		public Point ToWgs84(Point point, bool sanitize = true)
 		{
 			double lon = (point.X / MapWidth) * 360;
@@ -80,14 +67,20 @@ namespace WinRtMap.Projections
 			return new Point(lon, lat);
 		}
 
-		public Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom)
+		/// <summary>
+		/// This ZoomLevel implementation is based on the Zoomlevels use in online maps. If the zoomlevel is increased by 1 the scale factor doubles.
+		/// </summary>
+		public double GetZoomFactor(double zoomLevel)
 		{
-			int z = (1 << zoom);
-			double q = MapWidth / z;
+			return Math.Pow(2, zoomLevel);
+		}
 
-			double x = (tileIndex.X * q) - HalfMapWidth;
-			double y = (tileIndex.Y * q) - HalfMapWidth;
-			return new Point(x, y);
+		/// <summary>
+		/// This ZoomLevel implementation is based on the Zoomlevels use in online maps. If the zoomlevel is increased by 1 the scale factor doubles.
+		/// </summary>
+		public double GetZoomLevel(double zoomFactor)
+		{
+			return Math.Log(zoomFactor, 2);
 		}
 
 		private double SanitizeLongitude(double longitude)
@@ -117,16 +110,27 @@ namespace WinRtMap.Projections
 			return lat;
 		}
 
-		public int SanitizeIndex(int index, int zoom)
+		public Point SanitizeCartesian(Point point)
 		{
-			int tileCount = 1 << zoom;
-
-			index = index % tileCount;
-			if (index < 0)
+			point.X = point.X % MapWidth;
+            if (point.X > HalfMapWidth)
 			{
-				index += tileCount;
+				point.X -= MapWidth;
 			}
-			return index;
+            if (point.X < -HalfMapWidth)
+			{
+				point.X += MapWidth;
+			}
+
+			if (point.Y > HalfMapWidth)
+			{
+				point.Y = HalfMapWidth;
+			}
+			if (point.Y < -HalfMapWidth)
+			{
+				point.Y = -HalfMapWidth;
+			}
+			return point;
 		}
 	}
 }

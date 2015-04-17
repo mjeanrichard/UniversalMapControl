@@ -12,12 +12,12 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace WinRtMap.Tiles
 {
-	public abstract class BaseTile
+	public class Tile
 	{
 		private BitmapImage _bitmap;
 		private Image _image;
 
-		protected BaseTile(int x, int y, int zoom, Point location)
+		public Tile(int x, int y, int zoom, Point location)
 		{
 			X = x;
 			Y = y;
@@ -61,7 +61,7 @@ namespace WinRtMap.Tiles
 
 		public void UpdateTransform(double zoomLevel, double angle, Map map)
 		{
-			double tileScaleFactor = map.GetScaleFactor(zoomLevel - Zoom);
+			double tileScaleFactor = map.ViewPortProjection.GetZoomFactor(zoomLevel - Zoom);
 			ScaleTransform.ScaleX = tileScaleFactor;
 			ScaleTransform.ScaleY = tileScaleFactor;
 			RotateTransform.Angle = angle;
@@ -73,6 +73,17 @@ namespace WinRtMap.Tiles
 			HasImage = true;
 		}
 
+		public void SetImage(Tile tile)
+		{
+			if (tile.HasImage)
+			{
+				_bitmap = tile._bitmap;
+				_image.Source = _bitmap;
+				_image.Opacity = 1;
+				HasImage = true;
+			}
+		}
+
 		private void SetImageSource(IRandomAccessStream imageStream)
 		{
 			_bitmap.SetSource(imageStream);
@@ -82,12 +93,17 @@ namespace WinRtMap.Tiles
 		protected virtual void AnimateTile()
 		{
 			DoubleAnimation doubleAnimation = new DoubleAnimation {To = 1d, Duration = TimeSpan.FromMilliseconds(500)};
-			doubleAnimation.EasingFunction = new CubicEase();
+			doubleAnimation.EasingFunction = new SineEase {EasingMode = EasingMode.EaseInOut};
 			Storyboard.SetTargetProperty(doubleAnimation, "Opacity");
 			Storyboard.SetTarget(doubleAnimation, _image);
 			var storyboard = new Storyboard();
 			storyboard.Children.Add(doubleAnimation);
 			storyboard.Begin();
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0} / {1}", X, Y);
 		}
 	}
 }

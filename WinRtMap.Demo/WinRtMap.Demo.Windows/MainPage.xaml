@@ -21,7 +21,7 @@
     		<Run FontSize="50" Text="WinRtMap Example"/>
 		</TextBlock>
 
-		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="5" MapCenter="8.05,47.38">
+		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="1" MapCenter="8.05,47.38">
 			<i:Interaction.Behaviors>
 				<b:TouchMapBehavior />
 			</i:Interaction.Behaviors>
