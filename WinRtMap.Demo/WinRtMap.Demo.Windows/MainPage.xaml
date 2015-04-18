@@ -24,6 +24,7 @@
 		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="1" MapCenter="8.05,47.38">
 			<i:Interaction.Behaviors>
 				<b:TouchMapBehavior />
+				<b:AnimatedValuesBehavior x:Name="animatedBehavior" />
 			</i:Interaction.Behaviors>
 
 			<tiles:WebTileLayer />
@@ -83,12 +84,12 @@
 		<StackPanel Grid.Row="2" Orientation="Horizontal">
             <StackPanel Orientation="Vertical" Margin="5,0">
 				<TextBlock Text="Heading:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
-				<Slider Width="200" Minimum="0" Maximum="360"  Value="{Binding Heading, ElementName=map, Mode=TwoWay}" SmallChange="5" LargeChange="45" Height="35" />
+				<Slider Width="200" Minimum="0" Maximum="360"  Value="{Binding TargetHeading, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="5" LargeChange="45" Height="35" />
 				<TextBlock Text="{Binding Heading, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
 			</StackPanel>
             <StackPanel Orientation="Vertical" Margin="5,0">
 				<TextBlock Text="Zoom Level:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
-				<Slider Width="200" Minimum="0" Maximum="18" Value="{Binding ZoomLevel, ElementName=map, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" Height="35" />
+				<Slider Width="200" Minimum="0" Maximum="18" Value="{Binding TargetZoom, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" Height="35" />
 				<TextBlock Text="{Binding ZoomLevel, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
 			</StackPanel>
 		</StackPanel>

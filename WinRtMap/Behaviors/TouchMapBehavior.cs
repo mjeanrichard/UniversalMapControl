@@ -28,6 +28,9 @@ namespace WinRtMap.Behaviors
 		}
 
 		public DependencyObject AssociatedObject { get; private set; }
+		public bool TranslationEnabled { get; set; }
+		public bool RotationEnabled { get; set; }
+		public bool ZoomEnabled { get; set; }
 
 		private void OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
 		{
@@ -49,10 +52,6 @@ namespace WinRtMap.Behaviors
 			_manipulationStartPoint = _map.ViewPortTransform.Inverse.TransformPoint(e.Position);
 			e.Handled = true;
 		}
-
-		public bool TranslationEnabled { get; set; }
-		public bool RotationEnabled { get; set; }
-		public bool ZoomEnabled { get; set; }
 
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
