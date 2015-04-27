@@ -113,7 +113,7 @@ namespace WinRtMap
 			}
 		}
 
-		protected override Map GetParentMap()
+		protected override Map LoadParentMap()
 		{
 			return this;
 		}

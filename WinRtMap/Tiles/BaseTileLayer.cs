@@ -34,7 +34,7 @@ namespace WinRtMap.Tiles
 
 		private void TileLayer_Loaded(object sender, RoutedEventArgs e)
 		{
-			Map parentMap = GetParentMap();
+			Map parentMap = ParentMap;
 			parentMap.ViewPortChangedEvent += ParentMap_ViewPortChangedEvent;
 			RefreshTiles();
 		}
@@ -68,7 +68,7 @@ namespace WinRtMap.Tiles
 
 		protected virtual void RefreshTiles()
 		{
-			Map parentMap = GetParentMap();
+			Map parentMap = ParentMap;
 
 			int currentTileZoomLevel = (int)Math.Floor(parentMap.ZoomLevel + ZoomLevelOffset);
 
@@ -160,7 +160,7 @@ namespace WinRtMap.Tiles
 
 		protected override Size ArrangeOverride(Size finalSize)
 		{
-			Map parentMap = GetParentMap();
+			Map parentMap = ParentMap;
 			foreach (TTile tile in GetTiles(parentMap.ZoomLevel))
 			{
 				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, false);

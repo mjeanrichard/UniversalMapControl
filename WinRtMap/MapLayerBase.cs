@@ -1,8 +1,9 @@
+using System;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using WinRtMap.Tiles;
+using WinRtMap.Utils;
 
 namespace WinRtMap
 {
@@ -32,8 +33,17 @@ namespace WinRtMap
 			child.SetValue(LocationProperty, value);
 		}
 
+		private Lazy<Map> _parentMap;
+
 		protected MapLayerBase()
-		{}
+		{
+			_parentMap = new Lazy<Map>(LoadParentMap);
+		}
+
+		protected Map ParentMap
+		{
+			get { return _parentMap.Value; }
+		}
 
 		protected virtual Point? GetLocationIfSet(DependencyObject child)
 		{
@@ -45,14 +55,14 @@ namespace WinRtMap
 			return (Point)value;
 		}
 
-		protected virtual Map GetParentMap()
+		protected virtual Map LoadParentMap()
 		{
-			Map parent = VisualTreeHelper.GetParent(this) as Map;
-			if (parent == null)
+			Map map = this.GetAncestor<Map>();
+			if (map == null)
 			{
-				//Ups?
+				throw new InvalidOperationException("A MapLayer must have an ancestor of type Map.");
 			}
-			return parent;
+			return map;
 		}
 
 		protected override Size MeasureOverride(Size availableSize)
@@ -62,7 +72,16 @@ namespace WinRtMap
 				element.Measure(availableSize);
 			}
 
-			return availableSize;
+			Size result = availableSize;
+			if (availableSize.Height == Double.PositiveInfinity)
+			{
+				result.Height = 500;
+			}
+			if (availableSize.Width == Double.PositiveInfinity)
+			{
+				result.Height = 500;
+			}
+			return result;
 		}
 
 		protected override Size ArrangeOverride(Size finalSize)
@@ -77,7 +96,7 @@ namespace WinRtMap
 			return base.ArrangeOverride(finalSize);
 		}
 
-		protected void ArrangeElement(UIElement element, Size finalSize)
+		public void ArrangeElement(UIElement element, Size finalSize)
 		{
 			if (element is MapLayerBase)
 			{
@@ -96,7 +115,7 @@ namespace WinRtMap
 				location = GetLocationIfSet(element);
 			}
 
-			Map parentMap = GetParentMap();
+			Map parentMap = ParentMap;
 			Point finalPosition;
 			if (location.HasValue)
 			{

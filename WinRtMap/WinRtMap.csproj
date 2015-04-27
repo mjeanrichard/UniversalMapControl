@@ -52,10 +52,9 @@
     <Compile Include="Tiles\WebTile.cs" />
     <Compile Include="Tiles\WebTileLayer.cs" />
     <Compile Include="Tiles\WebTileLoader.cs" />
+    <Compile Include="Utils\XamlHelper.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Reference Include="IBehaviorP">
       <HintPath>..\packages\IBehaviorPortable.1.0.0\lib\portable-win81+wpa81\IBehaviorP.dll</HintPath>
