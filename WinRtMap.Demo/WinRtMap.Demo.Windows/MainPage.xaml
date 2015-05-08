@@ -8,78 +8,144 @@
 	xmlns:winRtMap="using:WinRtMap"
     xmlns:tiles="using:WinRtMap.Tiles"
     xmlns:b="using:WinRtMap.Behaviors"
-    mc:Ignorable="d">
+    xmlns:utils="using:WinRtMap.Utils"
+    xmlns:models="using:WinRtMap.Demo.Models"
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=models:DemoModel, IsDesignTimeCreatable=True }"
+    >
 
-	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition />
-			<RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
 		
 		<TextBlock Grid.Row="0"  Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
     		<Run FontSize="50" Text="WinRtMap Example"/>
 		</TextBlock>
 
-		<winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="1" MapCenter="8.05,47.38">
+        <winRtMap:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="4.5" MapCenter="47,15">
 			<i:Interaction.Behaviors>
 				<b:TouchMapBehavior />
 				<b:AnimatedValuesBehavior x:Name="animatedBehavior" />
 			</i:Interaction.Behaviors>
 
 			<tiles:WebTileLayer />
-			
-			<TextBlock Text="0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="10" FontSize="30" winRtMap:MapLayerBase.Location="10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="20" FontSize="30" winRtMap:MapLayerBase.Location="20,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="30" FontSize="30" winRtMap:MapLayerBase.Location="30,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="40" FontSize="30" winRtMap:MapLayerBase.Location="40,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="50" FontSize="30" winRtMap:MapLayerBase.Location="50,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="60" FontSize="30" winRtMap:MapLayerBase.Location="60,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="70" FontSize="30" winRtMap:MapLayerBase.Location="70,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="80" FontSize="30" winRtMap:MapLayerBase.Location="80,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="90" FontSize="30" winRtMap:MapLayerBase.Location="90,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="100" FontSize="30" winRtMap:MapLayerBase.Location="100,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="110" FontSize="30" winRtMap:MapLayerBase.Location="110,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="120" FontSize="30" winRtMap:MapLayerBase.Location="120,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="130" FontSize="30" winRtMap:MapLayerBase.Location="130,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="140" FontSize="30" winRtMap:MapLayerBase.Location="140,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="150" FontSize="30" winRtMap:MapLayerBase.Location="150,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="160" FontSize="30" winRtMap:MapLayerBase.Location="160,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="170" FontSize="30" winRtMap:MapLayerBase.Location="170,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="180" FontSize="30" winRtMap:MapLayerBase.Location="180,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-10" FontSize="30" winRtMap:MapLayerBase.Location="-10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-20" FontSize="30" winRtMap:MapLayerBase.Location="-20,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-30" FontSize="30" winRtMap:MapLayerBase.Location="-30,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-40" FontSize="30" winRtMap:MapLayerBase.Location="-40,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-50" FontSize="30" winRtMap:MapLayerBase.Location="-50,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-60" FontSize="30" winRtMap:MapLayerBase.Location="-60,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-70" FontSize="30" winRtMap:MapLayerBase.Location="-70,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-80" FontSize="30" winRtMap:MapLayerBase.Location="-80,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-90" FontSize="30" winRtMap:MapLayerBase.Location="-90,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-100" FontSize="30" winRtMap:MapLayerBase.Location="-100,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-110" FontSize="30" winRtMap:MapLayerBase.Location="-110,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-120" FontSize="30" winRtMap:MapLayerBase.Location="-120,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-130" FontSize="30" winRtMap:MapLayerBase.Location="-130,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-140" FontSize="30" winRtMap:MapLayerBase.Location="-140,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-150" FontSize="30" winRtMap:MapLayerBase.Location="-150,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-160" FontSize="30" winRtMap:MapLayerBase.Location="-160,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-170" FontSize="30" winRtMap:MapLayerBase.Location="-170,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+
+            <!-- ItemsControl bound to an Object that implements IHasLocation -->
+            <ItemsControl ItemsSource="{Binding Cities}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <winRtMap:MapItemsPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Ellipse Stroke="DeepSkyBlue"  Width="30" Height="30" StrokeThickness="6" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7" />
+                            <Border Background="DodgerBlue" Margin="0,55,0,0" Padding="2,2,2,0">
+                                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15"/>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- ItemsControl bound directly to the Model -->
+            <ItemsControl ItemsSource="{Binding Peaks}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <winRtMap:MapItemsPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <!-- Binding Helper to allow Binding to the Attached Property 'Location' of the Map -->
+                        <Setter Property="utils:XamlHelper.LocationBinding" Value="PeakLocation" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Path Stroke="DarkGreen" StrokeThickness="3" winRtMap:MapLayerBase.Location="{Binding MovingTarget}" Margin="20,80,0,0" HorizontalAlignment="Center">
+                                <Path.Data>
+                                    <PathGeometry>
+                                        <PathGeometry.Figures>
+                                            <PathFigureCollection>
+                                                <PathFigure IsClosed="False" StartPoint="0,0">
+                                                    <PathFigure.Segments>
+                                                        <PathSegmentCollection>
+                                                            <LineSegment Point="10,-30" />
+                                                            <LineSegment Point="20,-15" />
+                                                            <LineSegment Point="30,-23" />
+                                                            <LineSegment Point="40,0" />
+                                                        </PathSegmentCollection>
+                                                    </PathFigure.Segments>
+                                                </PathFigure>
+                                            </PathFigureCollection>
+                                        </PathGeometry.Figures>
+                                    </PathGeometry>
+                                </Path.Data>
+                            </Path>
+                            <Border Background="DarkOliveGreen" Margin="20,80,0,0" Padding="2,2,2,0">
+                                <TextBlock Text="{Binding PeakName}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="0" FontSize="30" winRtMap:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="60" FontSize="30" winRtMap:MapLayerBase.Location="0,50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="120" FontSize="30" winRtMap:MapLayerBase.Location="0,100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="180" FontSize="30" winRtMap:MapLayerBase.Location="0,180" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-60" FontSize="30" winRtMap:MapLayerBase.Location="0,-50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-120" FontSize="30" winRtMap:MapLayerBase.Location="0,-100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 
 			<!-- Crosshair; doesn't move with Map -->
 			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-			<!-- Rectangle around Sardegna; scales and rotates with the Map -->
-			<Rectangle Width="1.8" Height="2.6" Stroke="DarkGreen" StrokeThickness="0.2" winRtMap:MapLayerBase.Location="7.7,41.6" RenderTransform="{Binding ScaleRotateTransform, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-			<!-- Circle around Paris; scale path with the Map -->
-			<Path Stroke="Blue" StrokeThickness="3" winRtMap:MapLayerBase.Location="2.33,48.84">
-				<Path.Data>
-					<EllipseGeometry RadiusX="0.2" RadiusY="0.2" Transform="{Binding ScaleTransform, ElementName=map}" />
-				</Path.Data>
-			</Path>
-		</winRtMap:Map>
+            <!-- Arrow moving across the map -->
+            <Path Stroke="Red" StrokeThickness="3" winRtMap:MapLayerBase.Location="{Binding MovingTarget}"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Center">
+                <Path.Data>
+                    <PathGeometry>
+                        <PathGeometry.Figures>
+                            <PathFigureCollection>
+                                <PathFigure IsClosed="True" StartPoint="0,0">
+                                    <PathFigure.Segments>
+                                        <PathSegmentCollection>
+                                            <LineSegment Point="30,20" />
+                                            <LineSegment Point="0,40" />
+                                            <LineSegment Point="10,20" />
+                                        </PathSegmentCollection>
+                                    </PathFigure.Segments>
+                                </PathFigure>
+                            </PathFigureCollection>
+                        </PathGeometry.Figures>
+                    </PathGeometry>
+                </Path.Data>
+            </Path>
+
+            <!-- Circle around Mallorca; scales and rotates with the Map -->
+            <Path Stroke="Blue" StrokeThickness="3" winRtMap:MapLayerBase.Location="39.624148, 2.9">
+                <Path.Data>
+                    <EllipseGeometry RadiusX="0.5" RadiusY="0.4" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
+                </Path.Data>
+            </Path>
+        </winRtMap:Map>
 
 		<StackPanel Grid.Row="2" Orientation="Horizontal">
             <StackPanel Orientation="Vertical" Margin="5,0">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -110,7 +111,7 @@ namespace WinRtMap.Tiles
 							int indexX = SanitizeIndex(x, z);
 							TTile tile = CreateNewTile(indexX, z, y, location);
 
-							//Check if we already have a TTile with the same Image...
+							//Check if we already have a Tile with the same Image...
 							TTile sameImageTile = tiles.Values.FirstOrDefault(t => t.HasImage && t.X == tile.X && t.Y == tile.Y);
 							if (sameImageTile != null)
 							{

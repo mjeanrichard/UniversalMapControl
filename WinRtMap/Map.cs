@@ -191,8 +191,6 @@ namespace WinRtMap
 				mapCenterChangedEvent(this, newCenter);
 			}
 			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
-			if (_viewPortCenter.X > 128 || _viewPortCenter.X < -128)
-			{ }
 			UpdateViewPortTransform();
 		}
 	}

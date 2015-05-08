@@ -39,11 +39,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behaviors\AnimatedValuesBehavior.cs" />
+    <Compile Include="MapItemsPanel.cs" />
     <Compile Include="Tiles\BaseTile.cs" />
     <Compile Include="IHasLocation.cs" />
     <Compile Include="Tiles\BaseTileLoader.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="MapLayer.cs" />
     <Compile Include="MapLayerBase.cs" />
     <Compile Include="Projections\Wgs84WebMercatorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -8,6 +8,9 @@ namespace WinRtMap.Projections
 	/// It project any location (Longitude -180 .. 180 and Latitude -85.0511 .. 85.0511) to a 
 	/// cartesian square (x and y -128..128). The overall size of the projected gris it 256 which 
 	/// makes it easy to work with tiles that contain 265x256 pixels. 
+	/// 
+	/// The Point is used to represent Lat/Long Coordinates. X is Latitude, Y is Longitude.
+	/// 
 	/// </summary>
 	public class Wgs84WebMercatorProjection
 	{
@@ -17,7 +20,7 @@ namespace WinRtMap.Projections
 
 		public Point ToCartesian(Point wgs84, bool sanitize = true)
 		{
-			return ToCartesian(wgs84, wgs84.X, sanitize);
+			return ToCartesian(wgs84, wgs84.Y, sanitize);
 		}
 
 		/// <summary>
@@ -28,9 +31,9 @@ namespace WinRtMap.Projections
 		/// </summary>
 		public Point ToCartesian(Point wgs84, double referenceLong, bool sanitize = true)
 		{
-			double longitude = wgs84.X;
-			double latitude = wgs84.Y;
-			if (sanitize)
+		    double latitude = wgs84.X;
+		    double longitude = wgs84.Y;
+		    if (sanitize)
 			{
 				longitude = SanitizeLongitude(longitude);
 				latitude = SanitizeLatitude(latitude);
@@ -54,17 +57,17 @@ namespace WinRtMap.Projections
 
 		public Point ToWgs84(Point point, bool sanitize = true)
 		{
-			double lon = (point.X / MapWidth) * 360;
-			double lat = (-point.Y / MapWidth) * 360;
-			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
+		    double lat = (-point.Y / MapWidth) * 360;
+		    double lon = (point.X / MapWidth) * 360;
+		    lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
 
 			if (sanitize)
 			{
-				lon = SanitizeLongitude(lon);
-				lat = SanitizeLatitude(lat);
+			    lat = SanitizeLatitude(lat);
+			    lon = SanitizeLongitude(lon);
 			}
 
-			return new Point(lon, lat);
+			return new Point(lat, lon);
 		}
 
 		/// <summary>

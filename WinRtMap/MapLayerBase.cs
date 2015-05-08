@@ -9,10 +9,10 @@ namespace WinRtMap
 {
 	public class MapLayerBase : Panel
 	{
-		public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
+	    public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
 			typeof(Point),
-			typeof(MapLayer),
-			new PropertyMetadata(null, OnLocationPropertyChange));
+			typeof(MapLayerBase),
+			new PropertyMetadata(new Point(double.NaN, double.NaN), OnLocationPropertyChange));
 
 		public static Point GetLocation(DependencyObject child)
 		{
@@ -45,14 +45,14 @@ namespace WinRtMap
 			get { return _parentMap.Value; }
 		}
 
-		protected virtual Point? GetLocationIfSet(DependencyObject child)
+		protected virtual Point? GetLocationPropertyValueIfSet(DependencyObject child)
 		{
-			object value = child.ReadLocalValue(LocationProperty);
-			if (value == DependencyProperty.UnsetValue)
+		    Point location = GetLocation(child);
+			if (double.IsNaN(location.X) || double.IsNaN(location.Y))
 			{
 				return null;
 			}
-			return (Point)value;
+			return location;
 		}
 
 		protected virtual Map LoadParentMap()
@@ -104,18 +104,9 @@ namespace WinRtMap
 				return;
 			}
 
-			IHasLocation elementWithLocation = element as IHasLocation;
-			Point? location;
-			if (elementWithLocation != null)
-			{
-				location = elementWithLocation.Location;
-			}
-			else
-			{
-				location = GetLocationIfSet(element);
-			}
+			Point? location = GetLocation(element);
 
-			Map parentMap = ParentMap;
+		    Map parentMap = ParentMap;
 			Point finalPosition;
 			if (location.HasValue)
 			{
@@ -129,7 +120,22 @@ namespace WinRtMap
 			element.Arrange(new Rect(finalPosition, element.DesiredSize));
 		}
 
-		protected virtual Point GetPositionForElementWithoutLocation(UIElement element, Size finalPanelSize)
+	    protected virtual Point? GetLocation(UIElement element)
+	    {
+	        IHasLocation elementWithLocation = element as IHasLocation;
+	        Point? location;
+	        if (elementWithLocation != null)
+	        {
+	            location = elementWithLocation.Location;
+	        }
+	        else
+	        {
+	            location = GetLocationPropertyValueIfSet(element);
+	        }
+	        return location;
+	    }
+
+	    protected virtual Point GetPositionForElementWithoutLocation(UIElement element, Size finalPanelSize)
 		{
 			FrameworkElement frameworkElement = element as FrameworkElement;
 			if (frameworkElement == null)

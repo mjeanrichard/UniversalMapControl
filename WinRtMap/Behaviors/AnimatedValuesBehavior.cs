@@ -1,4 +1,5 @@
 using System;
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 using Microsoft.Xaml.Interactivity;
@@ -9,8 +10,9 @@ namespace WinRtMap.Behaviors
 	{
 		private bool _isBehaviorEnabled = false;
 
-		public static readonly DependencyProperty TargetZoomProperty = DependencyProperty.Register("TargetZoom", typeof(double), typeof(Map), new PropertyMetadata(0d, TargetZoomPropertyChanged));
-		public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register("TargetHeading", typeof(double), typeof(Map), new PropertyMetadata(0d, TargetHeadingPropertyChanged));
+		public static readonly DependencyProperty TargetZoomProperty = DependencyProperty.Register("TargetZoom", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetZoomPropertyChanged));
+		public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register("TargetHeading", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetHeadingPropertyChanged));
+		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(Point), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Point(), TargetCenterPropertyChanged));
 
 		private static void TargetZoomPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -20,6 +22,11 @@ namespace WinRtMap.Behaviors
 		private static void TargetHeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			((AnimatedValuesBehavior)d).TargetHeadingPropertyChanged(e);
+		}
+
+		private static void TargetCenterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			((AnimatedValuesBehavior)d).TargetCenterPropertyChanged(e);
 		}
 
 		private Map _map;
@@ -36,9 +43,15 @@ namespace WinRtMap.Behaviors
 			set { SetValue(TargetHeadingProperty, value); }
 		}
 
+		public Point TargetCenter
+		{
+			get { return (Point)GetValue(TargetCenterProperty); }
+			set { SetValue(TargetCenterProperty, value); }
+		}
+
 		public DependencyObject AssociatedObject { get; private set; }
 
-		private void TargetZoomPropertyChanged(DependencyPropertyChangedEventArgs e)
+		protected virtual void TargetZoomPropertyChanged(DependencyPropertyChangedEventArgs e)
 		{
 			if (!_isBehaviorEnabled)
 			{
@@ -65,7 +78,31 @@ namespace WinRtMap.Behaviors
 			storyboard.Begin();
 		}
 
-		private void TargetHeadingPropertyChanged(DependencyPropertyChangedEventArgs e)
+		protected virtual void TargetCenterPropertyChanged(DependencyPropertyChangedEventArgs e)
+		{
+			if (!_isBehaviorEnabled)
+			{
+				return;
+			}
+
+			Point newValue = (Point)e.NewValue;
+
+			PointAnimation centerAnimation = new PointAnimation
+			{ 
+				To = newValue,
+				Duration = new Duration(TimeSpan.FromMilliseconds(1000)),
+				EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+				FillBehavior = FillBehavior.HoldEnd,
+				EnableDependentAnimation = true
+			};
+			Storyboard.SetTargetProperty(centerAnimation, "MapCenter");
+			Storyboard.SetTarget(centerAnimation, _map);
+			Storyboard storyboard = new Storyboard();
+			storyboard.Children.Add(centerAnimation);
+			storyboard.Begin();
+		}
+
+		protected virtual void TargetHeadingPropertyChanged(DependencyPropertyChangedEventArgs e)
 		{
 			if (!_isBehaviorEnabled)
 			{
@@ -94,7 +131,7 @@ namespace WinRtMap.Behaviors
 			_isBehaviorEnabled = false;
 			if (!(associatedObject is Map))
 			{
-				throw new InvalidOperationException("The TouchMapBehavior can only be used for a Map.");
+				throw new InvalidOperationException("The AnimatedValuesBehavior can only be used for a Map.");
 			}
 			AssociatedObject = associatedObject;
 			_map = (Map)associatedObject;
