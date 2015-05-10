@@ -128,10 +128,19 @@ namespace WinRtMap.Tiles
 
 				foreach (var oldTile in tilesToRemove)
 				{
-					oldTile.Value.IsRemoved = true;
+					oldTile.Value.IsCanelled = true;
 					tiles.Remove(oldTile.Key);
 				}
 			}
+
+            //Remove alle Tiles from not needed ZoomLevels
+		    foreach (KeyValuePair<int, Dictionary<string, TTile>> tilesPerZoom in _tileCache.Where(t => t.Key > currentTileZoomLevel))
+		    {
+		        foreach (TTile tile in tilesPerZoom.Value.Values)
+		        {
+		            tile.IsCanelled = true;
+		        }
+		    }
 
 			Children.Clear();
 			foreach (TTile tile in GetTiles(parentMap.ZoomLevel))

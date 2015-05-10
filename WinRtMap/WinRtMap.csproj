@@ -49,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tiles\BaseTileLayer.cs" />
     <Compile Include="Behaviors\TouchMapBehavior.cs" />
+    <Compile Include="Tiles\ITileCache.cs" />
     <Compile Include="Tiles\WebTile.cs" />
     <Compile Include="Tiles\WebTileLayer.cs" />
     <Compile Include="Tiles\WebTileLoader.cs" />

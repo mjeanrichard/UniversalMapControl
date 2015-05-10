@@ -14,18 +14,16 @@ namespace WinRtMap.Tiles
             _client = new HttpClient();
         }
 
-        protected override async Task LoadTile(WebTile tile)
+        protected override async Task<InMemoryRandomAccessStream> LoadTileImage(WebTile tile)
         {
             using (HttpRequestMessage tileRequest = BuildRequest(tile))
             {
                 using (HttpResponseMessage response = await _client.SendRequestAsync(tileRequest))
                 {
-                    using (InMemoryRandomAccessStream ras = new InMemoryRandomAccessStream())
-                    {
-                        await response.Content.WriteToStreamAsync(ras);
-                        ras.Seek(0);
-                        await tile.SetImage(ras);
-                    }
+                    InMemoryRandomAccessStream ras = new InMemoryRandomAccessStream();
+                    await response.Content.WriteToStreamAsync(ras);
+                    ras.Seek(0);
+                    return ras;
                 }
             }
         }

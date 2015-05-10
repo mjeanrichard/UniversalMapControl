@@ -15,7 +15,7 @@ namespace WinRtMap.Tiles
 		protected override WebTile CreateNewTile(int x, int z, int y, Point location)
 		{
 			Uri uri = new Uri(PatternMatcher.Replace(UrlPattern, m => MatchEvaluator(m, x, y, z)));
-			return new WebTile(x, y, z, location, uri);
+			return new WebTile(x, y, z, location, uri, "OSM");
 		}
 
 		private string MatchEvaluator(Match match, int x, int y, int z)
