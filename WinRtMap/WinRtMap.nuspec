@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>WinRtMap</id>
+        <version>$version$</version>
+        <title>WinRT Map Control</title>
+        <authors>Meinrad Jean-Richard</authors>
+        <licenseUrl>https://github.com/mjeanrichard/WinRtMap/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/mjeanrichard/WinRtMap</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>This Package contains a extensible Map Control for WinRT (Windows 8.1 / Windows 8.1 Phone)
+
+Supported Maps:
+- OpenStreetMap</description>
+        <language />
+        <tags>WinRt, Map, XAML, Windows, Windows Phone, OSM, OpenStreetMap</tags>
+        <dependencies>
+            <dependency id="IBehaviorPortable" version="1.0.0" />
+        </dependencies>
+    </metadata>
+</package>
