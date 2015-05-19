@@ -1,6 +1,8 @@
 # WinRT Map
 This Repository contains a Map Control for Windows 8.1 and Windows Phone 8.1. It ist build with extensibility in mind and should be easy to daapt to your needs.
 
+![Build state](https://ci.appveyor.com/api/projects/status/8ornl2x7enmtlig9?svg=true)
+
 ##Supported Online-Maps
 At the moment only OpenSteetMap is supported out of the box. Lots of other Maps can easily be added (I am happy to accept pull requests for other MapTypes!). 
 
