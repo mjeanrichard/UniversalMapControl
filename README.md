@@ -12,7 +12,7 @@ At the moment only OpenSteetMap is supported out of the box. Lots of other Maps 
 For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAML](../blob/master/WinRtMap.Demo/WinRtMap.Demo.Windows/MainPage.xaml)).
 
 ```XAML
-<winRtMap:Map Name="map" Background="Transparent" Heading="0" ZoomLevel="4.5" MapCenter="47,15">
+<umc:Map Name="map" Background="Transparent" Heading="0" ZoomLevel="4.5" MapCenter="47,15">
 	<i:Interaction.Behaviors>
 		<b:TouchMapBehavior />
 	</i:Interaction.Behaviors>
@@ -23,7 +23,7 @@ For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAM
 	<ItemsControl ItemsSource="{Binding Peaks}">
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
-				<winRtMap:MapItemsPanel />
+				<umc:MapItemsPanel />
 			</ItemsPanelTemplate>
 		</ItemsControl.ItemsPanel>
 		<ItemsControl.ItemContainerStyle>
@@ -37,7 +37,7 @@ For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAM
 		<ItemsControl.ItemTemplate>
 			<DataTemplate>
 				<Grid>
-					<Path Stroke="DarkGreen" StrokeThickness="3" winRtMap:MapLayerBase.Location="{Binding MovingTarget}" Margin="20,80,0,0" HorizontalAlignment="Center">
+					<Path Stroke="DarkGreen" StrokeThickness="3" umc:MapLayerBase.Location="{Binding MovingTarget}" Margin="20,80,0,0" HorizontalAlignment="Center">
 						<Path.Data>
 							<!-- SNIP: Path Data -->
 						</Path.Data>
@@ -49,6 +49,6 @@ For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAM
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>
 	</ItemsControl>
-</winRtMap:Map>
+</umc:Map>
 ```
 ![Screenshot](docs/Map-Sample.png)
