@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>UniversalMapControl</id>
+		<version>$version$</version>
+		<title>Universal Map Control</title>
+		<authors>Meinrad Jean-Richard</authors>
+		<licenseUrl>https://raw.githubusercontent.com/mjeanrichard/UniversalMapControl/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/mjeanrichard/UniversalMapControl</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>
+			This Package contains a extensible Map Control for Universal Windows Apps (Windows Phone, Desktop, Table etc.)
+
+			Supported Maps:
+			- OpenStreetMap
+		</description>
+		<language />
+		<tags>Map, MapControl, XAML, Windows, Windows Phone, OSM, OpenStreetMap, UWP, Windows 10</tags>
+		<dependencies>
+			<dependency id="Microsoft.Xaml.Behaviors.Uwp.Managed" version="1.1.0" />
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="bin\Release\UniversalMapControl.dll" target="lib\netcore45" />
+	</files>
+</package>
