@@ -23,7 +23,7 @@
     		<Run FontSize="50" Text="Universal Map Control Example"/>
 		</TextBlock>
 
-		<universalMapControl:Map Name="map" Grid.Row="1" Grid.Column="0" Background="Transparent" Heading="0" ZoomLevel="4.5" MapCenter="47,15">
+		<universalMapControl:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="47,15">
 			<interactivity:Interaction.Behaviors>
 				<behaviors:TouchMapBehavior />
 				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />

@@ -1,5 +1,6 @@
 using System;
 using Windows.Foundation;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -58,6 +59,7 @@ namespace UniversalMapControl
 			ZoomLevel = 1;
 			SizeChanged += Map_SizeChanged;
 
+			Background = new SolidColorBrush(Colors.Transparent);
 			ManipulationMode = ManipulationModes.All;
 
 			MapCenter = new Point(0, 0);
