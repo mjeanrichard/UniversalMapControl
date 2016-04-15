@@ -10,7 +10,7 @@ namespace UniversalMapControl.Tests
 	{
 		[DataTestMethod]
 		[DataRow(0, 0, 0, 0)]
-		[DataRow(180, 0, 128, 0)]
+		[DataRow(180, 0, 0, -128)]
 		[DataRow(-180, 0, -128, 0)]
 		[DataRow(0, Wgs84WebMercatorProjection.LatNorthBound, 0, -128)]
 		[DataRow(0, -Wgs84WebMercatorProjection.LatNorthBound, 0, 128)]

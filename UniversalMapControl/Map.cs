@@ -127,30 +127,18 @@ namespace UniversalMapControl
 
 		protected virtual void OnMapHeadingChanged(double newHeading)
 		{
-			EventHandler<double> mapHeadingChangedEvent = MapHeadingChangedEvent;
-			if (mapHeadingChangedEvent != null)
-			{
-				mapHeadingChangedEvent(this, newHeading);
-			}
+			MapHeadingChangedEvent?.Invoke(this, newHeading);
 			UpdateViewPortTransform();
 		}
 
 		protected virtual void OnViewPortChangedEvent()
 		{
-			EventHandler viewPortChangedEvent = ViewPortChangedEvent;
-			if (viewPortChangedEvent != null)
-			{
-				viewPortChangedEvent(this, EventArgs.Empty);
-			}
+			ViewPortChangedEvent?.Invoke(this, EventArgs.Empty);
 		}
 
 		protected virtual void OnZoomLevelChanged(double newZoomLevel)
 		{
-			EventHandler<double> zoomLevelChangedEvent = ZoomLevelChangedEvent;
-			if (zoomLevelChangedEvent != null)
-			{
-				zoomLevelChangedEvent(this, newZoomLevel);
-			}
+			ZoomLevelChangedEvent?.Invoke(this, newZoomLevel);
 			UpdateViewPortTransform();
 		}
 
@@ -187,13 +175,23 @@ namespace UniversalMapControl
 
 		protected virtual void OnMapCenterChanged(Point newCenter)
 		{
-			EventHandler<Point> mapCenterChangedEvent = MapCenterChangedEvent;
-			if (mapCenterChangedEvent != null)
-			{
-				mapCenterChangedEvent(this, newCenter);
-			}
+			MapCenterChangedEvent?.Invoke(this, newCenter);
 			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
 			UpdateViewPortTransform();
 		}
+
+
+		/// <summary>
+		/// This Method can be use to convert a Point on the Map to a Location (in the current Porjection).
+		/// </summary>
+		/// <param name="point">A Position on the MapControl (such as the MousePointer)</param>
+		/// <returns>The location in the current Projection.</returns>
+		public Point GetLocationFromPoint(Point point)
+		{
+			Point cartesianLocation = ViewPortTransform.Inverse.TransformPoint(point);
+			Point position = ViewPortProjection.ToWgs84(cartesianLocation);
+			return position;
+		}
+
 	}
 }

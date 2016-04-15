@@ -13,8 +13,9 @@ namespace UniversalMapControl.Demo.Models
         public event PropertyChangedEventHandler PropertyChanged;
         private Point _movingTarget;
         private DispatcherTimer _timer;
+	    private Point _mouseCoordinates;
 
-        public DemoModel()
+	    public DemoModel()
         {
             Cities = new Collection<CityMarker>();
             Cities.Add(new CityMarker {Location = new Point(48.8567, 2.3508), Label = "Paris"});
@@ -50,7 +51,19 @@ namespace UniversalMapControl.Demo.Models
             }
         }
 
-        private void UpdateMovingTarget(object sender, object e)
+	    public Point MouseCoordinates
+	    {
+		    get { return _mouseCoordinates; }
+		    set
+		    {
+			    _mouseCoordinates = value;
+				OnPropertyChanged();
+		    }
+	    }
+
+
+
+	    private void UpdateMovingTarget(object sender, object e)
         {
             double y = MovingTarget.Y + 0.01;
             if (y > 180)

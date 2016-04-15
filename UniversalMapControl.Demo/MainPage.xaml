@@ -23,7 +23,7 @@
     		<Run FontSize="50" Text="Universal Map Control Example"/>
 		</TextBlock>
 
-		<universalMapControl:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="47,15">
+		<universalMapControl:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="47,15" PointerMoved="MapOnPointerMoved">
 			<interactivity:Interaction.Behaviors>
 				<behaviors:TouchMapBehavior />
 				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
@@ -157,7 +157,20 @@
 				<TextBlock Text="{Binding ZoomLevel, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
 			</StackPanel>
 		</StackPanel>
-		<TextBlock Grid.Row="2" Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+		<Grid Grid.Row="2">
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" MinWidth="250" />
+			</Grid.ColumnDefinitions>
+			<TextBlock Grid.Row="0" Grid.Column="0" Text="Mouse Position:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+			<TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MouseCoordinates}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+			<TextBlock Grid.Row="1" Grid.Column="0" Text="Crosshair:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+			<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+		</Grid>
 	</Grid>
 </Page>
 
