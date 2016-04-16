@@ -10,13 +10,54 @@ namespace UniversalMapControl
 	public class MapLayerBase : Panel
 	{
 	    public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
-			typeof(Point),
+			typeof(Location),
 			typeof(MapLayerBase),
-			new PropertyMetadata(new Point(double.NaN, double.NaN), OnLocationPropertyChange));
+			new PropertyMetadata(new Location(double.NaN, double.NaN), OnLocationPropertyChange));
 
-		public static Point GetLocation(DependencyObject child)
+	    public static readonly DependencyProperty LatitudeProperty = DependencyProperty.RegisterAttached("Latitude",
+			typeof(double),
+			typeof(MapLayerBase),
+			new PropertyMetadata(double.NaN));
+
+		public static readonly DependencyProperty LongitudeProperty = DependencyProperty.RegisterAttached("Longitude",
+			typeof(double),
+			typeof(MapLayerBase),
+			new PropertyMetadata(double.NaN));
+
+		public static double GetLatitude(DependencyObject child)
 		{
-			return (Point)child.GetValue(LocationProperty);
+			Location location = (Location)child.GetValue(LocationProperty);
+			return location.Latitude;
+		}
+
+		public static void SetLatitude(DependencyObject child, double value)
+		{
+			Location location = GetLocation(child);
+			location.Latitude = value;
+			SetLocation(child, location);
+		}
+
+		public static double GetLongitude(DependencyObject child)
+		{
+			Location location = (Location)child.GetValue(LocationProperty);
+			return location.Longitude;
+		}
+
+		public static void SetLongitude(DependencyObject child, double value)
+		{
+			Location location = GetLocation(child);
+			location.Longitude = value;
+			SetLocation(child, location);
+		}
+
+		public static Location GetLocation(DependencyObject child)
+		{
+			return (Location)child.GetValue(LocationProperty);
+		}
+
+		public static void SetLocation(DependencyObject child, Location value)
+		{
+			child.SetValue(LocationProperty, value);
 		}
 
 		private static void OnLocationPropertyChange(DependencyObject child, DependencyPropertyChangedEventArgs e)
@@ -26,11 +67,6 @@ namespace UniversalMapControl
 			{
 				mapLayer.InvalidateArrange();
 			}
-		}
-
-		public static void SetLocation(DependencyObject child, Point value)
-		{
-			child.SetValue(LocationProperty, value);
 		}
 
 		private Lazy<Map> _parentMap;
@@ -45,10 +81,10 @@ namespace UniversalMapControl
 			get { return _parentMap.Value; }
 		}
 
-		protected virtual Point? GetLocationPropertyValueIfSet(DependencyObject child)
+		protected virtual Location? GetLocationPropertyValueIfSet(DependencyObject child)
 		{
-		    Point location = GetLocation(child);
-			if (double.IsNaN(location.X) || double.IsNaN(location.Y))
+			Location location = GetLocation(child);
+			if (double.IsNaN(location.Latitude) || double.IsNaN(location.Longitude))
 			{
 				return null;
 			}
@@ -104,7 +140,7 @@ namespace UniversalMapControl
 				return;
 			}
 
-			Point? location = GetLocation(element);
+			Location? location = GetLocation(element);
 
 		    Map parentMap = ParentMap;
 			Point finalPosition;
@@ -120,10 +156,10 @@ namespace UniversalMapControl
 			element.Arrange(new Rect(finalPosition, element.DesiredSize));
 		}
 
-	    protected virtual Point? GetLocation(UIElement element)
+	    protected virtual Location? GetLocation(UIElement element)
 	    {
 	        IHasLocation elementWithLocation = element as IHasLocation;
-	        Point? location;
+			Location? location;
 	        if (elementWithLocation != null)
 	        {
 	            location = elementWithLocation.Location;
@@ -174,10 +210,10 @@ namespace UniversalMapControl
 			return position;
 		}
 
-		protected virtual Point GetPositionForElementWithLocation(Point location, UIElement element, Map parentMap)
+		protected virtual Point GetPositionForElementWithLocation(Location location, UIElement element, Map parentMap)
 		{
 			Size desiredSize = element.DesiredSize;
-			Point position = parentMap.ViewPortProjection.ToCartesian(new Point(location.X, location.Y), parentMap.MapCenter.X);
+			Point position = parentMap.ViewPortProjection.ToCartesian(location, parentMap.MapCenter.Longitude);
 
 			position = parentMap.ViewPortTransform.TransformPoint(position);
 

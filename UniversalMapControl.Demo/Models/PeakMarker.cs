@@ -7,7 +7,7 @@ namespace UniversalMapControl.Demo.Models
     /// </summary>
     public class PeakMarker 
     {
-        public Point PeakLocation { get; set; }
+        public Location PeakLocation { get; set; }
         public string PeakName { get; set; }
     }
 }

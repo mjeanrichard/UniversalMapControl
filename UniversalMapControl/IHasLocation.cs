@@ -4,6 +4,6 @@ namespace UniversalMapControl
 {
 	public interface IHasLocation
 	{
-		Point Location { get; }
+		Location Location { get; }
 	}
 }

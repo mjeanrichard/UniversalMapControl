@@ -5,7 +5,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-	xmlns:universalMapControl="using:UniversalMapControl"
+	xmlns:umc="using:UniversalMapControl"
 	xmlns:behaviors="using:UniversalMapControl.Behaviors"
 	xmlns:tiles="using:UniversalMapControl.Tiles"
 	xmlns:utils="using:UniversalMapControl.Utils"
@@ -23,7 +23,7 @@
     		<Run FontSize="50" Text="Universal Map Control Example"/>
 		</TextBlock>
 
-		<universalMapControl:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="47,15" PointerMoved="MapOnPointerMoved">
+		<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved">
 			<interactivity:Interaction.Behaviors>
 				<behaviors:TouchMapBehavior />
 				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
@@ -35,7 +35,7 @@
 			<ItemsControl ItemsSource="{Binding Cities}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
-						<universalMapControl:MapItemsPanel />
+						<umc:MapItemsPanel />
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemContainerStyle>
@@ -60,7 +60,7 @@
 			<ItemsControl ItemsSource="{Binding Peaks}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
-						<universalMapControl:MapItemsPanel />
+						<umc:MapItemsPanel />
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemContainerStyle>
@@ -74,7 +74,7 @@
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Grid>
-							<Path Stroke="DarkGreen" StrokeThickness="3" universalMapControl:MapLayerBase.Location="{Binding PeakLocation}" Margin="20,80,0,0" HorizontalAlignment="Center">
+							<Path Stroke="DarkGreen" StrokeThickness="3" umc:MapLayerBase.Location="{Binding PeakLocation}" Margin="20,80,0,0" HorizontalAlignment="Center">
 								<Path.Data>
 									<PathGeometry>
 										<PathGeometry.Figures>
@@ -102,12 +102,12 @@
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 
-			<TextBlock Text="0" FontSize="30" universalMapControl:MapLayerBase.Location="0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="60" FontSize="30" universalMapControl:MapLayerBase.Location="0,50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="120" FontSize="30" universalMapControl:MapLayerBase.Location="0,100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="180" FontSize="30" universalMapControl:MapLayerBase.Location="0,180" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-60" FontSize="30" universalMapControl:MapLayerBase.Location="0,-50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-120" FontSize="30" universalMapControl:MapLayerBase.Location="0,-100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="0" FontSize="30"    umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="60" FontSize="30"   umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="120" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="180" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="180" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-60" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+			<TextBlock Text="-120" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 
 			<!-- Crosshair; doesn't move with Map -->
 			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -115,7 +115,7 @@
 
 
 			<!-- Arrow moving across the map -->
-			<Path Stroke="Red" StrokeThickness="3" universalMapControl:MapLayerBase.Location="{Binding MovingTarget}"
+			<Path Stroke="Red" StrokeThickness="3" umc:MapLayerBase.Location="{Binding MovingTarget}"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Center">
 				<Path.Data>
@@ -138,12 +138,12 @@
 			</Path>
 
 			<!-- Circle around Mallorca; scales and rotates with the Map -->
-			<Path Stroke="Blue" StrokeThickness="3" universalMapControl:MapLayerBase.Location="39.624148, 2.9">
+			<Path Stroke="Blue" StrokeThickness="3" umc:MapLayerBase.Latitude="39.624148" umc:MapLayerBase.Longitude="2.9">
 				<Path.Data>
 					<EllipseGeometry RadiusX="0.5" RadiusY="0.4" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
 				</Path.Data>
 			</Path>
-		</universalMapControl:Map>
+		</umc:Map>
 
 		<StackPanel Grid.Row="2" Orientation="Horizontal">
 			<StackPanel Orientation="Vertical" Margin="5,0">
@@ -173,4 +173,6 @@
 		</Grid>
 	</Grid>
 </Page>
+
+
 

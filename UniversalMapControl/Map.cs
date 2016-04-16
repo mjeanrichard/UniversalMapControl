@@ -11,7 +11,7 @@ namespace UniversalMapControl
 	public class Map : MapLayerBase
 	{
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Point), typeof(Map), new PropertyMetadata(new Point(), MapCenterPropertyChanged));
+			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location(), MapCenterPropertyChanged));
 
 		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
 			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingPropertyChanged));
@@ -28,7 +28,7 @@ namespace UniversalMapControl
 		private static void MapCenterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
-			map.OnMapCenterChanged((Point)e.NewValue);
+			map.OnMapCenterChanged((Location)e.NewValue);
 		}
 
 		private static void ZoomLevelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -37,7 +37,7 @@ namespace UniversalMapControl
 			map.OnZoomLevelChanged((double)e.NewValue);
 		}
 
-		public event EventHandler<Point> MapCenterChangedEvent;
+		public event EventHandler<Location> MapCenterChangedEvent;
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
@@ -62,12 +62,12 @@ namespace UniversalMapControl
 			Background = new SolidColorBrush(Colors.Transparent);
 			ManipulationMode = ManipulationModes.All;
 
-			MapCenter = new Point(0, 0);
+			MapCenter = new Location(0, 0);
 		}
 
-		public Point MapCenter
+		public Location MapCenter
 		{
-			get { return (Point)GetValue(MapCenterProperty); }
+			get { return (Location)GetValue(MapCenterProperty); }
 			set { SetValue(MapCenterProperty, value); }
 		}
 
@@ -173,7 +173,7 @@ namespace UniversalMapControl
 			OnViewPortChangedEvent();
 		}
 
-		protected virtual void OnMapCenterChanged(Point newCenter)
+		protected virtual void OnMapCenterChanged(Location newCenter)
 		{
 			MapCenterChangedEvent?.Invoke(this, newCenter);
 			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
@@ -186,10 +186,10 @@ namespace UniversalMapControl
 		/// </summary>
 		/// <param name="point">A Position on the MapControl (such as the MousePointer)</param>
 		/// <returns>The location in the current Projection.</returns>
-		public Point GetLocationFromPoint(Point point)
+		public Location GetLocationFromPoint(Point point)
 		{
 			Point cartesianLocation = ViewPortTransform.Inverse.TransformPoint(point);
-			Point position = ViewPortProjection.ToWgs84(cartesianLocation);
+			Location position = ViewPortProjection.ToWgs84(cartesianLocation);
 			return position;
 		}
 

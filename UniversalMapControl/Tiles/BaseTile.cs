@@ -16,7 +16,7 @@ namespace UniversalMapControl.Tiles
         private readonly Image _image;
         private BitmapImage _bitmap;
 
-        protected BaseTile(int x, int y, int zoom, Point location, string layerName)
+        protected BaseTile(int x, int y, int zoom, Location location, string layerName)
         {
             LayerName = layerName;
             X = x;
@@ -59,7 +59,7 @@ namespace UniversalMapControl.Tiles
             get { return _image; }
         }
 
-        public Point Location { get; }
+        public Location Location { get; }
 
         private void BitmapOnImageFailed(object sender, ExceptionRoutedEventArgs exceptionRoutedEventArgs)
         {}

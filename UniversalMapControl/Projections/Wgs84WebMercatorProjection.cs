@@ -18,9 +18,9 @@ namespace UniversalMapControl.Projections
 		public const int HalfMapWidth = 128;
 		public const double LatNorthBound = 85.051128779803d;
 
-		public Point ToCartesian(Point wgs84, bool sanitize = true)
+		public Point ToCartesian(Location wgs84, bool sanitize = true)
 		{
-			return ToCartesian(wgs84, wgs84.Y, sanitize);
+			return ToCartesian(wgs84, wgs84.Longitude, sanitize);
 		}
 
 		/// <summary>
@@ -29,10 +29,10 @@ namespace UniversalMapControl.Projections
 		/// as possible to the provided referenceLong even if that means using a Longitude 
 		/// greater than 180.
 		/// </summary>
-		public Point ToCartesian(Point wgs84, double referenceLong, bool sanitize = true)
+		public Point ToCartesian(Location wgs84, double referenceLong, bool sanitize = true)
 		{
-		    double latitude = wgs84.X;
-		    double longitude = wgs84.Y;
+		    double latitude = wgs84.Latitude;
+		    double longitude = wgs84.Longitude;
 		    if (sanitize)
 			{
 				longitude = SanitizeLongitude(longitude);
@@ -55,7 +55,7 @@ namespace UniversalMapControl.Projections
 			return new Point(x, -y);
 		}
 
-		public Point ToWgs84(Point point, bool sanitize = true)
+		public Location ToWgs84(Point point, bool sanitize = true)
 		{
 		    double lat = (-point.Y / MapWidth) * 360;
 		    double lon = (point.X / MapWidth) * 360;
@@ -67,7 +67,7 @@ namespace UniversalMapControl.Projections
 			    lon = SanitizeLongitude(lon);
 			}
 
-			return new Point(lat, lon);
+			return new Location(lat, lon);
 		}
 
 		/// <summary>

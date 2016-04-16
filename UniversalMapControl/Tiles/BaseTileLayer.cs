@@ -106,7 +106,7 @@ namespace UniversalMapControl.Tiles
 						if (!tiles.ContainsKey(key))
 						{
 							Point position = GetViewPortPositionFromTileIndex(new Point(x, y), z);
-							Point location = parentMap.ViewPortProjection.ToWgs84(position, false);
+							Location location = parentMap.ViewPortProjection.ToWgs84(position, false);
 							int indexX = SanitizeIndex(x, z);
 							TTile tile = CreateNewTile(indexX, z, y, location);
 
@@ -148,7 +148,7 @@ namespace UniversalMapControl.Tiles
 			}
 		}
 
-		protected abstract TTile CreateNewTile(int x, int z, int y, Point location);
+		protected abstract TTile CreateNewTile(int x, int z, int y, Location location);
 
 		protected virtual IEnumerable<TTile> GetTiles(double zoomLevel)
 		{

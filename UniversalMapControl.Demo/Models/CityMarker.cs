@@ -9,7 +9,7 @@ namespace UniversalMapControl.Demo.Models
     /// </summary>
     public class CityMarker : IHasLocation
     {
-        public Point Location { get; set; }
+        public Location Location { get; set; }
         public string Label { get; set; }
     }
 }

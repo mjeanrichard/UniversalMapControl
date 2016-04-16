@@ -12,7 +12,7 @@ namespace UniversalMapControl.Tiles
 
 		public string UrlPattern { get; set; }
 
-		protected override WebTile CreateNewTile(int x, int z, int y, Point location)
+		protected override WebTile CreateNewTile(int x, int z, int y, Location location)
 		{
 			Uri uri = new Uri(PatternMatcher.Replace(UrlPattern, m => MatchEvaluator(m, x, y, z)));
 			return new WebTile(x, y, z, location, uri, "OSM");

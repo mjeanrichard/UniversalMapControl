@@ -107,9 +107,11 @@
     <Compile Include="Behaviors\AnimatedValuesBehavior.cs" />
     <Compile Include="Behaviors\TouchMapBehavior.cs" />
     <Compile Include="IHasLocation.cs" />
+    <Compile Include="Location.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapItemsPanel.cs" />
     <Compile Include="MapLayerBase.cs" />
+    <Compile Include="Projections\SwissGrid.cs" />
     <Compile Include="Projections\Wgs84WebMercatorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tiles\BaseTile.cs" />

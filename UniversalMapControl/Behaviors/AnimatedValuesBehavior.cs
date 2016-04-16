@@ -12,7 +12,7 @@ namespace UniversalMapControl.Behaviors
 
 		public static readonly DependencyProperty TargetZoomProperty = DependencyProperty.Register("TargetZoom", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetZoomPropertyChanged));
 		public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register("TargetHeading", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetHeadingPropertyChanged));
-		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(Point), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Point(), TargetCenterPropertyChanged));
+		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(Location), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Location(), TargetCenterPropertyChanged));
 
 		private static void TargetZoomPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -43,9 +43,9 @@ namespace UniversalMapControl.Behaviors
 			set { SetValue(TargetHeadingProperty, value); }
 		}
 
-		public Point TargetCenter
+		public Location TargetCenter
 		{
-			get { return (Point)GetValue(TargetCenterProperty); }
+			get { return (Location)GetValue(TargetCenterProperty); }
 			set { SetValue(TargetCenterProperty, value); }
 		}
 

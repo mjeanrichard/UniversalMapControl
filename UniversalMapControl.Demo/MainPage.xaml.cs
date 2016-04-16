@@ -27,7 +27,7 @@ namespace UniversalMapControl.Demo
 	    {
 		    Map map = sender as Map;
 		    PointerPoint mousePoint = e.GetCurrentPoint(map);
-		    Point position = map.GetLocationFromPoint(mousePoint.Position);
+			Location position = map.GetLocationFromPoint(mousePoint.Position);
 		    _viewModel.MouseCoordinates = position;
 	    }
     }
