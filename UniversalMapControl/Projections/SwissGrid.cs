@@ -27,10 +27,9 @@
 // Please validate your results with NAVREF on-line service: http://www.swisstopo.admin.ch/internet/swisstopo/en/home/apps/calc/navref.html (difference ~ 1-2m)
 
 using System;
+using System.Globalization;
 
-using UniversalMapControl;
-
-namespace TeensyBatMap
+namespace UniversalMapControl.Projections
 {
 	public struct SwissGridLocation
 	{
@@ -43,7 +42,12 @@ namespace TeensyBatMap
 			Y = y;
 		}
 
-		public Location ToWgs84()
+		public override string ToString()
+		{
+			return string.Format(CultureInfo.CurrentCulture, "{0} / {1}", X, Y);
+		}
+
+		public Location ToWgs84Approx()
 		{
 			Location location = new Location();
 			location.Latitude = CHtoWGSlat(X, Y);
@@ -51,10 +55,12 @@ namespace TeensyBatMap
 			return location;
 		}
 
-		public SwissGridLocation(Location location)
+		public static SwissGridLocation FromWgs84Approx(Location location)
 		{
-			X = (int)Math.Round(WGStoCHy(location.Latitude, location.Longitude));
-			Y = (int)Math.Round(WGStoCHx(location.Latitude, location.Longitude));
+			SwissGridLocation sg = new SwissGridLocation();
+			sg.X = (int)Math.Round(WGStoCHy(location.Latitude, location.Longitude));
+			sg.Y = (int)Math.Round(WGStoCHx(location.Latitude, location.Longitude));
+			return sg;
 		}
 
 		// Convert WGS lat/long (° dec) to CH y

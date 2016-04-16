@@ -106,6 +106,8 @@
   <ItemGroup>
     <Compile Include="Behaviors\AnimatedValuesBehavior.cs" />
     <Compile Include="Behaviors\TouchMapBehavior.cs" />
+    <Compile Include="Converters\LocationConverter.cs" />
+    <Compile Include="Converters\SwissGridConverter.cs" />
     <Compile Include="IHasLocation.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Map.cs" />
