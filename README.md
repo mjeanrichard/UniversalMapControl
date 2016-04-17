@@ -1,4 +1,4 @@
-# WinRT Map
+# Universal Map Control
 This Repository contains a Map Control for the Universal Windows Platform. It ist build with extensibility in mind and should be easy to adapt to your needs.
 
 Features:
@@ -18,7 +18,7 @@ The following Maps are currently supported. Lots of other Maps can easily be add
 - Custom
 
 ##Usage
-For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAML](../blob/master/WinRtMap.Demo/WinRtMap.Demo.Windows/MainPage.xaml)).
+For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAML](../master/UniversalMapControl.Demo/MainPage.xaml)).
 
 ```XAML
 <umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved">
