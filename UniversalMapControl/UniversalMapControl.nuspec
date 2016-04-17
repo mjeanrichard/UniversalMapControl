@@ -14,7 +14,8 @@
 
 			Supported Maps:
 			- OpenStreetMap
-			- Custom Maps
+			- Google
+			- Custom
 		</description>
 		<language />
 		<tags>Map, MapControl, XAML, Windows, Windows Phone, OSM, OpenStreetMap, UWP, Windows 10</tags>

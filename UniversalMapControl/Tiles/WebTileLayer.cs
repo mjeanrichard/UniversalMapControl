@@ -6,20 +6,32 @@ namespace UniversalMapControl.Tiles
 {
 	public class WebTileLayer : TileLayer<WebTile>
 	{
-		private static readonly Regex PatternMatcher = new Regex("{(?<key>[a-z-;]+)}", RegexOptions.IgnoreCase);
+		private static readonly Regex PatternMatcher = new Regex("{(?<key>[^}]+)}", RegexOptions.IgnoreCase);
 		private Random _random = new Random();
 
 		public WebTileLayer() : base(new WebTileLoader())
 		{
 			UrlPattern = "http://{RND-a;b;c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+			LayerName = "OSM";
 		}
 
+		/// <summary>
+		/// URL Patter to load the Tile from. The following Patter are supported:
+		/// {x}/{y}/{z} : Coordinates
+		/// {RND-a;b;c} : Randomly picks one of the supplied values (separated by semicolon)
+		/// </summary>
 		public string UrlPattern { get; set; }
+
+		/// <summary>
+		/// Name of the Layer. This is used to create a unique folder for the Filesystem Cache.
+		/// </summary>
+		public string LayerName { get; set; }
 
 		protected override WebTile CreateNewTile(int x, int z, int y, Location location)
 		{
-			Uri uri = new Uri(PatternMatcher.Replace(UrlPattern, m => MatchEvaluator(m, x, y, z)));
-			return new WebTile(x, y, z, location, uri, "OSM", Canvas);
+			string uriString = PatternMatcher.Replace(UrlPattern, m => MatchEvaluator(m, x, y, z));
+			Uri uri = new Uri(uriString);
+			return new WebTile(x, y, z, location, uri, LayerName, Canvas);
 		}
 
 		private string MatchEvaluator(Match match, int x, int y, int z)
