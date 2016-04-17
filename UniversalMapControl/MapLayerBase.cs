@@ -139,6 +139,12 @@ namespace UniversalMapControl
 				element.Arrange(new Rect(new Point(0, 0), finalSize));
 				return;
 			}
+			if (element is CanvasMapLayer)
+			{
+				element.Arrange(new Rect(new Point(0, 0), finalSize));
+				((CanvasMapLayer)element).Invalidate();
+				return;
+			}
 
 			Location? location = GetLocation(element);
 

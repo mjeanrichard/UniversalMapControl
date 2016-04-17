@@ -29,7 +29,7 @@ namespace UniversalMapControl.Demo.Models
             Peaks.Add(new PeakMarker { PeakLocation = new Location(40.8167, 14.4333), PeakName = "Monte Vesuvio" });
             Peaks.Add(new PeakMarker { PeakLocation = new Location(37.05, -3.3167), PeakName = "Pico de Mulhacén" });
 
-            MovingTarget = new Point(47, 15);
+            MovingTarget = new Location(47, 15);
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(0.01);
@@ -41,7 +41,7 @@ namespace UniversalMapControl.Demo.Models
 
         public ICollection<PeakMarker> Peaks { get; set; }
 
-        public Point MovingTarget
+        public Location MovingTarget
         {
             get { return _movingTarget; }
             set
@@ -70,12 +70,12 @@ namespace UniversalMapControl.Demo.Models
 
 	    private void UpdateMovingTarget(object sender, object e)
         {
-            double y = MovingTarget.Y + 0.01;
-            if (y > 180)
+            double lon = MovingTarget.Longitude + 0.01;
+            if (lon > 180)
             {
-                y = -180;
+                lon = -180;
             }
-            MovingTarget = new Point(MovingTarget.X, y);
+            MovingTarget = new Location(MovingTarget.Latitude, lon);
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

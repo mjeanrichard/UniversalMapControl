@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Networking.BackgroundTransfer;
@@ -12,9 +13,7 @@ namespace UniversalMapControl.Tiles
     {
         private readonly ITileCache _cache;
         private readonly ConcurrentBag<TTile> _tilesToLoad = new ConcurrentBag<TTile>();
-        private volatile int _taskCount;
-
-        private BackgroundDownloader _downloader = new BackgroundDownloader();
+        private int _taskCount;
 
         protected BaseTileLoader() : this(new FileSystemTileCache())
         {}
@@ -55,7 +54,7 @@ namespace UniversalMapControl.Tiles
             TTile tile;
             while (_tilesToLoad.TryTake(out tile))
             {
-                if (tile.HasImage || tile.IsCanelled)
+                if (tile.HasImage || tile.IsDisposed)
                 {
                     continue;
                 }
@@ -67,7 +66,7 @@ namespace UniversalMapControl.Tiles
                         {
                             if (cacheStream != null)
                             {
-                                tile.SetImage(cacheStream).Wait();
+                                tile.SetImage(cacheStream);
                             }
                         }
                     }
@@ -75,7 +74,7 @@ namespace UniversalMapControl.Tiles
                     {
                         using (InMemoryRandomAccessStream imageStream = LoadTileImage(tile).Result)
                         {
-                            tile.SetImage(imageStream).Wait();
+                            tile.SetImage(imageStream);
                             if (_cache != null)
                             {
                                 imageStream.Seek(0);
@@ -86,8 +85,11 @@ namespace UniversalMapControl.Tiles
                 }
                 catch (Exception e)
                 {
-                    //If one Tile could not be donwloaded continue with the next.
-                    //TODO: Implement some proper Error Handling here. Retry?
+                    //If one Tile could not be downloaded add it back to the Bag.
+	                if (!tile.HasImage && !tile.IsDisposed)
+	                {
+		                _tilesToLoad.Add(tile);
+	                }
                 }
             }
         }

@@ -1,21 +1,25 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Windows.Foundation;
 
 namespace UniversalMapControl.Tiles
 {
-	public class WebTileLayer : BaseTileLayer<WebTile>
+	public class WebTileLayer : TileLayer<WebTile>
 	{
 		private static readonly Regex PatternMatcher = new Regex("{(?<key>[a-z-;]+)}", RegexOptions.IgnoreCase);
 		private Random _random = new Random();
+
+		public WebTileLayer() : base(new WebTileLoader())
+		{
+			UrlPattern = "http://{RND-a;b;c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+		}
 
 		public string UrlPattern { get; set; }
 
 		protected override WebTile CreateNewTile(int x, int z, int y, Location location)
 		{
 			Uri uri = new Uri(PatternMatcher.Replace(UrlPattern, m => MatchEvaluator(m, x, y, z)));
-			return new WebTile(x, y, z, location, uri, "OSM");
+			return new WebTile(x, y, z, location, uri, "OSM", Canvas);
 		}
 
 		private string MatchEvaluator(Match match, int x, int y, int z)
@@ -49,12 +53,6 @@ namespace UniversalMapControl.Tiles
 				return parts[index];
 			}
 			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "The URL-Pattern '{0}' is invalid.", key));
-		}
-
-		public WebTileLayer() : base(new WebTileLoader())
-		{
-			UrlPattern = "http://{RND-a;b;c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-
 		}
 	}
 }

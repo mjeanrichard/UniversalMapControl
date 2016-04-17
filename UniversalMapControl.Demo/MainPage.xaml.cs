@@ -25,10 +25,9 @@ namespace UniversalMapControl.Demo
 
 	    private void MapOnPointerMoved(object sender, PointerRoutedEventArgs e)
 	    {
-		    Map map = sender as Map;
-		    PointerPoint mousePoint = e.GetCurrentPoint(map);
+			PointerPoint mousePoint = e.GetCurrentPoint(map);
 			Location position = map.GetLocationFromPoint(mousePoint.Position);
-		    _viewModel.MouseCoordinates = position;
-	    }
+			_viewModel.MouseCoordinates = position;
+		}
     }
 }
