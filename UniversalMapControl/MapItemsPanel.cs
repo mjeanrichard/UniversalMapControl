@@ -3,6 +3,8 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl
 {
     public class MapItemsPanel : MapLayerBase

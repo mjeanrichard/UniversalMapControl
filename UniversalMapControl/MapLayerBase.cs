@@ -3,6 +3,8 @@ using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+
+using UniversalMapControl.Interfaces;
 using UniversalMapControl.Utils;
 
 namespace UniversalMapControl

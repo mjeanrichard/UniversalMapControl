@@ -1,99 +1,107 @@
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Networking.BackgroundTransfer;
+
 using Windows.Storage.Streams;
 using Windows.System.Threading;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl.Tiles
 {
-    public abstract class BaseTileLoader<TTile> where TTile : BaseTile
-    {
-        private readonly ITileCache _cache;
-        private readonly ConcurrentBag<TTile> _tilesToLoad = new ConcurrentBag<TTile>();
-        private int _taskCount;
+	public abstract class BaseTileLoader : ITileLoader
+	{
+		private readonly ConcurrentBag<ICanvasBitmapTile> _tilesToLoad = new ConcurrentBag<ICanvasBitmapTile>();
+		private int _taskCount;
 
-        protected BaseTileLoader() : this(new FileSystemTileCache())
-        {}
+		protected BaseTileLoader(ILayerConfiguration layerConfiguration)
+		{
+			LayerConfiguration = layerConfiguration;
+			MaxParallelTasks = 5;
+#if DEBUG
+			MaxParallelTasks = 1;
+#endif
+		}
 
-        protected BaseTileLoader(ITileCache cache)
-        {
-            _cache = cache;
-        }
+		protected ILayerConfiguration LayerConfiguration { get; }
 
-        public void Enqueue(TTile tile)
-        {
-            if (!tile.HasImage)
-            {
-                _tilesToLoad.Add(tile);
-                StartDownloading();
-            }
-        }
+		public void Enqueue(ICanvasBitmapTile tile)
+		{
+			if (!tile.HasImage)
+			{
+				_tilesToLoad.Add(tile);
+				StartDownloading();
+			}
+		}
 
-        private void StartDownloading()
-        {
-            if (_taskCount >= 5)
-            {
-                return;
-            }
-            Interlocked.Increment(ref _taskCount);
+		public int MaxParallelTasks { get; set; }
+
+		private void StartDownloading()
+		{
+			if (_taskCount >= MaxParallelTasks)
+			{
+				return;
+			}
+			Interlocked.Increment(ref _taskCount);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            ThreadPool.RunAsync(o =>
-            {
-                RetrieveTiles();
-                Interlocked.Decrement(ref _taskCount);
-            });
+			ThreadPool.RunAsync(o =>
+			{
+				RetrieveTiles();
+				Interlocked.Decrement(ref _taskCount);
+			});
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        }
+		}
 
-        private void RetrieveTiles()
-        {
-            TTile tile;
-            while (_tilesToLoad.TryTake(out tile))
-            {
-                if (tile.HasImage || tile.IsDisposed)
-                {
-                    continue;
-                }
-                try
-                {
-                    if (_cache != null)
-                    {
-                        using (IRandomAccessStream cacheStream = _cache.TryGetStream(tile).Result)
-                        {
-                            if (cacheStream != null)
-                            {
-                                tile.SetImage(cacheStream);
-                            }
-                        }
-                    }
-                    if (!tile.HasImage)
-                    {
-                        using (InMemoryRandomAccessStream imageStream = LoadTileImage(tile).Result)
-                        {
-                            tile.SetImage(imageStream);
-                            if (_cache != null)
-                            {
-                                imageStream.Seek(0);
-                                _cache.Add(tile, imageStream).Wait();
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    //If one Tile could not be downloaded add it back to the Bag.
-	                if (!tile.HasImage && !tile.IsDisposed)
-	                {
-		                _tilesToLoad.Add(tile);
-	                }
-                }
-            }
-        }
+		private void RetrieveTiles()
+		{
+			ICanvasBitmapTile tile;
+			while (_tilesToLoad.TryTake(out tile))
+			{
+				if (tile.HasImage || tile.IsDisposed)
+				{
+					continue;
+				}
+				try
+				{
+					ITileCache tileCache = LayerConfiguration.TileCache;
+					if (tileCache != null)
+					{
+						tileCache.TryLoadAsync(tile).Wait();
+					}
+					if (!tile.HasImage)
+					{
+						InMemoryRandomAccessStream imageStream = LoadTileImage(tile).Result;
+						if (imageStream == null)
+						{
+							continue;
+						}
+						using (imageStream)
+						{
+							if (imageStream.Size > 0)
+							{
+								tile.ReadFromAsync(imageStream).Wait();
+								if (tileCache != null)
+								{
+									imageStream.Seek(0);
+									tileCache.AddAsyc(tile, imageStream).Wait();
+								}
+							}
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					//If one Tile could not be downloaded add it back to the Bag.
+					//if (!tile.HasImage && !tile.IsDisposed)
+					//{
+					// _tilesToLoad.Add(tile);
+					//}
+				}
+			}
+		}
 
-        protected abstract Task<InMemoryRandomAccessStream> LoadTileImage(TTile tile);
-    }
+		protected abstract Task<InMemoryRandomAccessStream> LoadTileImage(ICanvasBitmapTile tile);
+	}
 }

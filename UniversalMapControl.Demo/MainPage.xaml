@@ -29,7 +29,7 @@
 				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
 			</interactivity:Interaction.Behaviors>
 
-			<tiles:WebTileLayer />
+			<tiles:TileLayer />
 			<!-- 
 			Google Maps Layers. Please make sure that you have the required Licenses before activating GoogleMaps!
 			<tiles:WebTileLayer LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />

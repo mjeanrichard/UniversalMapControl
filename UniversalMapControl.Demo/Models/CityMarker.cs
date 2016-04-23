@@ -1,5 +1,7 @@
 using Windows.Foundation;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl.Demo.Models
 {
     /// <summary>

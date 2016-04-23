@@ -109,7 +109,7 @@
     <Compile Include="CanvasMapLayer.cs" />
     <Compile Include="Converters\LocationConverter.cs" />
     <Compile Include="Converters\SwissGridConverter.cs" />
-    <Compile Include="IHasLocation.cs" />
+    <Compile Include="Interfaces\IHasLocation.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapItemsPanel.cs" />
@@ -117,14 +117,19 @@
     <Compile Include="Projections\SwissGrid.cs" />
     <Compile Include="Projections\Wgs84WebMercatorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tiles\BaseTile.cs" />
+    <Compile Include="Tiles\CanvasBitmapTile.cs" />
     <Compile Include="Tiles\BaseTileLoader.cs" />
-    <Compile Include="Tiles\ITileCache.cs" />
+    <Compile Include="Interfaces\ICanvasBitmapTile.cs" />
+    <Compile Include="Interfaces\ILayerConfiguration.cs" />
+    <Compile Include="Interfaces\ITile.cs" />
+    <Compile Include="Interfaces\ITileCache.cs" />
+    <Compile Include="Interfaces\ITileLoader.cs" />
+    <Compile Include="Tiles\LayerConfiguration.cs" />
     <Compile Include="Tiles\TileLayer.cs" />
     <Compile Include="Tiles\FileSystemTileCache.cs" />
-    <Compile Include="Tiles\WebTile.cs" />
-    <Compile Include="Tiles\WebTileLayer.cs" />
+    <Compile Include="Interfaces\ITileProvider.cs" />
     <Compile Include="Tiles\WebTileLoader.cs" />
+    <Compile Include="Tiles\TileProvider.cs" />
     <Compile Include="Utils\XamlHelper.cs" />
     <EmbeddedResource Include="Properties\UniversalMapControl.rd.xml" />
   </ItemGroup>

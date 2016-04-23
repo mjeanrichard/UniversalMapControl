@@ -54,7 +54,7 @@ namespace UniversalMapControl
 			ScaleRotateTransform = new TransformGroup {Children = {ScaleTransform, RotateTransform}};
 
 			MinZoomLevel = 0;
-			MaxZoomLevel = 18;
+			MaxZoomLevel = 19;
 
 			ZoomLevel = 1;
 			SizeChanged += Map_SizeChanged;
