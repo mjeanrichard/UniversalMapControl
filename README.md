@@ -18,21 +18,33 @@ The following Maps are currently supported. Lots of other Maps can easily be add
 - Custom
 
 ##Usage
+Minimal Configuration:
+```XAML
+<umc:Map Name="map" ZoomLevel="3">
+	<tiles:TileLayer />
+</umc:Map>
+```
+
 For Eaxmples see the included Demos for Windows 8.1 and Windows Phone ([Demo XAML](../master/UniversalMapControl.Demo/MainPage.xaml)).
 
 ```XAML
-<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved">
+<umc:Map Name="map" Heading="0" ZoomLevel="4.5" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved">
 	<interactivity:Interaction.Behaviors>
 		<behaviors:TouchMapBehavior />
 		<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
 	</interactivity:Interaction.Behaviors>
 
-	<tiles:WebTileLayer />
-	<!-- Google Maps Layers: Please make sure that you have the required Licenses before activating GoogleMaps!
-	<tiles:WebTileLayer LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
-	<tiles:WebTileLayer LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
-	-->
-			
+	<umc:Map.Resources>
+		<tiles:LayerConfiguration x:Key="OSM" />
+		<!-- 
+		Google Maps Layers. Please make sure that you have the required Licenses before activating GoogleMaps!
+		<tiles:LayerConfiguration x:Key="GoogleMap" LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
+		<tiles:LayerConfiguration x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
+		-->
+	</umc:Map.Resources>
+	
+	<tiles:TileLayer Configuration="{StaticResource 'OSM'}" />
+	
 	<!-- ItemsControl bound directly to the Model -->
 	<ItemsControl ItemsSource="{Binding Peaks}">
 		<ItemsControl.ItemsPanel>
