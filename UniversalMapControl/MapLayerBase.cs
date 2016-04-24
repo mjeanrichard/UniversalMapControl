@@ -6,6 +6,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
 using UniversalMapControl.Interfaces;
+using UniversalMapControl.Projections;
 using UniversalMapControl.Utils;
 
 namespace UniversalMapControl
@@ -15,7 +16,7 @@ namespace UniversalMapControl
 		public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
 			typeof(ILocation),
 			typeof(MapLayerBase),
-			new PropertyMetadata(new Location(double.NaN, double.NaN), OnLocationPropertyChange));
+			new PropertyMetadata(new Wgs84Location(double.NaN, double.NaN), OnLocationPropertyChange));
 
 		public static readonly DependencyProperty LatitudeProperty = DependencyProperty.RegisterAttached("Latitude",
 			typeof(double),

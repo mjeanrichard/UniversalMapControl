@@ -70,7 +70,7 @@ namespace UniversalMapControl.Projections
 				lon = SanitizeLongitude(lon);
 			}
 
-			return new Location(lat, lon);
+			return new Wgs84Location(lat, lon);
 		}
 
 		/// <summary>

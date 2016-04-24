@@ -2,7 +2,7 @@ using System.Globalization;
 
 using UniversalMapControl.Interfaces;
 
-namespace UniversalMapControl
+namespace UniversalMapControl.Projections
 {
 	public class Location : ILocation
 	{
@@ -34,4 +34,5 @@ namespace UniversalMapControl
 			return string.Format(CultureInfo.CurrentCulture, "{0}, {1}", Latitude, Longitude);
 		}
 	}
+
 }

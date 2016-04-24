@@ -5,6 +5,7 @@ using Windows.UI.Xaml.Media.Animation;
 using Microsoft.Xaml.Interactivity;
 
 using UniversalMapControl.Interfaces;
+using UniversalMapControl.Projections;
 
 namespace UniversalMapControl.Behaviors
 {

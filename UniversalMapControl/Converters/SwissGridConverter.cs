@@ -32,7 +32,7 @@ namespace UniversalMapControl.Converters
 					}
 				}
 			}
-			return new Location();
+			return new Wgs84Location();
 		}
 	}
 }

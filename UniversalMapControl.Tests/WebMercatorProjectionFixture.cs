@@ -21,7 +21,7 @@ namespace UniversalMapControl.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			Point point = projection.ToCartesian(new Location(lon, lat));
+			Point point = projection.ToCartesian(new Wgs84Location(lon, lat));
 			if (Math.Abs(x - point.X) > 0.0000001)
 			{
 				Assert.Fail("The Value for X ({0}) is not close enough to the expected Value '{1}' ({2}).", point.X, x, Math.Abs(x - point.X));
@@ -59,7 +59,7 @@ namespace UniversalMapControl.Tests
 		{
 			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
 
-			ILocation result = projection.ToLocation(projection.ToCartesian(new Location(lat, lon)));
+			ILocation result = projection.ToLocation(projection.ToCartesian(new Wgs84Location(lat, lon)));
 			if (Math.Abs(lon - result.Longitude) > 0.0000001)
 			{
 				Assert.Fail("The Value for Lon ({0}) is not close enough to the expected Value ({1}).", result.Longitude, lon);

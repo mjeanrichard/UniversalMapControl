@@ -2,6 +2,8 @@
 
 using Windows.UI.Xaml.Data;
 
+using UniversalMapControl.Projections;
+
 namespace UniversalMapControl.Converters
 {
 	public class LocationConverter : IValueConverter
@@ -26,11 +28,11 @@ namespace UniversalMapControl.Converters
 					double lon;
 					if (double.TryParse(parts[0], out lat) && double.TryParse(parts[1], out lon))
 					{
-						return new Location(lat, lon);
+						return new Wgs84Location(lat, lon);
 					}
 				}
 			}
-			return new Location();
+			return new Wgs84Location();
 		}
 	}
 }

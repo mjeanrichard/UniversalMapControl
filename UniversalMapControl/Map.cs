@@ -14,7 +14,7 @@ namespace UniversalMapControl
 	public class Map : MapLayerBase
 	{
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Location), typeof(Map), new PropertyMetadata(new Location(), MapCenterPropertyChanged));
+			"MapCenter", typeof(Wgs84Location), typeof(Map), new PropertyMetadata(new Wgs84Location(), MapCenterPropertyChanged));
 
 		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
 			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingPropertyChanged));
@@ -43,7 +43,7 @@ namespace UniversalMapControl
 			Background = new SolidColorBrush(Colors.Transparent);
 			ManipulationMode = ManipulationModes.All;
 
-			MapCenter = new Location(0, 0);
+			MapCenter = new Wgs84Location(0, 0);
 		}
 
 		private static void HeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -55,7 +55,7 @@ namespace UniversalMapControl
 		private static void MapCenterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
-			map.OnMapCenterChanged((Location)e.NewValue);
+			map.OnMapCenterChanged((Wgs84Location)e.NewValue);
 		}
 
 		private static void ZoomLevelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -64,7 +64,7 @@ namespace UniversalMapControl
 			map.OnZoomLevelChanged((double)e.NewValue);
 		}
 
-		public event EventHandler<Location> MapCenterChangedEvent;
+		public event EventHandler<Wgs84Location> MapCenterChangedEvent;
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
@@ -178,7 +178,7 @@ namespace UniversalMapControl
 			OnViewPortChangedEvent();
 		}
 
-		protected virtual void OnMapCenterChanged(Location newCenter)
+		protected virtual void OnMapCenterChanged(Wgs84Location newCenter)
 		{
 			MapCenterChangedEvent?.Invoke(this, newCenter);
 			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
