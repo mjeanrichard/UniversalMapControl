@@ -1,5 +1,7 @@
 using Windows.Foundation;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl.Demo.Models
 {
     /// <summary>
@@ -7,7 +9,7 @@ namespace UniversalMapControl.Demo.Models
     /// </summary>
     public class PeakMarker 
     {
-        public Location PeakLocation { get; set; }
+        public ILocation PeakLocation { get; set; }
         public string PeakName { get; set; }
     }
 }

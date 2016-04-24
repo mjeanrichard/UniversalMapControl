@@ -6,14 +6,16 @@ using System.Runtime.CompilerServices;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl.Demo.Models
 {
     public class DemoModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private Point _movingTarget;
+        private ILocation _movingTarget;
         private DispatcherTimer _timer;
-	    private Location _mouseCoordinates;
+	    private ILocation _mouseCoordinates;
 
 	    public DemoModel()
         {
@@ -41,7 +43,7 @@ namespace UniversalMapControl.Demo.Models
 
         public ICollection<PeakMarker> Peaks { get; set; }
 
-        public Location MovingTarget
+        public ILocation MovingTarget
         {
             get { return _movingTarget; }
             set
@@ -51,7 +53,7 @@ namespace UniversalMapControl.Demo.Models
             }
         }
 
-	    public Location MouseCoordinates
+	    public ILocation MouseCoordinates
 	    {
 		    get { return _mouseCoordinates; }
 		    set
@@ -61,7 +63,7 @@ namespace UniversalMapControl.Demo.Models
 		    }
 	    }
 
-	    public Location MapCenter
+	    public ILocation MapCenter
 	    {
 		    get { return new Location(47, 15); }
 	    }

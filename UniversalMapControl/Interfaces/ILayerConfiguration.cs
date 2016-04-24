@@ -10,7 +10,7 @@ namespace UniversalMapControl.Interfaces
 		ITileProvider TileProvider { get; }
 		ITileLoader TileLoader { get; }
 		ITileCache TileCache { get; }
-		ICanvasBitmapTile CreateTile(int x, int y, int zoom, Location location);
+		ICanvasBitmapTile CreateTile(int x, int y, int zoom, ILocation location);
 		void SetCanvas(CanvasControl canvas);
 	}
 }

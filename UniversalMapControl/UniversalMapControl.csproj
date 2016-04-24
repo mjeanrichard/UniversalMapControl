@@ -110,10 +110,12 @@
     <Compile Include="Converters\LocationConverter.cs" />
     <Compile Include="Converters\SwissGridConverter.cs" />
     <Compile Include="Interfaces\IHasLocation.cs" />
+    <Compile Include="Interfaces\ILocation.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapItemsPanel.cs" />
     <Compile Include="MapLayerBase.cs" />
+    <Compile Include="Interfaces\IProjection.cs" />
     <Compile Include="Projections\SwissGrid.cs" />
     <Compile Include="Projections\Wgs84WebMercatorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

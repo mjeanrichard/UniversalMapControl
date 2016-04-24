@@ -39,7 +39,7 @@ namespace UniversalMapControl.Tiles
 
 		public ITileCache TileCache { get; }
 
-		public ICanvasBitmapTile CreateTile(int x, int y, int zoom, Location location)
+		public ICanvasBitmapTile CreateTile(int x, int y, int zoom, ILocation location)
 		{
 			if (_canvas == null)
 			{

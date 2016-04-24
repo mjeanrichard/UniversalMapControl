@@ -1,30 +1,32 @@
-using System;
 using System.Globalization;
 
-using Windows.Foundation;
-using Windows.UI.Xaml.Data;
+using UniversalMapControl.Interfaces;
 
 namespace UniversalMapControl
 {
-	public struct Location
+	public class Location : ILocation
 	{
+		public Location()
+		{
+		}
+
 		public Location(double latitude, double longitude)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
 		}
 
-		public double Latitude { get; set; }
-		public double Longitude { get; set; }
+		public double Latitude { get; private set; }
+		public double Longitude { get; private set; }
 
-		public static implicit operator Location(Point point)
+		public ILocation ChangeLatitude(double newLatitude)
 		{
-			return new Location(point.X, point.Y);
+			return new Location(newLatitude, Longitude);
 		}
 
-		public static implicit operator Point(Location location)
+		public ILocation ChangeLongitude(double newLongitude)
 		{
-			return new Point(location.Latitude, location.Longitude);
+			return new Location(Latitude, newLongitude);
 		}
 
 		public override string ToString()

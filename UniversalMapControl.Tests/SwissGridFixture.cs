@@ -2,6 +2,7 @@
 
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
+using UniversalMapControl.Interfaces;
 using UniversalMapControl.Projections;
 
 namespace UniversalMapControl.Tests
@@ -14,7 +15,7 @@ namespace UniversalMapControl.Tests
 		public void CanConvertToLocation(int x, int y, double latitude, double longitude)
 		{
 			SwissGridLocation sg = new SwissGridLocation(x, y);
-			Location location = sg.ToWgs84Approx();
+			ILocation location = sg.ToWgs84Approx();
 
 			if (Math.Abs(latitude - location.Latitude) > 0.000003)
 			{
@@ -33,7 +34,7 @@ namespace UniversalMapControl.Tests
 		public void CanRoundtrip(int x, int y)
 		{
 			SwissGridLocation expected = new SwissGridLocation(x, y);
-			Location location = expected.ToWgs84Approx();
+			ILocation location = expected.ToWgs84Approx();
 			SwissGridLocation actual = SwissGridLocation.FromWgs84Approx(location);
 
 			Assert.AreEqual(expected.X, actual.X);

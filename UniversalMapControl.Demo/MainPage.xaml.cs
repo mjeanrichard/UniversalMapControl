@@ -4,6 +4,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
 using UniversalMapControl.Demo.Models;
+using UniversalMapControl.Interfaces;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -26,7 +27,7 @@ namespace UniversalMapControl.Demo
 	    private void MapOnPointerMoved(object sender, PointerRoutedEventArgs e)
 	    {
 			PointerPoint mousePoint = e.GetCurrentPoint(map);
-			Location position = map.GetLocationFromPoint(mousePoint.Position);
+			ILocation position = map.GetLocationFromPoint(mousePoint.Position);
 			_viewModel.MouseCoordinates = position;
 		}
     }

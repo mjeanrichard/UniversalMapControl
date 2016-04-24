@@ -4,7 +4,7 @@ namespace UniversalMapControl.Interfaces
 {
 	public interface ICanvasBitmapTile : ITile
 	{
-		Location Location { get; }
+		ILocation Location { get; }
 		CanvasBitmap GetCanvasBitmap();
 	}
 }

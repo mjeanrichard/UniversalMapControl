@@ -11,7 +11,7 @@ namespace UniversalMapControl.Demo.Models
     /// </summary>
     public class CityMarker : IHasLocation
     {
-        public Location Location { get; set; }
+        public ILocation Location { get; set; }
         public string Label { get; set; }
     }
 }

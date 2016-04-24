@@ -18,7 +18,7 @@ namespace UniversalMapControl.Tiles
 		private CanvasBitmap _cBitmap;
 		private Task _task;
 
-		public CanvasBitmapTile(int x, int y, int zoom, Location location, string layerName, CanvasControl canvas)
+		public CanvasBitmapTile(int x, int y, int zoom, ILocation location, string layerName, CanvasControl canvas)
 		{
 			_canvas = canvas;
 			LayerName = layerName;
@@ -57,7 +57,7 @@ namespace UniversalMapControl.Tiles
 			}
 		}
 
-		public Location Location { get; }
+		public ILocation Location { get; }
 
 		public bool HasImage
 		{

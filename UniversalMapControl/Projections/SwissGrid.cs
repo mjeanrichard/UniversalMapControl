@@ -29,6 +29,8 @@
 using System;
 using System.Globalization;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl.Projections
 {
 	public struct SwissGridLocation
@@ -47,15 +49,13 @@ namespace UniversalMapControl.Projections
 			return string.Format(CultureInfo.CurrentCulture, "{0} / {1}", X, Y);
 		}
 
-		public Location ToWgs84Approx()
+		public ILocation ToWgs84Approx()
 		{
-			Location location = new Location();
-			location.Latitude = CHtoWGSlat(X, Y);
-			location.Longitude = CHtoWGSlng(X, Y);
+			Location location = new Location(CHtoWGSlat(X, Y), CHtoWGSlng(X, Y));
 			return location;
 		}
 
-		public static SwissGridLocation FromWgs84Approx(Location location)
+		public static SwissGridLocation FromWgs84Approx(ILocation location)
 		{
 			SwissGridLocation sg = new SwissGridLocation();
 			sg.X = (int)Math.Round(WGStoCHy(location.Latitude, location.Longitude));

@@ -1,4 +1,5 @@
 using System;
+
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -11,12 +12,12 @@ namespace UniversalMapControl
 {
 	public class MapLayerBase : Panel
 	{
-	    public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
-			typeof(Location),
+		public static readonly DependencyProperty LocationProperty = DependencyProperty.RegisterAttached("Location",
+			typeof(ILocation),
 			typeof(MapLayerBase),
 			new PropertyMetadata(new Location(double.NaN, double.NaN), OnLocationPropertyChange));
 
-	    public static readonly DependencyProperty LatitudeProperty = DependencyProperty.RegisterAttached("Latitude",
+		public static readonly DependencyProperty LatitudeProperty = DependencyProperty.RegisterAttached("Latitude",
 			typeof(double),
 			typeof(MapLayerBase),
 			new PropertyMetadata(double.NaN));
@@ -26,38 +27,43 @@ namespace UniversalMapControl
 			typeof(MapLayerBase),
 			new PropertyMetadata(double.NaN));
 
+		private Lazy<Map> _parentMap;
+
+		protected MapLayerBase()
+		{
+			_parentMap = new Lazy<Map>(LoadParentMap);
+		}
+
 		public static double GetLatitude(DependencyObject child)
 		{
-			Location location = (Location)child.GetValue(LocationProperty);
+			ILocation location = (ILocation)child.GetValue(LocationProperty);
 			return location.Latitude;
 		}
 
 		public static void SetLatitude(DependencyObject child, double value)
 		{
-			Location location = GetLocation(child);
-			location.Latitude = value;
-			SetLocation(child, location);
+			ILocation location = GetLocation(child);
+			SetLocation(child, location.ChangeLatitude(value));
 		}
 
 		public static double GetLongitude(DependencyObject child)
 		{
-			Location location = (Location)child.GetValue(LocationProperty);
+			ILocation location = (ILocation)child.GetValue(LocationProperty);
 			return location.Longitude;
 		}
 
 		public static void SetLongitude(DependencyObject child, double value)
 		{
-			Location location = GetLocation(child);
-			location.Longitude = value;
-			SetLocation(child, location);
+			ILocation location = GetLocation(child);
+			SetLocation(child, location.ChangeLongitude(value));
 		}
 
-		public static Location GetLocation(DependencyObject child)
+		public static ILocation GetLocation(DependencyObject child)
 		{
-			return (Location)child.GetValue(LocationProperty);
+			return (ILocation)child.GetValue(LocationProperty);
 		}
 
-		public static void SetLocation(DependencyObject child, Location value)
+		public static void SetLocation(DependencyObject child, ILocation value)
 		{
 			child.SetValue(LocationProperty, value);
 		}
@@ -71,21 +77,14 @@ namespace UniversalMapControl
 			}
 		}
 
-		private Lazy<Map> _parentMap;
-
-		protected MapLayerBase()
-		{
-			_parentMap = new Lazy<Map>(LoadParentMap);
-		}
-
 		protected Map ParentMap
 		{
 			get { return _parentMap.Value; }
 		}
 
-		protected virtual Location? GetLocationPropertyValueIfSet(DependencyObject child)
+		protected virtual ILocation GetLocationPropertyValueIfSet(DependencyObject child)
 		{
-			Location location = GetLocation(child);
+			ILocation location = GetLocation(child);
 			if (double.IsNaN(location.Latitude) || double.IsNaN(location.Longitude))
 			{
 				return null;
@@ -111,11 +110,11 @@ namespace UniversalMapControl
 			}
 
 			Size result = availableSize;
-			if (availableSize.Height == Double.PositiveInfinity)
+			if (availableSize.Height == double.PositiveInfinity)
 			{
 				result.Height = 500;
 			}
-			if (availableSize.Width == Double.PositiveInfinity)
+			if (availableSize.Width == double.PositiveInfinity)
 			{
 				result.Height = 500;
 			}
@@ -124,7 +123,7 @@ namespace UniversalMapControl
 
 		protected override Size ArrangeOverride(Size finalSize)
 		{
-			Clip = new RectangleGeometry {Rect = new Rect(0, 0, finalSize.Width, finalSize.Height)};
+			Clip = new RectangleGeometry { Rect = new Rect(0, 0, finalSize.Width, finalSize.Height) };
 
 			foreach (UIElement element in Children)
 			{
@@ -148,13 +147,13 @@ namespace UniversalMapControl
 				return;
 			}
 
-			Location? location = GetLocation(element);
+			ILocation location = GetLocation(element);
 
-		    Map parentMap = ParentMap;
+			Map parentMap = ParentMap;
 			Point finalPosition;
-			if (location.HasValue)
+			if (location != null)
 			{
-				finalPosition = GetPositionForElementWithLocation(location.Value, element, parentMap);
+				finalPosition = GetPositionForElementWithLocation(location, element, parentMap);
 			}
 			else
 			{
@@ -164,22 +163,22 @@ namespace UniversalMapControl
 			element.Arrange(new Rect(finalPosition, element.DesiredSize));
 		}
 
-	    protected virtual Location? GetLocation(UIElement element)
-	    {
-	        IHasLocation elementWithLocation = element as IHasLocation;
-			Location? location;
-	        if (elementWithLocation != null)
-	        {
-	            location = elementWithLocation.Location;
-	        }
-	        else
-	        {
-	            location = GetLocationPropertyValueIfSet(element);
-	        }
-	        return location;
-	    }
+		protected virtual ILocation GetLocation(UIElement element)
+		{
+			IHasLocation elementWithLocation = element as IHasLocation;
+			ILocation location;
+			if (elementWithLocation != null)
+			{
+				location = elementWithLocation.Location;
+			}
+			else
+			{
+				location = GetLocationPropertyValueIfSet(element);
+			}
+			return location;
+		}
 
-	    protected virtual Point GetPositionForElementWithoutLocation(UIElement element, Size finalPanelSize)
+		protected virtual Point GetPositionForElementWithoutLocation(UIElement element, Size finalPanelSize)
 		{
 			FrameworkElement frameworkElement = element as FrameworkElement;
 			if (frameworkElement == null)
@@ -218,7 +217,7 @@ namespace UniversalMapControl
 			return position;
 		}
 
-		protected virtual Point GetPositionForElementWithLocation(Location location, UIElement element, Map parentMap)
+		protected virtual Point GetPositionForElementWithLocation(ILocation location, UIElement element, Map parentMap)
 		{
 			Size desiredSize = element.DesiredSize;
 			Point position = parentMap.ViewPortProjection.ToCartesian(location, parentMap.MapCenter.Longitude);

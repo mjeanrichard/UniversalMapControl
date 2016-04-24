@@ -26,7 +26,7 @@ namespace UniversalMapControl
             InvalidateArrange();
         }
 
-        protected override Location? GetLocation(UIElement element)
+        protected override ILocation GetLocation(UIElement element)
         {
             ContentPresenter contentPresenter = element as ContentPresenter;
 

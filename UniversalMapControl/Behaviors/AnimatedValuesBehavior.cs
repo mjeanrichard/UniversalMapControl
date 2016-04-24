@@ -4,6 +4,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 using Microsoft.Xaml.Interactivity;
 
+using UniversalMapControl.Interfaces;
+
 namespace UniversalMapControl.Behaviors
 {
 	public class AnimatedValuesBehavior : DependencyObject, IBehavior
@@ -12,7 +14,7 @@ namespace UniversalMapControl.Behaviors
 
 		public static readonly DependencyProperty TargetZoomProperty = DependencyProperty.Register("TargetZoom", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetZoomPropertyChanged));
 		public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register("TargetHeading", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetHeadingPropertyChanged));
-		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(Location), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Location(), TargetCenterPropertyChanged));
+		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(ILocation), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Location(), TargetCenterPropertyChanged));
 
 		private static void TargetZoomPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -43,9 +45,9 @@ namespace UniversalMapControl.Behaviors
 			set { SetValue(TargetHeadingProperty, value); }
 		}
 
-		public Location TargetCenter
+		public ILocation TargetCenter
 		{
-			get { return (Location)GetValue(TargetCenterProperty); }
+			get { return (ILocation)GetValue(TargetCenterProperty); }
 			set { SetValue(TargetCenterProperty, value); }
 		}
 

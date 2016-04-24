@@ -1,9 +1,12 @@
 using System;
+
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+
+using UniversalMapControl.Interfaces;
 using UniversalMapControl.Projections;
 
 namespace UniversalMapControl
@@ -18,6 +21,30 @@ namespace UniversalMapControl
 
 		public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
 			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelPropertyChanged));
+
+		private Point _viewPortCenter;
+
+		public Map()
+		{
+			ViewPortProjection = new Wgs84WebMercatorProjection();
+			ViewPortTransform = new TranslateTransform();
+
+			ScaleTransform = new ScaleTransform();
+			RotateTransform = new RotateTransform();
+			TranslationTransform = new TranslateTransform();
+			ScaleRotateTransform = new TransformGroup { Children = { ScaleTransform, RotateTransform } };
+
+			MinZoomLevel = 0;
+			MaxZoomLevel = 19;
+
+			ZoomLevel = 1;
+			SizeChanged += Map_SizeChanged;
+
+			Background = new SolidColorBrush(Colors.Transparent);
+			ManipulationMode = ManipulationModes.All;
+
+			MapCenter = new Location(0, 0);
+		}
 
 		private static void HeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -41,33 +68,11 @@ namespace UniversalMapControl
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
-		public readonly Wgs84WebMercatorProjection ViewPortProjection = new Wgs84WebMercatorProjection();
-		private Point _viewPortCenter;
+		public IProjection ViewPortProjection { get; set; }
 
-		public Map()
+		public ILocation MapCenter
 		{
-			ViewPortTransform = new TranslateTransform();
-
-			ScaleTransform = new ScaleTransform();
-			RotateTransform = new RotateTransform();
-			TranslationTransform = new TranslateTransform();
-			ScaleRotateTransform = new TransformGroup {Children = {ScaleTransform, RotateTransform}};
-
-			MinZoomLevel = 0;
-			MaxZoomLevel = 19;
-
-			ZoomLevel = 1;
-			SizeChanged += Map_SizeChanged;
-
-			Background = new SolidColorBrush(Colors.Transparent);
-			ManipulationMode = ManipulationModes.All;
-
-			MapCenter = new Location(0, 0);
-		}
-
-		public Location MapCenter
-		{
-			get { return (Location)GetValue(MapCenterProperty); }
+			get { return (ILocation)GetValue(MapCenterProperty); }
 			set { SetValue(MapCenterProperty, value); }
 		}
 
@@ -110,7 +115,7 @@ namespace UniversalMapControl
 				if (_viewPortCenter != value)
 				{
 					_viewPortCenter = ViewPortProjection.SanitizeCartesian(value);
-					MapCenter = ViewPortProjection.ToWgs84(value);
+					MapCenter = ViewPortProjection.ToLocation(value);
 				}
 			}
 		}
@@ -151,12 +156,12 @@ namespace UniversalMapControl
 			double centerX = ViewPortCenter.X;
 			double centerY = ViewPortCenter.Y;
 			double scaleFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
-			double dx = centerX - (ActualWidth / 2);
-			double dy = centerY - (ActualHeight / 2);
+			double dx = centerX - ActualWidth / 2;
+			double dy = centerY - ActualHeight / 2;
 
-			ScaleTransform viewPortScale = new ScaleTransform {ScaleY = scaleFactor, ScaleX = scaleFactor, CenterX = centerX, CenterY = centerY};
-			RotateTransform viewPortRotation = new RotateTransform {Angle = Heading, CenterX = centerX, CenterY = centerY};
-			TranslateTransform viewPortTranslation = new TranslateTransform {X = -dx, Y = -dy};
+			ScaleTransform viewPortScale = new ScaleTransform { ScaleY = scaleFactor, ScaleX = scaleFactor, CenterX = centerX, CenterY = centerY };
+			RotateTransform viewPortRotation = new RotateTransform { Angle = Heading, CenterX = centerX, CenterY = centerY };
+			TranslateTransform viewPortTranslation = new TranslateTransform { X = -dx, Y = -dy };
 
 			ScaleTransform.ScaleX = scaleFactor;
 			ScaleTransform.ScaleY = scaleFactor;
@@ -186,12 +191,11 @@ namespace UniversalMapControl
 		/// </summary>
 		/// <param name="point">A Position on the MapControl (such as the MousePointer)</param>
 		/// <returns>The location in the current Projection.</returns>
-		public Location GetLocationFromPoint(Point point)
+		public ILocation GetLocationFromPoint(Point point)
 		{
 			Point cartesianLocation = ViewPortTransform.Inverse.TransformPoint(point);
-			Location position = ViewPortProjection.ToWgs84(cartesianLocation);
+			ILocation position = ViewPortProjection.ToLocation(cartesianLocation);
 			return position;
 		}
-
 	}
 }

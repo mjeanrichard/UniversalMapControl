@@ -95,7 +95,7 @@ namespace UniversalMapControl.Tiles
 						if (existing == null || existing.IsDisposed)
 						{
 							Point position = GetViewPortPositionFromTileIndex(new Point(x, y), z);
-							Location location = parentMap.ViewPortProjection.ToWgs84(position, false);
+							ILocation location = parentMap.ViewPortProjection.ToLocation(position, false);
 							int indexX = SanitizeIndex(x, z);
 
 							ICanvasBitmapTile tile = _layerConfiguration.CreateTile(indexX, y, z, location);

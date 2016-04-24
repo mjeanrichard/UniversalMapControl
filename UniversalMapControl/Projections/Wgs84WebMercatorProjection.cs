@@ -1,26 +1,29 @@
 ﻿using System;
+
 using Windows.Foundation;
+
+using UniversalMapControl.Interfaces;
 
 namespace UniversalMapControl.Projections
 {
 	/// <summary>
 	/// This is an implementation of the WebMercator Projection.
 	/// It project any location (Longitude -180 .. 180 and Latitude -85.0511 .. 85.0511) to a 
-	/// cartesian square (x and y -128..128). The overall size of the projected gris it 256 which 
+	/// cartesian square (x and y -128..128). The overall size of the projected grid is 256 which 
 	/// makes it easy to work with tiles that contain 265x256 pixels. 
 	/// 
 	/// The Point is used to represent Lat/Long Coordinates. X is Latitude, Y is Longitude.
 	/// 
 	/// </summary>
-	public class Wgs84WebMercatorProjection
+	public class Wgs84WebMercatorProjection : IProjection
 	{
 		public const double MapWidth = 256;
 		public const int HalfMapWidth = 128;
 		public const double LatNorthBound = 85.051128779803d;
 
-		public Point ToCartesian(Location wgs84, bool sanitize = true)
+		public Point ToCartesian(ILocation location, bool sanitize = true)
 		{
-			return ToCartesian(wgs84, wgs84.Longitude, sanitize);
+			return ToCartesian(location, location.Longitude, sanitize);
 		}
 
 		/// <summary>
@@ -29,11 +32,11 @@ namespace UniversalMapControl.Projections
 		/// as possible to the provided referenceLong even if that means using a Longitude 
 		/// greater than 180.
 		/// </summary>
-		public Point ToCartesian(Location wgs84, double referenceLong, bool sanitize = true)
+		public Point ToCartesian(ILocation location, double referenceLong, bool sanitize = true)
 		{
-		    double latitude = wgs84.Latitude;
-		    double longitude = wgs84.Longitude;
-		    if (sanitize)
+			double latitude = location.Latitude;
+			double longitude = location.Longitude;
+			if (sanitize)
 			{
 				longitude = SanitizeLongitude(longitude);
 				latitude = SanitizeLatitude(latitude);
@@ -55,16 +58,16 @@ namespace UniversalMapControl.Projections
 			return new Point(x, -y);
 		}
 
-		public Location ToWgs84(Point point, bool sanitize = true)
+		public ILocation ToLocation(Point point, bool sanitize = true)
 		{
 		    double lat = (-point.Y / MapWidth) * 360;
 		    double lon = (point.X / MapWidth) * 360;
-		    lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
+			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
 
 			if (sanitize)
 			{
-			    lat = SanitizeLatitude(lat);
-			    lon = SanitizeLongitude(lon);
+				lat = SanitizeLatitude(lat);
+				lon = SanitizeLongitude(lon);
 			}
 
 			return new Location(lat, lon);
@@ -116,11 +119,11 @@ namespace UniversalMapControl.Projections
 		public Point SanitizeCartesian(Point point)
 		{
 			point.X = point.X % MapWidth;
-            if (point.X > HalfMapWidth)
+			if (point.X > HalfMapWidth)
 			{
 				point.X -= MapWidth;
 			}
-            if (point.X < -HalfMapWidth)
+			if (point.X < -HalfMapWidth)
 			{
 				point.X += MapWidth;
 			}
