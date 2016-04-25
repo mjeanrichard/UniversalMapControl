@@ -60,8 +60,8 @@ namespace UniversalMapControl.Projections
 
 		public ILocation ToLocation(Point point, bool sanitize = true)
 		{
-		    double lat = (-point.Y / MapWidth) * 360;
-		    double lon = (point.X / MapWidth) * 360;
+			double lat = -point.Y / MapWidth * 360;
+			double lon = point.X / MapWidth * 360;
 			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
 
 			if (sanitize)
@@ -87,6 +87,12 @@ namespace UniversalMapControl.Projections
 		public double GetZoomLevel(double zoomFactor)
 		{
 			return Math.Log(zoomFactor, 2);
+		}
+
+		public Size CartesianTileSize(ITile tile)
+		{
+			double size = 256.0 / GetZoomFactor(tile.TileSet);
+			return new Size(size, size);
 		}
 
 		private double SanitizeLongitude(double longitude)
@@ -137,6 +143,43 @@ namespace UniversalMapControl.Projections
 				point.Y = -HalfMapWidth;
 			}
 			return point;
+		}
+
+		public Point SanitizeTileIndex(Point index, int zoom)
+		{
+			int tileCount = 1 << zoom;
+
+			index.X = index.X % tileCount;
+			if (index.X < 0)
+			{
+				index.X += tileCount;
+			}
+			return index;
+		}
+
+		public virtual Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom)
+		{
+			int z = 1 << zoom;
+			double q = MapWidth / z;
+
+			double x = tileIndex.X * q - HalfMapWidth;
+			double y = tileIndex.Y * q - HalfMapWidth;
+			return new Point(x, y);
+		}
+
+		public virtual Point GetTileIndex(Point location, int zoom, bool sanitize = true)
+		{
+			int z = 1 << zoom;
+			double q = MapWidth / z;
+
+			int x = (int)Math.Floor(location.X / q) - z / 2;
+			int y = (int)Math.Floor(location.Y / q) + z / 2;
+
+			if (sanitize)
+			{
+				return SanitizeTileIndex(new Point(x, y), zoom);
+			}
+			return new Point(x, y);
 		}
 	}
 }

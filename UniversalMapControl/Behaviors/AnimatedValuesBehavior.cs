@@ -15,7 +15,7 @@ namespace UniversalMapControl.Behaviors
 
 		public static readonly DependencyProperty TargetZoomProperty = DependencyProperty.Register("TargetZoom", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetZoomPropertyChanged));
 		public static readonly DependencyProperty TargetHeadingProperty = DependencyProperty.Register("TargetHeading", typeof(double), typeof(AnimatedValuesBehavior), new PropertyMetadata(0d, TargetHeadingPropertyChanged));
-		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(ILocation), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Location(), TargetCenterPropertyChanged));
+		public static readonly DependencyProperty TargetCenterProperty = DependencyProperty.Register("TargetCenter", typeof(ILocation), typeof(AnimatedValuesBehavior), new PropertyMetadata(new Wgs84Location(), TargetCenterPropertyChanged));
 
 		private static void TargetZoomPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{

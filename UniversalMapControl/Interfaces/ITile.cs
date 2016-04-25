@@ -12,7 +12,11 @@ namespace UniversalMapControl.Interfaces
 		bool IsCachable { get; set; }
 		int X { get; }
 		int Y { get; }
-		int Zoom { get; }
+
+		int TileSet { get; }
+
+		ILocation Location { get; }
+
 
 		Task ReadFromAsync(IRandomAccessStream imageStream);
 	}

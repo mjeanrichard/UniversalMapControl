@@ -23,7 +23,7 @@ namespace UniversalMapControl.Tiles
 		public async Task<IRandomAccessStream> TryGetStream(ITile tile)
         {
             StorageFolder folder = await OpenFolder(tile).ConfigureAwait(false);
-            string filename = string.Format(CultureInfo.InvariantCulture, "{0}-{1}-{2}.tile", tile.Zoom, tile.X, tile.Y);
+            string filename = string.Format(CultureInfo.InvariantCulture, "{0}-{1}-{2}.tile", tile.TileSet, tile.X, tile.Y);
 	        IStorageItem storageItem = await folder.TryGetItemAsync(filename).AsTask().ConfigureAwait(false);
 	        if (storageItem == null)
 	        {
@@ -47,7 +47,7 @@ namespace UniversalMapControl.Tiles
         private async Task<StorageFolder> OpenFolder(ITile tile)
         {
             ApplicationData appData = ApplicationData.Current;
-            string folderName = string.Format(CultureInfo.InvariantCulture, "UMCCache\\{0}\\{1}", _layerConfiguration.LayerName, tile.Zoom);
+            string folderName = string.Format(CultureInfo.InvariantCulture, "UMCCache\\{0}\\{1}", _layerConfiguration.LayerName, tile.TileSet);
             return await appData.LocalFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists).AsTask().ConfigureAwait(false);
         }
 
@@ -65,7 +65,7 @@ namespace UniversalMapControl.Tiles
 		public async Task AddAsyc(ITile tile, IRandomAccessStream tileData)
 		{
 			StorageFolder folder = await OpenFolder(tile).ConfigureAwait(false);
-			string filename = string.Format(CultureInfo.InvariantCulture, "{0}-{1}-{2}.tile", tile.Zoom, tile.X, tile.Y);
+			string filename = string.Format(CultureInfo.InvariantCulture, "{0}-{1}-{2}.tile", tile.TileSet, tile.X, tile.Y);
 			StorageFile file = await folder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting).AsTask().ConfigureAwait(false);
 
 			using (IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.ReadWrite).AsTask().ConfigureAwait(false))

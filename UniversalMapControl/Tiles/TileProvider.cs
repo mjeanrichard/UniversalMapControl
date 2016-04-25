@@ -46,7 +46,7 @@ namespace UniversalMapControl.Tiles
 			double halfHeight = windowSize.Height / (TileWidth * 2);
 			double halfWidth = windowSize.Width / (TileWidth * 2);
 
-			Point centerTileIndex = GetTileIndex(map.ViewPortCenter, zoomLevel);
+			Point centerTileIndex = _layerConfiguration.Projection.GetTileIndex(map.ViewPortCenter, zoomLevel);
 			Point topLeft = new Point(centerTileIndex.X - halfWidth, centerTileIndex.Y - halfHeight);
 			Point bottomRight = new Point(centerTileIndex.X + halfWidth, centerTileIndex.Y + halfHeight);
 
@@ -94,11 +94,11 @@ namespace UniversalMapControl.Tiles
 						}
 						if (existing == null || existing.IsDisposed)
 						{
-							Point position = GetViewPortPositionFromTileIndex(new Point(x, y), z);
+							Point position = _layerConfiguration.Projection.GetViewPortPositionFromTileIndex(new Point(x, y), z);
 							ILocation location = parentMap.ViewPortProjection.ToLocation(position, false);
-							int indexX = SanitizeIndex(x, z);
+							Point tileIndex = _layerConfiguration.Projection.SanitizeTileIndex(new Point(x, y), z);
 
-							ICanvasBitmapTile tile = _layerConfiguration.CreateTile(indexX, y, z, location);
+							ICanvasBitmapTile tile = _layerConfiguration.CreateTile((int)tileIndex.X, (int)tileIndex.Y, z, location);
 
 							_layerConfiguration.TileLoader.Enqueue(tile);
 
@@ -156,41 +156,5 @@ namespace UniversalMapControl.Tiles
 			}
 		}
 
-		protected virtual int SanitizeIndex(int index, int zoom)
-		{
-			int tileCount = 1 << zoom;
-
-			index = index % tileCount;
-			if (index < 0)
-			{
-				index += tileCount;
-			}
-			return index;
-		}
-
-		protected virtual Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom)
-		{
-			int z = 1 << zoom;
-			double q = Wgs84WebMercatorProjection.MapWidth / z;
-
-			double x = tileIndex.X * q - Wgs84WebMercatorProjection.HalfMapWidth;
-			double y = tileIndex.Y * q - Wgs84WebMercatorProjection.HalfMapWidth;
-			return new Point(x, y);
-		}
-
-		protected virtual Point GetTileIndex(Point location, int zoom, bool sanitize = true)
-		{
-			int z = 1 << zoom;
-			double q = Wgs84WebMercatorProjection.MapWidth / z;
-
-			int x = (int)Math.Floor(location.X / q) - z / 2;
-			int y = (int)Math.Floor(location.Y / q) + z / 2;
-
-			if (sanitize)
-			{
-				return new Point(SanitizeIndex(x, zoom), SanitizeIndex(y, zoom));
-			}
-			return new Point(x, y);
-		}
 	}
 }

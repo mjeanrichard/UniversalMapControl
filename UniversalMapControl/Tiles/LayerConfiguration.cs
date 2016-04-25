@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 
 using UniversalMapControl.Interfaces;
+using UniversalMapControl.Projections;
 
 namespace UniversalMapControl.Tiles
 {
@@ -19,6 +20,7 @@ namespace UniversalMapControl.Tiles
 			TileProvider = new TileProvider(this);
 			TileLoader = new WebTileLoader(this);
 			TileCache = new FileSystemTileCache(this);
+			Projection = new Wgs84WebMercatorProjection();
 		}
 
 		/// <summary>
@@ -37,15 +39,17 @@ namespace UniversalMapControl.Tiles
 
 		public ITileLoader TileLoader { get; }
 
+		public IProjection Projection { get; }
+
 		public ITileCache TileCache { get; }
 
-		public ICanvasBitmapTile CreateTile(int x, int y, int zoom, ILocation location)
+		public ICanvasBitmapTile CreateTile(int x, int y, int tileSet, ILocation location)
 		{
 			if (_canvas == null)
 			{
 				throw new InvalidOperationException("Canvas not yet set!");
 			}
-			return new CanvasBitmapTile(x, y, zoom, location, LayerName, _canvas);
+			return new CanvasBitmapTile(x, y, tileSet, location, LayerName, _canvas);
 		}
 
 		public void SetCanvas(CanvasControl canvas)

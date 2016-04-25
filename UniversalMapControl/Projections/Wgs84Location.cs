@@ -4,13 +4,13 @@ using UniversalMapControl.Interfaces;
 
 namespace UniversalMapControl.Projections
 {
-	public class Location : ILocation
+	public class Wgs84Location : ILocation
 	{
-		public Location()
+		public Wgs84Location()
 		{
 		}
 
-		public Location(double latitude, double longitude)
+		public Wgs84Location(double latitude, double longitude)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
@@ -21,12 +21,12 @@ namespace UniversalMapControl.Projections
 
 		public ILocation ChangeLatitude(double newLatitude)
 		{
-			return new Location(newLatitude, Longitude);
+			return new Wgs84Location(newLatitude, Longitude);
 		}
 
 		public ILocation ChangeLongitude(double newLongitude)
 		{
-			return new Location(Latitude, newLongitude);
+			return new Wgs84Location(Latitude, newLongitude);
 		}
 
 		public override string ToString()

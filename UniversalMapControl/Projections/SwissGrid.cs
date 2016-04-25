@@ -51,7 +51,7 @@ namespace UniversalMapControl.Projections
 
 		public ILocation ToWgs84Approx()
 		{
-			Location location = new Location(CHtoWGSlat(X, Y), CHtoWGSlng(X, Y));
+			Wgs84Location location = new Wgs84Location(CHtoWGSlat(X, Y), CHtoWGSlng(X, Y));
 			return location;
 		}
 

@@ -93,7 +93,7 @@ namespace UniversalMapControl.Tiles
 			}
 			if (key == "z")
 			{
-				return tile.Zoom.ToString(CultureInfo.InvariantCulture);
+				return tile.TileSet.ToString(CultureInfo.InvariantCulture);
 			}
 			if (key.StartsWith("rnd-"))
 			{

@@ -18,23 +18,23 @@ namespace UniversalMapControl.Tiles
 		private CanvasBitmap _cBitmap;
 		private Task _task;
 
-		public CanvasBitmapTile(int x, int y, int zoom, ILocation location, string layerName, CanvasControl canvas)
+		public CanvasBitmapTile(int x, int y, int tileSet, ILocation location, string layerName, CanvasControl canvas)
 		{
 			_canvas = canvas;
 			LayerName = layerName;
 			X = x;
 			Y = y;
 
-			Zoom = zoom;
+			TileSet = tileSet;
 			Location = location;
 		}
 
 		public bool IsDisposed { get; private set; }
 		public bool IsCachable { get; set; }
 
-		public int X { get; protected set; }
-		public int Y { get; protected set; }
-		public int Zoom { get; protected set; }
+		public int X { get; }
+		public int Y { get; }
+		public int TileSet { get; }
 
 		public string LayerName { get; protected set; }
 

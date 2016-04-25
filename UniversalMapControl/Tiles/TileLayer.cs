@@ -42,10 +42,7 @@ namespace UniversalMapControl.Tiles
 				CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
 				if (canvasBitmap != null)
 				{
-					double z = parentMap.ViewPortProjection.GetZoomFactor(tile.Zoom);
-					double width = canvasBitmap.Size.Width / z;
-					double height = canvasBitmap.Size.Height / z;
-					Rect dest = new Rect((float)position.X, (float)position.Y, width, height);
+					Rect dest = new Rect(position, Configuration.Projection.CartesianTileSize(tile));
 					drawingSession.DrawImage(canvasBitmap, dest);
 				}
 			}
