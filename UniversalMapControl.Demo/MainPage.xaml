@@ -9,36 +9,48 @@
 	xmlns:behaviors="using:UniversalMapControl.Behaviors"
 	xmlns:tiles="using:UniversalMapControl.Tiles"
 	xmlns:utils="using:UniversalMapControl.Utils"
-	xmlns:models="using:UniversalMapControl.Demo.Models"
+	xmlns:models="using:UniversalMapControl.Demo.Models" 
+	xmlns:projections="using:UniversalMapControl.Projections" 
+	xmlns:swissTopo="using:UniversalMapControl.Tiles.SwissTopo" 
+	xmlns:default="using:UniversalMapControl.Tiles.Default"
 	mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=models:DemoModel, IsDesignTimeCreatable=True }" >
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="179*"/>
+		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition />
 			<RowDefinition Height="auto" />
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0"  Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+		<TextBlock Grid.Row="0"  Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="367.242,0,374,817.667" Grid.RowSpan="2">
     		<Run FontSize="50" Text="Universal Map Control Example"/>
 		</TextBlock>
 
-		<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4.5" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved">
+		<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved" Grid.ColumnSpan="2" Margin="0,0.333,0,75" Grid.RowSpan="2">
+			<!--<umc:Map.ViewPortProjection>
+				<projections:SwissGridProjection />
+			</umc:Map.ViewPortProjection>-->
 			<interactivity:Interaction.Behaviors>
 				<behaviors:TouchMapBehavior />
 				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
 			</interactivity:Interaction.Behaviors>
 
 			<umc:Map.Resources>
-				<tiles:LayerConfiguration x:Key="OSM" />
+				<!--<swissTopo:SwissTopoLayerConfig x:Key="SwissTopo" LayerName="SM1" />-->
+				<default:DefaultWebLayerConfig x:Key="OSM" LayerName="OSM1" />
+
 				<!-- 
 				Google Maps Layers. Please make sure that you have the required Licenses before activating GoogleMaps!
 				<tiles:LayerConfiguration x:Key="GoogleMap" LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
 				<tiles:LayerConfiguration x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
 				-->
 			</umc:Map.Resources>
-			
-			<tiles:TileLayer Configuration="{StaticResource 'OSM'}" />
+
+			<tiles:TileLayer LayerConfiguration="{StaticResource OSM}" />
 
 			<!-- ItemsControl bound to an Object that implements IHasLocation -->
 			<ItemsControl ItemsSource="{Binding Cities}">
@@ -122,7 +134,6 @@
 			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-
 			<!-- Arrow moving across the map -->
 			<Path Stroke="Red" StrokeThickness="3" umc:MapLayerBase.Location="{Binding MovingTarget}"
                   VerticalAlignment="Center"
@@ -149,12 +160,12 @@
 			<!-- Circle around Mallorca; scales and rotates with the Map -->
 			<Path Stroke="Blue" StrokeThickness="3" umc:MapLayerBase.Latitude="39.624148" umc:MapLayerBase.Longitude="2.9">
 				<Path.Data>
-					<EllipseGeometry RadiusX="0.5" RadiusY="0.4" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
+					<EllipseGeometry RadiusX="1800000" RadiusY="1400000" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
 				</Path.Data>
 			</Path>
 		</umc:Map>
 
-		<StackPanel Grid.Row="2" Orientation="Horizontal">
+		<StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
 			<StackPanel Orientation="Vertical" Margin="5,0">
 				<TextBlock Text="Heading:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
 				<Slider Width="200" Minimum="0" Maximum="360"  Value="{Binding TargetHeading, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="5" LargeChange="45" Height="35" />
@@ -162,11 +173,11 @@
 			</StackPanel>
 			<StackPanel Orientation="Vertical" Margin="5,0">
 				<TextBlock Text="Zoom Level:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
-				<Slider Width="200" Minimum="0" Maximum="18" Value="{Binding TargetZoom, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" Height="35" />
+				<Slider Width="200" Minimum="0" Maximum="25" Value="{Binding TargetZoom, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" Height="35" />
 				<TextBlock Text="{Binding ZoomLevel, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
 			</StackPanel>
 		</StackPanel>
-		<Grid Grid.Row="2">
+		<Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
 			<Grid.RowDefinitions>
 				<RowDefinition />
 				<RowDefinition />

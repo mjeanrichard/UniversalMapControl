@@ -32,7 +32,7 @@ namespace UniversalMapControl.Converters
 					}
 				}
 			}
-			return new Wgs84Location();
+			return new SwissGridLocation();
 		}
 	}
 }

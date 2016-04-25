@@ -12,19 +12,18 @@ namespace UniversalMapControl.Tiles
 {
 	public abstract class BaseTileLoader : ITileLoader
 	{
+		private readonly ITileCache _tileCache;
 		private readonly ConcurrentBag<ICanvasBitmapTile> _tilesToLoad = new ConcurrentBag<ICanvasBitmapTile>();
 		private int _taskCount;
 
-		protected BaseTileLoader(ILayerConfiguration layerConfiguration)
+		protected BaseTileLoader(ITileCache tileCache)
 		{
-			LayerConfiguration = layerConfiguration;
+			_tileCache = tileCache;
 			MaxParallelTasks = 5;
 #if DEBUG
 			MaxParallelTasks = 1;
 #endif
 		}
-
-		protected ILayerConfiguration LayerConfiguration { get; }
 
 		public void Enqueue(ICanvasBitmapTile tile)
 		{
@@ -65,10 +64,9 @@ namespace UniversalMapControl.Tiles
 				}
 				try
 				{
-					ITileCache tileCache = LayerConfiguration.TileCache;
-					if (tileCache != null)
+					if (_tileCache != null)
 					{
-						tileCache.TryLoadAsync(tile).Wait();
+						_tileCache.TryLoadAsync(tile).Wait();
 					}
 					if (!tile.HasImage)
 					{
@@ -82,10 +80,10 @@ namespace UniversalMapControl.Tiles
 							if (imageStream.Size > 0)
 							{
 								tile.ReadFromAsync(imageStream).Wait();
-								if (tileCache != null)
+								if (_tileCache != null)
 								{
 									imageStream.Seek(0);
-									tileCache.AddAsyc(tile, imageStream).Wait();
+									_tileCache.AddAsyc(tile, imageStream).Wait();
 								}
 							}
 						}

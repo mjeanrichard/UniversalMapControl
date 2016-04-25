@@ -53,9 +53,9 @@ namespace UniversalMapControl
 			float zoomFactor = (float)parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
 			Matrix3x2 transform = Matrix3x2.CreateTranslation(w2, h2);
 			transform = Matrix3x2.CreateScale(zoomFactor) * transform;
-			transform = Matrix3x2.CreateTranslation(-(float)parentMap.ViewPortCenter.X, -(float)parentMap.ViewPortCenter.Y) * transform;
+			transform = Matrix3x2.CreateTranslation(-parentMap.ViewPortCenter.X, -parentMap.ViewPortCenter.Y) * transform;
 			double heading = parentMap.Heading * Math.PI / 180.0;
-			Vector2 center = new Vector2((float)parentMap.ViewPortCenter.X, (float)parentMap.ViewPortCenter.Y);
+			Vector2 center = parentMap.ViewPortCenter.ToVector();
 			transform = Matrix3x2.CreateRotation((float)heading, center) * transform;
 
 			CanvasDrawingSession canvasDrawingSession = args.DrawingSession;

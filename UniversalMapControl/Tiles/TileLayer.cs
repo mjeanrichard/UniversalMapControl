@@ -1,49 +1,37 @@
-using Windows.Foundation;
-using Windows.UI.Xaml;
-
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 
 using UniversalMapControl.Interfaces;
+using UniversalMapControl.Tiles.Default;
 
 namespace UniversalMapControl.Tiles
 {
 	public class TileLayer : CanvasMapLayer
 	{
-		public ILayerConfiguration Configuration { get; set; }
-
 		public TileLayer()
 		{
-			Configuration = new LayerConfiguration();
+			LayerConfiguration = new DefaultWebLayerConfig();
 		}
 
-		protected override void OnLayerLoaded(object sender, RoutedEventArgs e)
-		{
-			base.OnLayerLoaded(sender, e);
-			Configuration.SetCanvas(Canvas);
-		}
+		public ILayerConfiguration LayerConfiguration { get; set; }
 
 		protected override void OnCreateResource(CanvasControl sender, CanvasCreateResourcesEventArgs args)
 		{
 			// Clear all Tiles and Reload (Display Device might have changed...)
-			Configuration.TileProvider.ResetTiles();
-			Configuration.TileProvider.RefreshTiles(ParentMap);
+			LayerConfiguration.TileProvider.ResetTiles(ParentMap, sender);
 		}
 
 		protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
 		{
-			Configuration.TileProvider.RefreshTiles(ParentMap);
+			LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
 
-			foreach (ICanvasBitmapTile tile in Configuration.TileProvider.GetTiles(parentMap.ZoomLevel))
+			foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(parentMap.ZoomLevel))
 			{
-				Point position = parentMap.ViewPortProjection.ToCartesian(tile.Location, false);
-
 				CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
 				if (canvasBitmap != null)
 				{
-					Rect dest = new Rect(position, Configuration.Projection.CartesianTileSize(tile));
-					drawingSession.DrawImage(canvasBitmap, dest);
+					drawingSession.DrawImage(canvasBitmap, tile.Bounds);
 				}
 			}
 		}

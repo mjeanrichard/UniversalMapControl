@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Windows.Foundation;
-
 using UniversalMapControl.Interfaces;
 
 namespace UniversalMapControl.Projections
@@ -11,17 +9,15 @@ namespace UniversalMapControl.Projections
 	/// It project any location (Longitude -180 .. 180 and Latitude -85.0511 .. 85.0511) to a 
 	/// cartesian square (x and y -128..128). The overall size of the projected grid is 256 which 
 	/// makes it easy to work with tiles that contain 265x256 pixels. 
-	/// 
-	/// The Point is used to represent Lat/Long Coordinates. X is Latitude, Y is Longitude.
-	/// 
 	/// </summary>
 	public class Wgs84WebMercatorProjection : IProjection
 	{
-		public const double MapWidth = 256;
-		public const int HalfMapWidth = 128;
+		public const int MaxZoomLevel = 22;
+		public const long CartesianMapWidth = 256 * (1 << MaxZoomLevel);
+		public const long HalfCartesianMapWidth = CartesianMapWidth / 2;
 		public const double LatNorthBound = 85.051128779803d;
 
-		public Point ToCartesian(ILocation location, bool sanitize = true)
+		public CartesianPoint ToCartesian(ILocation location, bool sanitize = true)
 		{
 			return ToCartesian(location, location.Longitude, sanitize);
 		}
@@ -32,7 +28,7 @@ namespace UniversalMapControl.Projections
 		/// as possible to the provided referenceLong even if that means using a Longitude 
 		/// greater than 180.
 		/// </summary>
-		public Point ToCartesian(ILocation location, double referenceLong, bool sanitize = true)
+		public CartesianPoint ToCartesian(ILocation location, double referenceLong, bool sanitize = true)
 		{
 			double latitude = location.Latitude;
 			double longitude = location.Longitude;
@@ -51,17 +47,17 @@ namespace UniversalMapControl.Projections
 				longitude -= 360;
 			}
 
-			double x = longitude * MapWidth / 360;
-			double y = Math.Log(Math.Tan((90 + latitude) * Math.PI / 360)) / (Math.PI / 180);
-			y = y * MapWidth / 360;
+			long x = (long)Math.Round(longitude / 360 * CartesianMapWidth);
+			double yTmp = Math.Log(Math.Tan((90 + latitude) * Math.PI / 360)) / (Math.PI / 180);
+			long y = (long)Math.Round(yTmp / 360 * CartesianMapWidth);
 
-			return new Point(x, -y);
+			return new CartesianPoint(x, -y);
 		}
 
-		public ILocation ToLocation(Point point, bool sanitize = true)
+		public ILocation ToLocation(CartesianPoint point, bool sanitize = true)
 		{
-			double lat = -point.Y / MapWidth * 360;
-			double lon = point.X / MapWidth * 360;
+			double lat = -((double)point.Y / CartesianMapWidth) * 360;
+			double lon = (double)point.X / CartesianMapWidth * 360;
 			lat = 180 / Math.PI * (2 * Math.Atan(Math.Exp(lat * Math.PI / 180)) - Math.PI / 2);
 
 			if (sanitize)
@@ -78,7 +74,7 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public double GetZoomFactor(double zoomLevel)
 		{
-			return Math.Pow(2, zoomLevel);
+			return 1 / Math.Pow(2, MaxZoomLevel - zoomLevel);
 		}
 
 		/// <summary>
@@ -86,13 +82,8 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public double GetZoomLevel(double zoomFactor)
 		{
-			return Math.Log(zoomFactor, 2);
-		}
-
-		public Size CartesianTileSize(ITile tile)
-		{
-			double size = 256.0 / GetZoomFactor(tile.TileSet);
-			return new Size(size, size);
+			double log = Math.Log(zoomFactor, 2);
+			return MaxZoomLevel - log;
 		}
 
 		private double SanitizeLongitude(double longitude)
@@ -122,64 +113,27 @@ namespace UniversalMapControl.Projections
 			return lat;
 		}
 
-		public Point SanitizeCartesian(Point point)
+		public CartesianPoint SanitizeCartesian(CartesianPoint point)
 		{
-			point.X = point.X % MapWidth;
-			if (point.X > HalfMapWidth)
+			point.X = point.X % CartesianMapWidth;
+			if (point.X > HalfCartesianMapWidth)
 			{
-				point.X -= MapWidth;
+				point.X -= CartesianMapWidth;
 			}
-			if (point.X < -HalfMapWidth)
+			if (point.X < -HalfCartesianMapWidth)
 			{
-				point.X += MapWidth;
+				point.X += CartesianMapWidth;
 			}
 
-			if (point.Y > HalfMapWidth)
+			if (point.Y > HalfCartesianMapWidth)
 			{
-				point.Y = HalfMapWidth;
+				point.Y = HalfCartesianMapWidth;
 			}
-			if (point.Y < -HalfMapWidth)
+			if (point.Y < -HalfCartesianMapWidth)
 			{
-				point.Y = -HalfMapWidth;
+				point.Y = -HalfCartesianMapWidth;
 			}
 			return point;
-		}
-
-		public Point SanitizeTileIndex(Point index, int zoom)
-		{
-			int tileCount = 1 << zoom;
-
-			index.X = index.X % tileCount;
-			if (index.X < 0)
-			{
-				index.X += tileCount;
-			}
-			return index;
-		}
-
-		public virtual Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom)
-		{
-			int z = 1 << zoom;
-			double q = MapWidth / z;
-
-			double x = tileIndex.X * q - HalfMapWidth;
-			double y = tileIndex.Y * q - HalfMapWidth;
-			return new Point(x, y);
-		}
-
-		public virtual Point GetTileIndex(Point location, int zoom, bool sanitize = true)
-		{
-			int z = 1 << zoom;
-			double q = MapWidth / z;
-
-			int x = (int)Math.Floor(location.X / q) - z / 2;
-			int y = (int)Math.Floor(location.Y / q) + z / 2;
-
-			if (sanitize)
-			{
-				return SanitizeTileIndex(new Point(x, y), zoom);
-			}
-			return new Point(x, y);
 		}
 	}
 }

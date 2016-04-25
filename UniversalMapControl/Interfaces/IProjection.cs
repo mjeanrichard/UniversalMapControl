@@ -1,20 +1,23 @@
-﻿using Windows.Foundation;
+﻿using System.Collections.Generic;
+
+using Windows.Foundation;
+
+using UniversalMapControl.Projections;
 
 namespace UniversalMapControl.Interfaces
 {
 	public interface IProjection
 	{
-		ILocation ToLocation(Point point, bool sanitize = true);
-		Point ToCartesian(ILocation location, bool sanitize = true);
-		Point ToCartesian(ILocation location, double referenceLong, bool sanitize = true);
-		Point SanitizeCartesian(Point value);
+		ILocation ToLocation(CartesianPoint point, bool sanitize = true);
+		CartesianPoint ToCartesian(ILocation location, bool sanitize = true);
+		CartesianPoint ToCartesian(ILocation location, double referenceLong, bool sanitize = true);
+		CartesianPoint SanitizeCartesian(CartesianPoint value);
 
 		double GetZoomFactor(double zoomLevel);
-		double GetZoomLevel(double zoomFactor);
 
-		Point SanitizeTileIndex(Point index, int zoom);
-		Point GetViewPortPositionFromTileIndex(Point tileIndex, int zoom);
-		Point GetTileIndex(Point location, int zoom, bool sanitize = true);
-		Size CartesianTileSize(ITile tile);
+		/// <summary>
+		/// This ZoomLevel implementation is based on the Zoomlevels use in online maps. If the zoomlevel is increased by 1 the scale factor doubles.
+		/// </summary>
+		double GetZoomLevel(double zoomFactor);
 	}
 }

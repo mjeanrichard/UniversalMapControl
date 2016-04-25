@@ -1,109 +1,100 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 using Windows.Foundation;
-using Windows.UI.Xaml.Media;
+
+using Microsoft.Graphics.Canvas.UI.Xaml;
 
 using UniversalMapControl.Interfaces;
 using UniversalMapControl.Projections;
 
 namespace UniversalMapControl.Tiles
 {
+	/// <summary>
+	/// Provides the nessecary Tile to a TileLayer. This class creates the required tiles for the current ViewPort and disposes
+	/// of Tiles that are not required anymore.
+	/// 
+	/// </summary>
 	public class TileProvider : ITileProvider
 	{
-		protected const int TileWidth = 256;
-		private readonly ILayerConfiguration _layerConfiguration;
+		private readonly ITiler _tiler;
+		private readonly ITileLoader _tileLoader;
+
 		private Dictionary<int, Dictionary<string, ICanvasBitmapTile>> _tileCache = new Dictionary<int, Dictionary<string, ICanvasBitmapTile>>();
+		private CanvasControl _canvas;
 
-		public TileProvider(ILayerConfiguration layerConfiguration)
+		public TileProvider(ITiler tiler, ITileLoader tileLoader)
 		{
-			_layerConfiguration = layerConfiguration;
-			ZoomLevelOffset = 0.25;
-			LowerZoomLevelsToLoad = int.MaxValue;
+			_tiler = tiler;
+			_tileLoader = tileLoader;
+			LowerTileSetsToLoad = 0;
 		}
-
-
-		public double ZoomLevelOffset { get; set; }
 
 		/// <summary>
 		/// Specifies how many lower zoom level should automatically be loaded.
 		/// Use 0 to disable loading of lower layers, use int.MaxValue to load all lower levels.
 		/// Default is int.MaxValue.
 		/// </summary>
-		public int LowerZoomLevelsToLoad { get; set; }
-
-
-		/// <summary>
-		/// This method calculates all required tiles for the current Map. The function calculates the smallest axis-aligned 
-		/// bounding box possible for the current ViewPort and returns the Tiles required for the calculated bounding box. 
-		/// This means that if the current Map has a Heading that is not a multiple of 90° 
-		/// this function will return too many tiles.
-		/// </summary>
-		protected virtual Rect GetTileIndexBounds(Map map, Size windowSize, int zoomLevel)
-		{
-			double halfHeight = windowSize.Height / (TileWidth * 2);
-			double halfWidth = windowSize.Width / (TileWidth * 2);
-
-			Point centerTileIndex = _layerConfiguration.Projection.GetTileIndex(map.ViewPortCenter, zoomLevel);
-			Point topLeft = new Point(centerTileIndex.X - halfWidth, centerTileIndex.Y - halfHeight);
-			Point bottomRight = new Point(centerTileIndex.X + halfWidth, centerTileIndex.Y + halfHeight);
-
-			RotateTransform rotation = new RotateTransform { Angle = map.Heading, CenterY = centerTileIndex.Y, CenterX = centerTileIndex.X };
-
-			Rect rect = new Rect(topLeft, bottomRight);
-			Rect bounds = rotation.TransformBounds(rect);
-			return bounds;
-		}
+		public int LowerTileSetsToLoad { get; set; }
 
 		public virtual void RefreshTiles(Map parentMap)
 		{
-			int currentTileZoomLevel = (int)Math.Floor(parentMap.ZoomLevel + ZoomLevelOffset);
-
-			Rect bounds = GetTileIndexBounds(parentMap, parentMap.RenderSize, currentTileZoomLevel);
-			int startLevel = Math.Max(0, currentTileZoomLevel - LowerZoomLevelsToLoad);
-			for (int z = startLevel; z <= currentTileZoomLevel; z++)
+			if (_canvas == null)
 			{
-				int factor = 1 << (currentTileZoomLevel - z);
+				return;
+			}
 
-				int left = (int)Math.Floor(bounds.Left / factor);
-				int right = (int)Math.Ceiling(bounds.Right / factor);
-				int top = (int)Math.Max(Math.Floor(bounds.Top / factor), 0);
-				int maxY = (1 << z) - 1;
-				int bottom = (int)Math.Min(Math.Ceiling(bounds.Bottom / factor), maxY);
+			double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
+			int currentTileSet = _tiler.GetTileSetForZoomFactor(zoomFactor);
 
+			Rect bounds = parentMap.GetViewportBounds();
+			CartesianPoint topLeftTile = _tiler.GetTilePositionForPoint(new CartesianPoint((long)bounds.Left, (long)bounds.Top), currentTileSet);
+
+			int startLevel = Math.Max(0, currentTileSet - LowerTileSetsToLoad);
+			for (int tileSet = startLevel; tileSet <= currentTileSet; tileSet++)
+			{
 				Dictionary<string, ICanvasBitmapTile> tiles;
-				if (!_tileCache.TryGetValue(z, out tiles))
+				if (!_tileCache.TryGetValue(tileSet, out tiles))
 				{
 					tiles = new Dictionary<string, ICanvasBitmapTile>();
-					_tileCache.Add(z, tiles);
+					_tileCache.Add(tileSet, tiles);
 				}
 				Dictionary<string, ICanvasBitmapTile> tilesToRemove = new Dictionary<string, ICanvasBitmapTile>(tiles);
 
-				for (int x = left; x <= right; x++)
+				Size tileSize = _tiler.GetTileSize(currentTileSet);
+				CartesianPoint tilePos = new CartesianPoint(topLeftTile.X, topLeftTile.Y);
+				while (true)
 				{
-					for (int y = top; y <= bottom; y++)
+					if (_tiler.IsPointOnValidTile(tilePos, tileSet))
 					{
-						string key = string.Join("/", x, y, z);
+						string key = string.Join("/", tilePos.X, tilePos.Y, tileSet);
 
-						ICanvasBitmapTile existing;
-						if (tiles.TryGetValue(key, out existing))
+						ICanvasBitmapTile tile;
+						if (tiles.TryGetValue(key, out tile))
 						{
 							tilesToRemove.Remove(key);
 						}
-						if (existing == null || existing.IsDisposed)
+						if (tile == null || tile.IsDisposed)
 						{
-							Point position = _layerConfiguration.Projection.GetViewPortPositionFromTileIndex(new Point(x, y), z);
-							ILocation location = parentMap.ViewPortProjection.ToLocation(position, false);
-							Point tileIndex = _layerConfiguration.Projection.SanitizeTileIndex(new Point(x, y), z);
+							Rect tileBounds = new Rect(new Point(tilePos.X, tilePos.Y), tileSize);
+							tile = _tiler.CreateTile(tileSet, tileBounds, _canvas);
 
-							ICanvasBitmapTile tile = _layerConfiguration.CreateTile((int)tileIndex.X, (int)tileIndex.Y, z, location);
-
-							_layerConfiguration.TileLoader.Enqueue(tile);
+							_tileLoader.Enqueue(tile);
 
 							tiles.Add(key, tile);
 						}
+					}
+
+					tilePos.X += (long)tileSize.Width;
+					if (tilePos.X > bounds.Right)
+					{
+						if (tilePos.Y > bounds.Bottom)
+						{
+							break;
+						}
+						tilePos.Y += (long)tileSize.Height;
+						tilePos.X = topLeftTile.X;
 					}
 				}
 
@@ -115,23 +106,23 @@ namespace UniversalMapControl.Tiles
 			}
 
 			//Remove alle Tiles from not needed ZoomLevels
-			foreach (KeyValuePair<int, Dictionary<string, ICanvasBitmapTile>> tilesPerZoom in _tileCache.Where(t => t.Key > currentTileZoomLevel).ToList())
+			foreach (KeyValuePair<int, Dictionary<string, ICanvasBitmapTile>> tilesPerZoom in _tileCache.Where(t => t.Key > currentTileSet).ToList())
 			{
 				_tileCache.Remove(tilesPerZoom.Key);
-				foreach (ITile tile in tilesPerZoom.Value.Values)
+				foreach (ICanvasBitmapTile tile in tilesPerZoom.Value.Values)
 				{
 					tile.Dispose();
 				}
 			}
 		}
 
-		public virtual IEnumerable<ICanvasBitmapTile> GetTiles(double zoomLevel)
+		public virtual IEnumerable<ICanvasBitmapTile> GetTiles(double zoomFactor)
 		{
-			int tileZoomLevel = (int)Math.Floor(zoomLevel + ZoomLevelOffset);
+			int tileSet = _tiler.GetTileSetForZoomFactor(zoomFactor);
 
 			foreach (KeyValuePair<int, Dictionary<string, ICanvasBitmapTile>> tileLayer in _tileCache.OrderBy(t => t.Key))
 			{
-				if (tileLayer.Key > tileZoomLevel)
+				if (tileLayer.Key > tileSet)
 				{
 					continue;
 				}
@@ -142,8 +133,9 @@ namespace UniversalMapControl.Tiles
 			}
 		}
 
-		public void ResetTiles()
+		public void ResetTiles(Map parentMap, CanvasControl canvas)
 		{
+			_canvas = canvas;
 			Dictionary<int, Dictionary<string, ICanvasBitmapTile>> tileCache = _tileCache;
 			_tileCache = new Dictionary<int, Dictionary<string, ICanvasBitmapTile>>();
 
@@ -154,7 +146,7 @@ namespace UniversalMapControl.Tiles
 					tile.Dispose();
 				}
 			}
+			RefreshTiles(parentMap);
 		}
-
 	}
 }

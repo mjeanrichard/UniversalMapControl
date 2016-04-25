@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
+using Windows.Foundation;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 
@@ -18,15 +19,12 @@ namespace UniversalMapControl.Tiles
 		private CanvasBitmap _cBitmap;
 		private Task _task;
 
-		public CanvasBitmapTile(int x, int y, int tileSet, ILocation location, string layerName, CanvasControl canvas)
+		public CanvasBitmapTile(int tileSet, Rect bounds, CanvasControl canvas)
 		{
 			_canvas = canvas;
-			LayerName = layerName;
-			X = x;
-			Y = y;
 
 			TileSet = tileSet;
-			Location = location;
+			Bounds = bounds;
 		}
 
 		public bool IsDisposed { get; private set; }
@@ -35,6 +33,8 @@ namespace UniversalMapControl.Tiles
 		public int X { get; }
 		public int Y { get; }
 		public int TileSet { get; }
+
+		public Rect Bounds { get; }
 
 		public string LayerName { get; protected set; }
 
@@ -53,11 +53,10 @@ namespace UniversalMapControl.Tiles
 			_cBitmap = await CanvasBitmap.LoadAsync(canvas, imageStream);
 			if (!IsDisposed)
 			{
-				await canvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => canvas.Invalidate());
+				await canvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => canvas.Invalidate()).AsTask().ConfigureAwait(false);
 			}
 		}
 
-		public ILocation Location { get; }
 
 		public bool HasImage
 		{

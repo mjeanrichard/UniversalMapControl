@@ -1,12 +1,16 @@
 using System;
+using System.Numerics;
+
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
+
 using Microsoft.Xaml.Interactivity;
+
+using UniversalMapControl.Utils;
 
 namespace UniversalMapControl.Behaviors
 {
@@ -16,11 +20,12 @@ namespace UniversalMapControl.Behaviors
 	/// </summary>
 	public class TouchMapBehavior : DependencyObject, IBehavior
 	{
-		private double _headingBeforeManipulation;
-		private Point _manipulationStartPoint;
 		private Map _map;
-		private Point _viewPortCenterBeforeManipulation;
-		private double _zoomBeforeManipulation;
+		private double _headingBeforeManipulation;
+		private Vector2 _manipulationStartPoint;
+		private Vector2 _viewPortCenterBeforeManipulation;
+		private double _zoomFactorBeforeManipulation;
+		private Matrix3x2 _reverseRotationMatrix;
 
 		public TouchMapBehavior()
 		{
@@ -87,36 +92,41 @@ namespace UniversalMapControl.Behaviors
 		private void OnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
 		{
 			_headingBeforeManipulation = _map.Heading;
-			_zoomBeforeManipulation = _map.ZoomLevel;
-			_viewPortCenterBeforeManipulation = _map.ViewPortCenter;
-			_manipulationStartPoint = _map.ViewPortTransform.Inverse.TransformPoint(e.Position);
+			_zoomFactorBeforeManipulation = 1 / _map.ViewPortProjection.GetZoomFactor(_map.ZoomLevel);
+			_viewPortCenterBeforeManipulation = _map.ViewPortCenter.ToVector();
+
+			_reverseRotationMatrix = Matrix3x2.CreateRotation(-TransformHelper.DegToRad(_headingBeforeManipulation), _viewPortCenterBeforeManipulation);
+
+			_manipulationStartPoint = _map.GetCartesianFromPoint(e.Position).ToVector();
+
 			e.Handled = true;
 		}
 
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
-			double newZoomLevel = _zoomBeforeManipulation + _map.ViewPortProjection.GetZoomLevel(delta.Scale);
 			double newHeading = _headingBeforeManipulation;
+			double newZoomFact = _zoomFactorBeforeManipulation / delta.Scale;
 
-			TransformGroup transform = new TransformGroup();
-
-			double translationScaleFactor = 1 / _map.ViewPortProjection.GetZoomFactor(_zoomBeforeManipulation);
+			Matrix3x2 m = Matrix3x2.Identity;
 
 			if (TranslationEnabled)
 			{
-				TranslateTransform translate = new TranslateTransform {X = -delta.Translation.X * translationScaleFactor, Y = -delta.Translation.Y * translationScaleFactor};
-				transform.Children.Add(translate);
+				m = Matrix3x2.CreateTranslation(-(float)(delta.Translation.X * _zoomFactorBeforeManipulation), -(float)(delta.Translation.Y * _zoomFactorBeforeManipulation));
+				m = m * _reverseRotationMatrix;
 			}
 
-			//Revert current Rotation of the Map (this Rotation was centered around the original ViewPortCenter)
-			RotateTransform mapRotation = new RotateTransform {Angle = -_headingBeforeManipulation, CenterX = _viewPortCenterBeforeManipulation.X, CenterY = _viewPortCenterBeforeManipulation.Y};
-			transform.Children.Add(mapRotation);
+			if (ZoomEnabled)
+			{
+				float scaleFactor = (float)(newZoomFact / _zoomFactorBeforeManipulation);
+				m = m * Matrix3x2.CreateScale(scaleFactor, _manipulationStartPoint);
+			}
 
-			if (delta.Rotation != 0 && RotationEnabled)
+			if (delta.Rotation != 0.0 && RotationEnabled)
 			{
 				//Add the Rotation from the Manipulation
-				RotateTransform manipulationRotation = new RotateTransform {Angle = -delta.Rotation, CenterX = _manipulationStartPoint.X, CenterY = _manipulationStartPoint.Y};
-				transform.Children.Add(manipulationRotation);
+				Matrix3x2 rotation = Matrix3x2.CreateRotation(-TransformHelper.DegToRad(delta.Rotation), _manipulationStartPoint);
+				m = m * rotation;
+
 				newHeading = (_headingBeforeManipulation + delta.Rotation) % 360;
 				if (newHeading < 0)
 				{
@@ -124,27 +134,23 @@ namespace UniversalMapControl.Behaviors
 				}
 			}
 
-			if (ZoomEnabled)
-			{
-				double scaleFactor = _map.ViewPortProjection.GetZoomFactor(_zoomBeforeManipulation - newZoomLevel);
-				Transform scale = new ScaleTransform {ScaleX = scaleFactor, ScaleY = scaleFactor, CenterX = _manipulationStartPoint.X, CenterY = _manipulationStartPoint.Y};
-				transform.Children.Add(scale);
-			}
-
 			_map.Heading = newHeading;
-			_map.ZoomLevel = newZoomLevel;
-			_map.ViewPortCenter = transform.TransformPoint(_viewPortCenterBeforeManipulation);
+			_map.ZoomLevel = _map.ViewPortProjection.GetZoomLevel(newZoomFact);
+			_map.ViewPortCenter = new CartesianPoint(Vector2.Transform(_viewPortCenterBeforeManipulation, m));
 		}
 
 		protected virtual void UpdateZoomOnlyManipulation(double zoomDelta, Point position)
 		{
-			Point zoomCenter = _map.ViewPortTransform.Inverse.TransformPoint(position);
+			Vector2 zoomCenter = _map.GetCartesianFromPoint(position).ToVector();
 
-			double scaleFactor = 1 / _map.ViewPortProjection.GetZoomFactor(zoomDelta);
-			Transform scale = new ScaleTransform { ScaleX = scaleFactor, ScaleY = scaleFactor, CenterX = zoomCenter.X, CenterY = zoomCenter.Y };
+			double oldZoomLevel = _map.ZoomLevel;
+			double newZoomLevel = oldZoomLevel + zoomDelta;
+			double scaleFactor = 1 / (_map.ViewPortProjection.GetZoomFactor(newZoomLevel) / _map.ViewPortProjection.GetZoomFactor(oldZoomLevel));
 
-			_map.ViewPortCenter = scale.TransformPoint(_map.ViewPortCenter);
-			_map.ZoomLevel = _map.ZoomLevel + zoomDelta;
+			Matrix3x2 scale = Matrix3x2.CreateScale((float)scaleFactor, zoomCenter);
+
+			_map.ViewPortCenter = new CartesianPoint(Vector2.Transform(_map.ViewPortCenter.ToVector(), scale));
+			_map.ZoomLevel = newZoomLevel;
 		}
 
 

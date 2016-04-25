@@ -1,3 +1,7 @@
+using System.Threading.Tasks;
+
+using Windows.Storage.Streams;
+
 using Microsoft.Graphics.Canvas;
 
 namespace UniversalMapControl.Interfaces
@@ -5,5 +9,7 @@ namespace UniversalMapControl.Interfaces
 	public interface ICanvasBitmapTile : ITile
 	{
 		CanvasBitmap GetCanvasBitmap();
+		bool HasImage { get; }
+		Task ReadFromAsync(IRandomAccessStream imageStream);
 	}
 }

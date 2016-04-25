@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 using Windows.Foundation;
 using Windows.UI.Xaml;
@@ -221,9 +222,9 @@ namespace UniversalMapControl
 		protected virtual Point GetPositionForElementWithLocation(ILocation location, UIElement element, Map parentMap)
 		{
 			Size desiredSize = element.DesiredSize;
-			Point position = parentMap.ViewPortProjection.ToCartesian(location, parentMap.MapCenter.Longitude);
+			CartesianPoint cp = parentMap.ViewPortProjection.ToCartesian(location, parentMap.MapCenter.Longitude);
 
-			position = parentMap.ViewPortTransform.TransformPoint(position);
+			Point position = parentMap.ViewPortTransform.TransformPoint(new Point(cp.X, cp.Y));
 
 			FrameworkElement frameworkElement = element as FrameworkElement;
 			if (frameworkElement != null)

@@ -33,10 +33,14 @@ using UniversalMapControl.Interfaces;
 
 namespace UniversalMapControl.Projections
 {
-	public struct SwissGridLocation
+	public class SwissGridLocation : ILocation
 	{
-		public int X { get; set; }
-		public int Y { get; set; }
+		public int X { get; private set; }
+		public int Y { get; private set; }
+
+		public SwissGridLocation() : this(600000, 200000)
+		{
+		}
 
 		public SwissGridLocation(int x, int y)
 		{
@@ -46,7 +50,7 @@ namespace UniversalMapControl.Projections
 
 		public override string ToString()
 		{
-			return string.Format(CultureInfo.CurrentCulture, "{0} / {1}", X, Y);
+			return string.Format(CultureInfo.CurrentCulture, "{0} // {1}", X, Y);
 		}
 
 		public ILocation ToWgs84Approx()
@@ -71,15 +75,15 @@ namespace UniversalMapControl.Projections
 			lng = DecToSexAngle(lng);
 
 			// Auxiliary values (% Bern)
-			double lat_aux = (lat - 169028.66) / 10000.0;
-			double lng_aux = (lng - 26782.5) / 10000.0;
+			double latAux = (lat - 169028.66) / 10000.0;
+			double lngAux = (lng - 26782.5) / 10000.0;
 
 			// Process Y
 			double y = 600072.37
-				+ 211455.93 * lng_aux
-				- 10938.51 * lng_aux * lat_aux
-				- 0.36 * lng_aux * Math.Pow(lat_aux, 2)
-				- 44.54 * Math.Pow(lng_aux, 3);
+			           + 211455.93 * lngAux
+			           - 10938.51 * lngAux * latAux
+			           - 0.36 * lngAux * Math.Pow(latAux, 2)
+			           - 44.54 * Math.Pow(lngAux, 3);
 
 			return y;
 		}
@@ -92,16 +96,16 @@ namespace UniversalMapControl.Projections
 			lng = DecToSexAngle(lng);
 
 			// Auxiliary values (% Bern)
-			double lat_aux = (lat - 169028.66) / 10000.0;
-			double lng_aux = (lng - 26782.5) / 10000.0;
+			double latAux = (lat - 169028.66) / 10000.0;
+			double lngAux = (lng - 26782.5) / 10000.0;
 
 			// Process X
 			double x = 200147.07
-				+ 308807.95 * lat_aux
-				+ 3745.25 * Math.Pow(lng_aux, 2)
-				+ 76.63 * Math.Pow(lat_aux, 2)
-				- 194.56 * Math.Pow(lng_aux, 2) * lat_aux
-				+ 119.79 * Math.Pow(lat_aux, 3);
+			           + 308807.95 * latAux
+			           + 3745.25 * Math.Pow(lngAux, 2)
+			           + 76.63 * Math.Pow(latAux, 2)
+			           - 194.56 * Math.Pow(lngAux, 2) * latAux
+			           + 119.79 * Math.Pow(latAux, 3);
 
 			return x;
 		}
@@ -114,13 +118,13 @@ namespace UniversalMapControl.Projections
 			lng = DecToSexAngle(lng);
 
 			// Auxiliary values (% Bern)
-			double lat_aux = (lat - 169028.66) / 10000.0;
-			double lng_aux = (lng - 26782.5) / 10000.0;
+			double latAux = (lat - 169028.66) / 10000.0;
+			double lngAux = (lng - 26782.5) / 10000.0;
 
 			// Process h
 			h = h - 49.55
-				  + 2.73 * lng_aux
-				  + 6.94 * lat_aux;
+			    + 2.73 * lngAux
+			    + 6.94 * latAux;
 
 			return h;
 		}
@@ -130,16 +134,16 @@ namespace UniversalMapControl.Projections
 		{
 			// Converts military to civil and  to unit = 1000km
 			// Auxiliary values (% Bern)
-			double y_aux = (y - 600000.0) / 1000000.0;
-			double x_aux = (x - 200000.0) / 1000000.0;
+			double yAux = (y - 600000.0) / 1000000.0;
+			double xAux = (x - 200000.0) / 1000000.0;
 
 			// Process lat
 			double lat = 16.9023892
-				+ 3.238272 * x_aux
-				- 0.270978 * Math.Pow(y_aux, 2)
-				- 0.002528 * Math.Pow(x_aux, 2)
-				- 0.0447 * Math.Pow(y_aux, 2) * x_aux
-				- 0.0140 * Math.Pow(x_aux, 3);
+			             + 3.238272 * xAux
+			             - 0.270978 * Math.Pow(yAux, 2)
+			             - 0.002528 * Math.Pow(xAux, 2)
+			             - 0.0447 * Math.Pow(yAux, 2) * xAux
+			             - 0.0140 * Math.Pow(xAux, 3);
 
 			// Unit 10000" to 1 " and converts seconds to degrees (dec)
 			lat = lat * 100 / 36;
@@ -152,15 +156,15 @@ namespace UniversalMapControl.Projections
 		{
 			// Converts military to civil and  to unit = 1000km
 			// Auxiliary values (% Bern)
-			double y_aux = (y - 600000.0) / 1000000.0;
-			double x_aux = (x - 200000.0) / 1000000.0;
+			double yAux = (y - 600000.0) / 1000000.0;
+			double xAux = (x - 200000.0) / 1000000.0;
 
 			// Process long
 			double lng = 2.6779094
-				+ 4.728982 * y_aux
-				+ 0.791484 * y_aux * x_aux
-				+ 0.1306 * y_aux * Math.Pow(x_aux, 2)
-				- 0.0436 * Math.Pow(y_aux, 3);
+			             + 4.728982 * yAux
+			             + 0.791484 * yAux * xAux
+			             + 0.1306 * yAux * Math.Pow(xAux, 2)
+			             - 0.0436 * Math.Pow(yAux, 3);
 
 			// Unit 10000" to 1 " and converts seconds to degrees (dec)
 			lng = lng * 100.0 / 36.0;
@@ -173,13 +177,11 @@ namespace UniversalMapControl.Projections
 		{
 			// Converts military to civil and  to unit = 1000km
 			// Auxiliary values (% Bern)
-			double y_aux = (y - 600000.0) / 1000000.0;
-			double x_aux = (x - 200000.0) / 1000000.0;
+			double yAux = (y - 600000.0) / 1000000.0;
+			double xAux = (x - 200000.0) / 1000000.0;
 
 			// Process height
-			h = h + 49.55
-				  - 12.60 * y_aux
-				  - 22.64 * x_aux;
+			h = h + 49.55 - 12.60 * yAux - 22.64 * xAux;
 
 			return h;
 		}
@@ -189,9 +191,29 @@ namespace UniversalMapControl.Projections
 		{
 			int deg = (int)Math.Floor(dec);
 			int min = (int)Math.Floor((dec - deg) * 60.0);
-			double sec = (((dec - deg) * 60.0) - min) * 60.0;
+			double sec = ((dec - deg) * 60.0 - min) * 60.0;
 
-			return sec + (double)min * 60.0 + (double)deg * 3600.0;
+			return sec + min * 60.0 + deg * 3600.0;
+		}
+
+		double ILocation.Latitude
+		{
+			get { return Y; }
+		}
+
+		double ILocation.Longitude
+		{
+			get { return X; }
+		}
+
+		ILocation ILocation.ChangeLatitude(double newLatitude)
+		{
+			return new SwissGridLocation(X, (int)Math.Round(newLatitude));
+		}
+
+		ILocation ILocation.ChangeLongitude(double newLongitude)
+		{
+			return new SwissGridLocation((int)Math.Round(newLongitude), Y);
 		}
 	}
 }

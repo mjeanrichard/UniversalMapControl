@@ -1,4 +1,6 @@
 using System;
+using System.Numerics;
+using System.Runtime.InteropServices;
 
 using Windows.Foundation;
 using Windows.UI;
@@ -8,13 +10,14 @@ using Windows.UI.Xaml.Media;
 
 using UniversalMapControl.Interfaces;
 using UniversalMapControl.Projections;
+using UniversalMapControl.Utils;
 
 namespace UniversalMapControl
 {
 	public class Map : MapLayerBase
 	{
 		public static readonly DependencyProperty MapCenterProperty = DependencyProperty.Register(
-			"MapCenter", typeof(Wgs84Location), typeof(Map), new PropertyMetadata(new Wgs84Location(), MapCenterPropertyChanged));
+			"MapCenter", typeof(ILocation), typeof(Map), new PropertyMetadata(new Wgs84Location(), MapCenterPropertyChanged));
 
 		public static readonly DependencyProperty HeadingProperty = DependencyProperty.Register(
 			"Heading", typeof(double), typeof(Map), new PropertyMetadata(0d, HeadingPropertyChanged));
@@ -22,20 +25,20 @@ namespace UniversalMapControl
 		public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
 			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelPropertyChanged));
 
-		private Point _viewPortCenter;
+		private CartesianPoint _viewPortCenter;
 
 		public Map()
 		{
 			ViewPortProjection = new Wgs84WebMercatorProjection();
-			ViewPortTransform = new TranslateTransform();
+			ViewPortTransform = new MatrixTransform();
 
-			ScaleTransform = new ScaleTransform();
-			RotateTransform = new RotateTransform();
-			TranslationTransform = new TranslateTransform();
-			ScaleRotateTransform = new TransformGroup { Children = { ScaleTransform, RotateTransform } };
+			ScaleTransform = new MatrixTransform();
+			RotateTransform = new MatrixTransform();
+			TranslationTransform = new MatrixTransform();
+			ScaleRotateTransform = new MatrixTransform();
 
 			MinZoomLevel = 0;
-			MaxZoomLevel = 19;
+			MaxZoomLevel = 25;
 
 			ZoomLevel = 1;
 			SizeChanged += Map_SizeChanged;
@@ -55,7 +58,7 @@ namespace UniversalMapControl
 		private static void MapCenterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			Map map = (Map)d;
-			map.OnMapCenterChanged((Wgs84Location)e.NewValue);
+			map.OnMapCenterChanged((ILocation)e.NewValue);
 		}
 
 		private static void ZoomLevelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -64,11 +67,12 @@ namespace UniversalMapControl
 			map.OnZoomLevelChanged((double)e.NewValue);
 		}
 
-		public event EventHandler<Wgs84Location> MapCenterChangedEvent;
+		public event EventHandler<ILocation> MapCenterChangedEvent;
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
 		public IProjection ViewPortProjection { get; set; }
+		public MatrixTransform ViewPortTransform { get; set; }
 
 		public ILocation MapCenter
 		{
@@ -101,13 +105,13 @@ namespace UniversalMapControl
 
 		public double MinZoomLevel { get; set; }
 		public double MaxZoomLevel { get; set; }
-		public Transform ViewPortTransform { get; set; }
-		public ScaleTransform ScaleTransform { get; }
-		public RotateTransform RotateTransform { get; }
-		public TransformGroup ScaleRotateTransform { get; }
-		public TranslateTransform TranslationTransform { get; set; }
 
-		public Point ViewPortCenter
+		public MatrixTransform ScaleTransform { get; }
+		public MatrixTransform RotateTransform { get; }
+		public MatrixTransform ScaleRotateTransform { get; }
+		public MatrixTransform TranslationTransform { get; set; }
+
+		public CartesianPoint ViewPortCenter
 		{
 			get { return _viewPortCenter; }
 			set
@@ -153,32 +157,32 @@ namespace UniversalMapControl
 		/// </summary>
 		protected virtual void UpdateViewPortTransform()
 		{
-			double centerX = ViewPortCenter.X;
-			double centerY = ViewPortCenter.Y;
 			double scaleFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
-			double dx = centerX - ActualWidth / 2;
-			double dy = centerY - ActualHeight / 2;
 
-			ScaleTransform viewPortScale = new ScaleTransform { ScaleY = scaleFactor, ScaleX = scaleFactor, CenterX = centerX, CenterY = centerY };
-			RotateTransform viewPortRotation = new RotateTransform { Angle = Heading, CenterX = centerX, CenterY = centerY };
-			TranslateTransform viewPortTranslation = new TranslateTransform { X = -dx, Y = -dy };
+			float w2 = (float)(ActualWidth / 2f);
+			float h2 = (float)(ActualHeight / 2f);
 
-			ScaleTransform.ScaleX = scaleFactor;
-			ScaleTransform.ScaleY = scaleFactor;
-			RotateTransform.Angle = Heading;
-			TranslationTransform.X = -dx;
-			TranslationTransform.Y = -dy;
+			Matrix3x2 vpCenterTranslation = Matrix3x2.CreateTranslation(w2, h2);
+			Matrix3x2 scale = Matrix3x2.CreateScale((float)scaleFactor);
 
-			TransformGroup transform = new TransformGroup();
-			transform.Children.Add(viewPortScale);
-			transform.Children.Add(viewPortRotation);
-			transform.Children.Add(viewPortTranslation);
-			ViewPortTransform = transform;
+			Matrix3x2 mapCenterTranslation = Matrix3x2.CreateTranslation(-(float)ViewPortCenter.X, -(float)ViewPortCenter.Y);
+
+			double heading = Heading * Math.PI / 180.0;
+			Vector2 center = new Vector2((float)ViewPortCenter.X, (float)ViewPortCenter.Y);
+			Matrix3x2 mapRotation = Matrix3x2.CreateRotation((float)heading, center);
+			Matrix3x2 objectRotation = Matrix3x2.CreateRotation((float)heading);
+
+			ViewPortTransform.Matrix = (mapRotation * mapCenterTranslation * scale * vpCenterTranslation).ToXamlMatrix();
+			ScaleRotateTransform.Matrix = (objectRotation * scale).ToXamlMatrix();
+			ScaleTransform.Matrix = scale.ToXamlMatrix();
+			RotateTransform.Matrix = objectRotation.ToXamlMatrix();
+			TranslationTransform.Matrix = (mapCenterTranslation * vpCenterTranslation).ToXamlMatrix();
+
 			InvalidateArrange();
 			OnViewPortChangedEvent();
 		}
 
-		protected virtual void OnMapCenterChanged(Wgs84Location newCenter)
+		protected virtual void OnMapCenterChanged(ILocation newCenter)
 		{
 			MapCenterChangedEvent?.Invoke(this, newCenter);
 			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
@@ -193,9 +197,49 @@ namespace UniversalMapControl
 		/// <returns>The location in the current Projection.</returns>
 		public ILocation GetLocationFromPoint(Point point)
 		{
-			Point cartesianLocation = ViewPortTransform.Inverse.TransformPoint(point);
-			ILocation position = ViewPortProjection.ToLocation(cartesianLocation);
-			return position;
+			try
+			{
+				Point cartesianLocation = ViewPortTransform.Inverse.TransformPoint(point);
+				ILocation position = ViewPortProjection.ToLocation(new CartesianPoint(cartesianLocation));
+				return position;
+			}
+			catch (COMException)
+			{
+				//Inverse Matrix does not exist...
+				return new Wgs84Location();
+			}
+		}
+
+		public CartesianPoint GetCartesianFromPoint(Point point)
+		{
+			double zoomFactor = 1 / ViewPortProjection.GetZoomFactor(ZoomLevel);
+			Vector2 delta = (point.ToVector2() - RenderSize.ToVector2() / 2) * (float)zoomFactor;
+
+			Matrix3x2 reverseRotationMatrix = Matrix3x2.CreateRotation(-TransformHelper.DegToRad(Heading), ViewPortCenter.ToVector());
+
+			return new CartesianPoint(Vector2.Transform(ViewPortCenter.ToVector() + delta, reverseRotationMatrix));
+
+		}
+
+		/// <summary>
+		/// This function calculates the smallest axis-aligned bounding box possible for the current ViewPort. 
+		/// This means that if the current Map has a Heading that is not a multiple of 90° 
+		/// this function will a bounding box that is bigger than the actual ViewPort.
+		/// </summary>
+		public virtual Rect GetViewportBounds()
+		{
+			double zoomFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
+			double halfHeight = RenderSize.Height / (2 * zoomFactor);
+			double halfWidth = RenderSize.Width / (2 * zoomFactor);
+
+			Point topLeft = new Point(ViewPortCenter.X - halfWidth, ViewPortCenter.Y - halfHeight);
+			Point bottomRight = new Point(ViewPortCenter.X + halfWidth, ViewPortCenter.Y + halfHeight);
+
+			RotateTransform rotation = new RotateTransform { Angle = Heading, CenterY = ViewPortCenter.Y, CenterX = ViewPortCenter.X };
+
+			Rect rect = new Rect(topLeft, bottomRight);
+			rect = rotation.TransformBounds(rect);
+			return rect;
 		}
 	}
 }

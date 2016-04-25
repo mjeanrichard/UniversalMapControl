@@ -1,23 +1,15 @@
 using System;
-using System.Threading.Tasks;
 
-using Windows.Storage.Streams;
+using Windows.Foundation;
 
 namespace UniversalMapControl.Interfaces
 {
 	public interface ITile : IDisposable
 	{
-		bool HasImage { get; }
 		bool IsDisposed { get; }
-		bool IsCachable { get; set; }
-		int X { get; }
-		int Y { get; }
-
+		Rect Bounds { get; }
 		int TileSet { get; }
 
-		ILocation Location { get; }
-
-
-		Task ReadFromAsync(IRandomAccessStream imageStream);
+		bool IsCachable { get; set; }
 	}
 }
