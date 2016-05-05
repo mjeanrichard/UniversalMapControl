@@ -47,7 +47,7 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public double GetZoomFactor(double zoomLevel)
 		{
-			return Math.Pow(2, zoomLevel) / 33554432;
+			return 1 / Math.Pow(2, 22 - (zoomLevel+10));
 		}
 
 		/// <summary>
@@ -56,8 +56,7 @@ namespace UniversalMapControl.Projections
 		public double GetZoomLevel(double zoomFactor)
 		{
 			double log = Math.Log(zoomFactor, 2);
-			return  log;
+			return (22 - log) - 10;
 		}
-
 	}
 }

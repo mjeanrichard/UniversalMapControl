@@ -7,5 +7,6 @@ namespace UniversalMapControl.Tiles
 	public interface ILayerConfiguration
 	{
 		ITileProvider TileProvider { get; }
+		string LayerName { get; }
 	}
 }

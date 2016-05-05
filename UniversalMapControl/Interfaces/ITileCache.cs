@@ -6,7 +6,8 @@ namespace UniversalMapControl.Interfaces
 {
 	public interface ITileCache
 	{
-		Task<bool> TryLoadAsync(ITile tile);
-		Task AddAsyc(ITile tile, IRandomAccessStream tileData);
+		Task<bool> TryLoadAsync(ICanvasBitmapTile tile);
+		Task AddAsyc(ICanvasBitmapTile tile, IRandomAccessStream tileData);
+		string LayerName { get; set; }
 	}
 }

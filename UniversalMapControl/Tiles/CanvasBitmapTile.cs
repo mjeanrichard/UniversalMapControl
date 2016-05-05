@@ -30,8 +30,8 @@ namespace UniversalMapControl.Tiles
 		public bool IsDisposed { get; private set; }
 		public bool IsCachable { get; set; }
 
-		public int X { get; }
-		public int Y { get; }
+		public string CacheKey { get { return Bounds.X + "-" + Bounds.Y; } }
+
 		public int TileSet { get; }
 
 		public Rect Bounds { get; }
@@ -107,7 +107,7 @@ namespace UniversalMapControl.Tiles
 
 		public override string ToString()
 		{
-			return string.Format("{0} / {1}", X, Y);
+			return string.Format("{0} / {1}", Bounds.X, Bounds.Y);
 		}
 
 		public void Dispose()

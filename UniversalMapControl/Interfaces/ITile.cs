@@ -11,5 +11,7 @@ namespace UniversalMapControl.Interfaces
 		int TileSet { get; }
 
 		bool IsCachable { get; set; }
+
+		string CacheKey { get; }
 	}
 }
