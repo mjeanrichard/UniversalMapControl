@@ -139,6 +139,7 @@
     <Compile Include="Interfaces\ITileProvider.cs" />
     <Compile Include="Tiles\Default\DefaultWebTileLoader.cs" />
     <Compile Include="Tiles\TileProvider.cs" />
+    <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\MatrixHelper.cs" />
     <Compile Include="Utils\XamlHelper.cs" />
     <EmbeddedResource Include="Properties\UniversalMapControl.rd.xml" />

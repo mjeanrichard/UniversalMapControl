@@ -10,6 +10,7 @@ namespace UniversalMapControl.Interfaces
 	{
 		CanvasBitmap GetCanvasBitmap();
 		bool HasImage { get; }
+		bool IsNotInCache { get; set; }
 		Task ReadFromAsync(IRandomAccessStream imageStream);
 	}
 }

@@ -23,6 +23,11 @@ namespace UniversalMapControl.Tiles.SwissTopo
 			set { _tileLoader.LicenseKey = value; }
 		}
 
+		public ITileLoader TileLoader
+		{
+			get { return _tileLoader; }
+		}
+
 		/// <summary>
 		/// Name of the Layer. This is used to create a unique folder for the Filesystem Cache.
 		/// </summary>

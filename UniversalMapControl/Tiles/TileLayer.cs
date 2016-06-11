@@ -25,8 +25,9 @@ namespace UniversalMapControl.Tiles
 		protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
 		{
 			LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
+			double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
 
-			foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(parentMap.ZoomLevel))
+			foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
 			{
 				CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
 				if (canvasBitmap != null)

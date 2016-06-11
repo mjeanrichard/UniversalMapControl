@@ -35,14 +35,20 @@ namespace UniversalMapControl.Projections
 {
 	public class SwissGridLocation : ILocation
 	{
-		public int X { get; private set; }
-		public int Y { get; private set; }
+		public double X { get; private set; }
+		public double Y { get; private set; }
 
 		public SwissGridLocation() : this(600000, 200000)
 		{
 		}
 
 		public SwissGridLocation(int x, int y)
+		{
+			X = x;
+			Y = y;
+		}
+
+		public SwissGridLocation(double x, double y)
 		{
 			X = x;
 			Y = y;
@@ -62,8 +68,8 @@ namespace UniversalMapControl.Projections
 		public static SwissGridLocation FromWgs84Approx(ILocation location)
 		{
 			SwissGridLocation sg = new SwissGridLocation();
-			sg.X = (int)Math.Round(WGStoCHy(location.Latitude, location.Longitude));
-			sg.Y = (int)Math.Round(WGStoCHx(location.Latitude, location.Longitude));
+			sg.X = WGStoCHy(location.Latitude, location.Longitude);
+			sg.Y = WGStoCHx(location.Latitude, location.Longitude);
 			return sg;
 		}
 
@@ -208,12 +214,12 @@ namespace UniversalMapControl.Projections
 
 		ILocation ILocation.ChangeLatitude(double newLatitude)
 		{
-			return new SwissGridLocation(X, (int)Math.Round(newLatitude));
+			return new SwissGridLocation(X, newLatitude);
 		}
 
 		ILocation ILocation.ChangeLongitude(double newLongitude)
 		{
-			return new SwissGridLocation((int)Math.Round(newLongitude), Y);
+			return new SwissGridLocation(newLongitude, Y);
 		}
 	}
 }

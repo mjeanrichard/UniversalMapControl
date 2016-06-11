@@ -28,7 +28,7 @@ namespace UniversalMapControl.Tiles
 		{
 			_tiler = tiler;
 			_tileLoader = tileLoader;
-			LowerTileSetsToLoad = 0;
+			LowerTileSetsToLoad = 2;
 		}
 
 		/// <summary>
@@ -49,11 +49,11 @@ namespace UniversalMapControl.Tiles
 			int currentTileSet = _tiler.GetTileSetForZoomFactor(zoomFactor);
 
 			Rect bounds = parentMap.GetViewportBounds();
-			CartesianPoint topLeftTile = _tiler.GetTilePositionForPoint(new CartesianPoint((long)bounds.Left, (long)bounds.Top), currentTileSet);
 
 			int startLevel = Math.Max(0, currentTileSet - LowerTileSetsToLoad);
 			for (int tileSet = startLevel; tileSet <= currentTileSet; tileSet++)
 			{
+				CartesianPoint topLeftTile = _tiler.GetTilePositionForPoint(new CartesianPoint((long)bounds.Left, (long)bounds.Top), tileSet);
 				Dictionary<string, ICanvasBitmapTile> tiles;
 				if (!_tileCache.TryGetValue(tileSet, out tiles))
 				{
@@ -62,7 +62,7 @@ namespace UniversalMapControl.Tiles
 				}
 				Dictionary<string, ICanvasBitmapTile> tilesToRemove = new Dictionary<string, ICanvasBitmapTile>(tiles);
 
-				Size tileSize = _tiler.GetTileSize(currentTileSet);
+				Size tileSize = _tiler.GetTileSize(tileSet);
 				CartesianPoint tilePos = new CartesianPoint(topLeftTile.X, topLeftTile.Y);
 				while (true)
 				{
@@ -106,7 +106,7 @@ namespace UniversalMapControl.Tiles
 			}
 
 			//Remove alle Tiles from not needed ZoomLevels
-			foreach (KeyValuePair<int, Dictionary<string, ICanvasBitmapTile>> tilesPerZoom in _tileCache.Where(t => t.Key > currentTileSet).ToList())
+			foreach (KeyValuePair<int, Dictionary<string, ICanvasBitmapTile>> tilesPerZoom in _tileCache.Where(t => t.Key > currentTileSet || t.Key < startLevel).ToList())
 			{
 				_tileCache.Remove(tilesPerZoom.Key);
 				foreach (ICanvasBitmapTile tile in tilesPerZoom.Value.Values)

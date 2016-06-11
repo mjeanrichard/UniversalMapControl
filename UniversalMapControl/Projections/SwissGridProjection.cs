@@ -6,22 +6,24 @@ namespace UniversalMapControl.Projections
 {
 	public class SwissGridProjection : IProjection
 	{
+		public int MaxZoomLevel = 17;
+
 		public ILocation ToLocation(CartesianPoint point, bool sanitize = true)
 		{
 			if (sanitize)
 			{
 				point = SanitizeCartesian(point);
 			}
-			int lon = (int)(point.X + 420000);
-			int lat = (int)(350000 - point.Y);
+			double lon = (point.X + 42000000) / 100d;
+			double lat = (35000000 - point.Y) / 100d;
 
 			return new SwissGridLocation(lon, lat);
 		}
 
 		public CartesianPoint ToCartesian(ILocation location, bool sanitize = true)
 		{
-			int x = (int)Math.Round(location.Longitude) - 420000;
-			int y = 350000 - (int)Math.Round(location.Latitude);
+			int x = (int)Math.Round(location.Longitude * 100) - 42000000;
+			int y = 35000000 - (int)Math.Round(location.Latitude * 100);
 
 			if (sanitize)
 			{
@@ -37,8 +39,8 @@ namespace UniversalMapControl.Projections
 
 		public CartesianPoint SanitizeCartesian(CartesianPoint value)
 		{
-			long x = Math.Max(0, Math.Min(480000, value.X));
-			long y = Math.Max(0, Math.Min(320000, value.Y));
+			long x = Math.Max(0, Math.Min(48000000, value.X));
+			long y = Math.Max(0, Math.Min(32000000, value.Y));
 			return new CartesianPoint(x, y);
 		}
 
@@ -47,7 +49,8 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public double GetZoomFactor(double zoomLevel)
 		{
-			return 1 / Math.Pow(2, 22 - (zoomLevel+10));
+			zoomLevel = Math.Min(zoomLevel, MaxZoomLevel);
+			return 1 / Math.Pow(2, MaxZoomLevel - zoomLevel);
 		}
 
 		/// <summary>
@@ -56,7 +59,7 @@ namespace UniversalMapControl.Projections
 		public double GetZoomLevel(double zoomFactor)
 		{
 			double log = Math.Log(zoomFactor, 2);
-			return (22 - log) - 10;
+			return Math.Min(MaxZoomLevel - log, MaxZoomLevel);
 		}
 	}
 }

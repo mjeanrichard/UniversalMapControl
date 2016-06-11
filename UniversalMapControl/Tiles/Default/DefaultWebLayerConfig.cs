@@ -11,8 +11,8 @@ namespace UniversalMapControl.Tiles.Default
 		{
 			ITileCache cache = null;
 			_tiler = new DefaultWebTiler();
-			ITileLoader tileLoader = new DefaultWebTileLoader(cache, _tiler);
-			TileProvider = new TileProvider(_tiler, tileLoader);
+			TileLoader = new DefaultWebTileLoader(cache, _tiler);
+			TileProvider = new TileProvider(_tiler, TileLoader);
 
 			UrlPattern = "http://{RND-a;b;c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 			LayerName = "OSM";
@@ -28,6 +28,8 @@ namespace UniversalMapControl.Tiles.Default
 			get { return _tiler.UrlPattern; }
 			set { _tiler.UrlPattern = value; }
 		}
+
+		public ITileLoader TileLoader { get; }
 
 		/// <summary>
 		/// Name of the Layer. This is used to create a unique folder for the Filesystem Cache.
