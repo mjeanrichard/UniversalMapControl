@@ -7,6 +7,7 @@ using Windows.Storage.Streams;
 using Windows.Web.Http;
 
 using UniversalMapControl.Interfaces;
+using UniversalMapControl.Utils;
 
 namespace UniversalMapControl.Tiles.Default
 {
@@ -33,17 +34,18 @@ namespace UniversalMapControl.Tiles.Default
 				{
 					if (!response.IsSuccessStatusCode)
 					{
+						MapEventSource.Log.TileLoaderDownloadFailed(tile.CacheKey, (int)response.StatusCode, tileRequest.RequestUri.ToString());
 						return null;
 					}
 					if (response.StatusCode == HttpStatusCode.NoContent)
 					{
-						tile.IsCachable = false;
-						return await CreateEmptyImage();
+						tile.State = TileState.TileDoesNotExist;
+						return null;
 					}
 					InMemoryRandomAccessStream ras = new InMemoryRandomAccessStream();
 					await response.Content.WriteToStreamAsync(ras);
 					ras.Seek(0);
-					tile.IsCachable = false;
+					tile.State = TileState.Loaded;
 					return ras;
 				}
 			}

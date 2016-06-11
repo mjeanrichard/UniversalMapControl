@@ -10,6 +10,7 @@ using Windows.Storage.Streams;
 using Windows.System.Threading;
 
 using UniversalMapControl.Interfaces;
+using UniversalMapControl.Utils;
 
 namespace UniversalMapControl.Tiles
 {
@@ -23,6 +24,8 @@ namespace UniversalMapControl.Tiles
 
 		private int _taskCount;
 
+		private int _pendingTileCount = 0;
+
 		protected BaseTileLoader(ITileCache tileCache)
 		{
 			_tileCache = tileCache;
@@ -33,6 +36,7 @@ namespace UniversalMapControl.Tiles
 		}
 
 		protected abstract Task<InMemoryRandomAccessStream> LoadTileImage(ICanvasBitmapTile tile);
+
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public void Enqueue(ICanvasBitmapTile tile)
@@ -48,6 +52,7 @@ namespace UniversalMapControl.Tiles
 						_tilesToLoad.Add(tile.TileSet, tiles);
 					}
 					tiles.Add(tile);
+					Interlocked.Increment(ref _pendingTileCount);
 				}
 				StartDownloading();
 				OnPropertyChanged(nameof(PendingTileCount));
@@ -56,7 +61,7 @@ namespace UniversalMapControl.Tiles
 
 		public int PendingTileCount
 		{
-			get { return _tilesToLoad.Sum(t => t.Value.Count); }
+			get { return _pendingTileCount; }
 		}
 
 		public int MaxParallelTasks { get; set; }
@@ -65,6 +70,7 @@ namespace UniversalMapControl.Tiles
 		{
 			if (_taskCount >= MaxParallelTasks)
 			{
+				MapEventSource.Log.TileLoaderMaxTasksRunning(_taskCount);
 				return;
 			}
 			Interlocked.Increment(ref _taskCount);
@@ -72,13 +78,18 @@ namespace UniversalMapControl.Tiles
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			ThreadPool.RunAsync(o =>
 			{
-				try
+				using (MapEventSource.StartActivityScope())
 				{
-					RetrieveTiles();
-				}
-				finally
-				{
-					Interlocked.Decrement(ref _taskCount);
+					try
+					{
+						MapEventSource.Log.TileLoaderTaskStarting(_taskCount);
+						RetrieveTiles();
+					}
+					finally
+					{
+						Interlocked.Decrement(ref _taskCount);
+						MapEventSource.Log.TileLoaderTaskCompleted(_taskCount);
+					}
 				}
 			});
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -86,30 +97,29 @@ namespace UniversalMapControl.Tiles
 
 		private bool GetNextTile(out ICanvasBitmapTile tile)
 		{
-			bool result = false;
 			lock(_locker)
 			{
 				tile = null;
 				while (_tilesToLoad.Any())
 				{
 					int minKey = _tilesToLoad.Keys.Min();
-					List<ICanvasBitmapTile> tileForLevel = _tilesToLoad[minKey];
-					if (tileForLevel.Any())
+					List<ICanvasBitmapTile> tileForMinLevel = _tilesToLoad[minKey];
+					if (tileForMinLevel.Any())
 					{
-						tile = tileForLevel.FirstOrDefault(t => !t.IsNotInCache);
+						tile = tileForMinLevel.FirstOrDefault(t => !t.IsNotInCache);
 						if (tile == null)
 						{
-							tile = tileForLevel.First();
+							tile = tileForMinLevel.First();
 						}
-						tileForLevel.Remove(tile);
-						result = true;
+						tileForMinLevel.Remove(tile);
+						Interlocked.Decrement(ref _pendingTileCount);
 						break;
 					}
 					_tilesToLoad.Remove(minKey);
 				}
 			}
 			OnPropertyChanged(nameof(PendingTileCount));
-			return result;
+			return tile != null;
 		}
 
 		private void RetrieveTiles()
@@ -117,8 +127,10 @@ namespace UniversalMapControl.Tiles
 			ICanvasBitmapTile tile;
 			while (GetNextTile(out tile))
 			{
+				MapEventSource.Log.TileLoaderRetrieveStarted(tile.CacheKey);
 				if (tile.HasImage || tile.IsDisposed)
 				{
+					MapEventSource.Log.TileLoaderRetrieveCompleted(tile.CacheKey, tile.HasImage, tile.IsDisposed);
 					continue;
 				}
 				try
@@ -127,13 +139,16 @@ namespace UniversalMapControl.Tiles
 					{
 						if (!_tileCache.TryLoadAsync(tile).Result && !tile.IsNotInCache)
 						{
+							MapEventSource.Log.TileLoaderCacheMiss(tile.CacheKey);
 							tile.IsNotInCache = true;
 							Enqueue(tile);
 							return;
 						}
+						MapEventSource.Log.TileLoaderCacheHit(tile.CacheKey);
 					}
 					if (!tile.HasImage)
 					{
+						MapEventSource.Log.TileLoaderLoadTileStarted(tile.CacheKey);
 						InMemoryRandomAccessStream imageStream = LoadTileImage(tile).Result;
 						if (imageStream == null)
 						{
@@ -151,16 +166,19 @@ namespace UniversalMapControl.Tiles
 								}
 							}
 						}
+						MapEventSource.Log.TileLoaderLoadTileCompleted(tile.CacheKey);
 					}
 				}
 				catch (Exception e)
 				{
+					MapEventSource.Log.TileLoaderRetrieveException(tile.CacheKey, e.ToString());
 					//If one Tile could not be downloaded add it back to the Bag.
 					//if (!tile.HasImage && !tile.IsDisposed)
 					//{
 					// _tilesToLoad.Add(tile);
 					//}
 				}
+				MapEventSource.Log.TileLoaderRetrieveCompleted(tile.CacheKey, tile.HasImage, tile.IsDisposed);
 			}
 		}
 

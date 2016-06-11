@@ -1,3 +1,5 @@
+using Windows.UI;
+
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
@@ -12,9 +14,15 @@ namespace UniversalMapControl.Tiles
 		public TileLayer()
 		{
 			LayerConfiguration = new DefaultWebLayerConfig();
+			ShowLoadingOverlay = false;
+			LoadingOverlayColor = Color.FromArgb(100, 150, 150, 150);
 		}
 
 		public ILayerConfiguration LayerConfiguration { get; set; }
+
+		public bool ShowLoadingOverlay { get; set; }
+
+		public Color LoadingOverlayColor { get; set; }
 
 		protected override void OnCreateResource(CanvasControl sender, CanvasCreateResourcesEventArgs args)
 		{
@@ -29,10 +37,18 @@ namespace UniversalMapControl.Tiles
 
 			foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
 			{
+				if (tile.State == TileState.TileDoesNotExist)
+				{
+					continue;
+				}
 				CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
 				if (canvasBitmap != null)
 				{
 					drawingSession.DrawImage(canvasBitmap, tile.Bounds);
+				}
+				else if (ShowLoadingOverlay)
+				{
+					drawingSession.FillRectangle(tile.Bounds, LoadingOverlayColor);
 				}
 			}
 		}

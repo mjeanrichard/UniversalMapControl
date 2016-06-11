@@ -25,10 +25,11 @@ namespace UniversalMapControl.Tiles
 
 			TileSet = tileSet;
 			Bounds = bounds;
+			State = TileState.LoadPending;
 		}
 
 		public bool IsDisposed { get; private set; }
-		public bool IsCachable { get; set; }
+		public TileState State { get; set; }
 
 		public string CacheKey { get { return Bounds.X + "-" + Bounds.Y; } }
 
@@ -62,6 +63,8 @@ namespace UniversalMapControl.Tiles
 		{
 			get { return _cBitmap != null; }
 		}
+
+		public bool IsNotInCache { get; set; }
 
 		public void Reset(CanvasControl canvas)
 		{
