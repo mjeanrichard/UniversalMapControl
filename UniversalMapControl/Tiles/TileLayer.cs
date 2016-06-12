@@ -32,6 +32,8 @@ namespace UniversalMapControl.Tiles
 
 		protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
 		{
+			drawingSession.Antialiasing = CanvasAntialiasing.Aliased;
+
 			LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
 			double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
 
