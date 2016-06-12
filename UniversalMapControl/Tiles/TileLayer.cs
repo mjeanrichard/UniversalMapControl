@@ -39,6 +39,7 @@ namespace UniversalMapControl.Tiles
 			{
 				if (tile.State == TileState.TileDoesNotExist)
 				{
+					DrawInexistentTile(drawingSession, tile, parentMap);
 					continue;
 				}
 				CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
@@ -48,9 +49,17 @@ namespace UniversalMapControl.Tiles
 				}
 				else if (ShowLoadingOverlay)
 				{
-					drawingSession.FillRectangle(tile.Bounds, LoadingOverlayColor);
+					DrawLoadingTile(drawingSession, tile, parentMap);
 				}
 			}
+		}
+
+		protected virtual void DrawInexistentTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
+		{}
+
+		protected virtual void DrawLoadingTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
+		{
+			drawingSession.FillRectangle(tile.Bounds, LoadingOverlayColor);
 		}
 	}
 }
