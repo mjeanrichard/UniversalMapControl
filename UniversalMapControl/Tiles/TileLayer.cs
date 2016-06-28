@@ -32,32 +32,34 @@ namespace UniversalMapControl.Tiles
 
 		protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
 		{
-			drawingSession.Antialiasing = CanvasAntialiasing.Aliased;
-
 			LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
 			double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
 
-			foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
+			using (var sb = drawingSession.CreateSpriteBatch(CanvasSpriteSortMode.None, CanvasImageInterpolation.Linear, CanvasSpriteOptions.ClampToSourceRect))
 			{
-				if (tile.State == TileState.TileDoesNotExist)
+				foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
 				{
-					DrawInexistentTile(drawingSession, tile, parentMap);
-					continue;
-				}
-				CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
-				if (canvasBitmap != null)
-				{
-					drawingSession.DrawImage(canvasBitmap, tile.Bounds);
-				}
-				else if (ShowLoadingOverlay)
-				{
-					DrawLoadingTile(drawingSession, tile, parentMap);
+					if (tile.State == TileState.TileDoesNotExist)
+					{
+						DrawInexistentTile(drawingSession, tile, parentMap);
+						continue;
+					}
+					CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
+					if (canvasBitmap != null)
+					{
+						sb.Draw(canvasBitmap, tile.Bounds);
+					}
+					else if (ShowLoadingOverlay)
+					{
+						DrawLoadingTile(drawingSession, tile, parentMap);
+					}
 				}
 			}
 		}
 
 		protected virtual void DrawInexistentTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
-		{}
+		{
+		}
 
 		protected virtual void DrawLoadingTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
 		{

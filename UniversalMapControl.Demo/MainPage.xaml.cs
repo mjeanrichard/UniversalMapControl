@@ -1,4 +1,8 @@
-﻿using Windows.Foundation;
+﻿using System;
+using System.ComponentModel;
+
+using Windows.Foundation;
+using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -22,7 +26,13 @@ namespace UniversalMapControl.Demo
             this.InitializeComponent();
 	        _viewModel = new DemoModel();
 	        DataContext = _viewModel;
+			tileLayer.LayerConfiguration.TileLoader.PropertyChanged += TileLoaderOnPropertyChanged;
 		}
+
+	    private async void TileLoaderOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+	    {
+		    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => _pendingTiles.Text = ((ITileLoader)sender).PendingTileCount.ToString());
+	    }
 
 	    private void MapOnPointerMoved(object sender, PointerRoutedEventArgs e)
 	    {
