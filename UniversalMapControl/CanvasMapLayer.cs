@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 
 using Windows.Foundation;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -15,12 +16,12 @@ namespace UniversalMapControl
 {
 	public class CanvasMapLayer : UserControl
 	{
-		private Lazy<Map> _parentMap;
+		private readonly Lazy<Map> _parentMap;
 		private CanvasControl _canvas;
 
 		public CanvasMapLayer()
 		{
-			_parentMap = new Lazy<Map>(LoadParentMap);
+			_parentMap = new Lazy<Map>(this.GetParentMap);
 			Loaded += OnLayerLoaded;
 			Unloaded += OnLayerUnloaded;
 		}
@@ -81,33 +82,6 @@ namespace UniversalMapControl
 		protected Map ParentMap
 		{
 			get { return _parentMap.Value; }
-		}
-
-		protected override Size MeasureOverride(Size availableSize)
-		{
-			// CanvasTextLayout cannot cope with infinite sizes, so we change
-			// infinite to some-large-value.
-			if (double.IsInfinity(availableSize.Width))
-			{
-				availableSize.Width = 6000;
-			}
-
-			if (double.IsInfinity(availableSize.Height))
-			{
-				availableSize.Height = 6000;
-			}
-
-			return availableSize;
-		}
-
-		protected virtual Map LoadParentMap()
-		{
-			Map map = this.GetAncestor<Map>();
-			if (map == null)
-			{
-				throw new InvalidOperationException("A MapLayer must have an ancestor of type Map.");
-			}
-			return map;
 		}
 
 		public void Invalidate()
