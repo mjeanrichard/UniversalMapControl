@@ -35,6 +35,9 @@ namespace UniversalMapControl.Projections
 {
 	public class SwissGridLocation : ILocation
 	{
+		private double _longitude;
+		private double _latitude;
+
 		public double X { get; private set; }
 		public double Y { get; private set; }
 
@@ -42,16 +45,15 @@ namespace UniversalMapControl.Projections
 		{
 		}
 
-		public SwissGridLocation(int x, int y)
-		{
-			X = x;
-			Y = y;
-		}
+		public SwissGridLocation(int x, int y) : this((double)x, (double)y)
+		{}
 
 		public SwissGridLocation(double x, double y)
 		{
 			X = x;
 			Y = y;
+			_latitude = CHtoWGSlat(x, y);
+			_longitude = CHtoWGSlng(x, y);
 		}
 
 		public override string ToString()
@@ -61,15 +63,15 @@ namespace UniversalMapControl.Projections
 
 		public ILocation ToWgs84Approx()
 		{
-			Wgs84Location location = new Wgs84Location(CHtoWGSlat(X, Y), CHtoWGSlng(X, Y));
+			Wgs84Location location = new Wgs84Location(_latitude, _longitude);
 			return location;
 		}
 
 		public static SwissGridLocation FromWgs84Approx(ILocation location)
 		{
-			SwissGridLocation sg = new SwissGridLocation();
-			sg.X = WGStoCHy(location.Latitude, location.Longitude);
-			sg.Y = WGStoCHx(location.Latitude, location.Longitude);
+			double x = WGStoCHy(location.Latitude, location.Longitude);
+			double y = WGStoCHx(location.Latitude, location.Longitude);
+			SwissGridLocation sg = new SwissGridLocation(x, y);
 			return sg;
 		}
 
@@ -204,12 +206,12 @@ namespace UniversalMapControl.Projections
 
 		double ILocation.Latitude
 		{
-			get { return Y; }
+			get { return _latitude; }
 		}
 
 		double ILocation.Longitude
 		{
-			get { return X; }
+			get { return _longitude; }
 		}
 
 		ILocation ILocation.ChangeLatitude(double newLatitude)

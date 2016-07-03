@@ -14,16 +14,17 @@ namespace UniversalMapControl.Projections
 			{
 				point = SanitizeCartesian(point);
 			}
-			double lon = (point.X + 42000000) / 100d;
-			double lat = (35000000 - point.Y) / 100d;
+			double x = (point.X + 42000000) / 100d;
+			double y = (35000000 - point.Y) / 100d;
 
-			return new SwissGridLocation(lon, lat);
+			return new SwissGridLocation(x, y);
 		}
 
 		public CartesianPoint ToCartesian(ILocation location, bool sanitize = true)
 		{
-			int x = (int)Math.Round(location.Longitude * 100) - 42000000;
-			int y = 35000000 - (int)Math.Round(location.Latitude * 100);
+			SwissGridLocation sgLocation = GetSwissGridLocation(location);
+			int x = (int)Math.Round(sgLocation.X * 100) - 42000000;
+			int y = 35000000 - (int)Math.Round(sgLocation.Y * 100);
 
 			if (sanitize)
 			{
@@ -60,6 +61,16 @@ namespace UniversalMapControl.Projections
 		{
 			double log = Math.Log(zoomFactor, 2);
 			return Math.Min(MaxZoomLevel - log, MaxZoomLevel);
+		}
+
+		private SwissGridLocation GetSwissGridLocation(ILocation location)
+		{
+			SwissGridLocation sgLocation = location as SwissGridLocation;
+			if (sgLocation != null)
+			{
+				return sgLocation;
+			}
+			return SwissGridLocation.FromWgs84Approx(location);
 		}
 	}
 }
