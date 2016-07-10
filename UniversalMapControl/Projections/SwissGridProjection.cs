@@ -59,8 +59,14 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public double GetZoomLevel(double zoomFactor)
 		{
-			double log = Math.Log(zoomFactor, 2);
+			double log = Math.Log(1 / zoomFactor, 2);
 			return Math.Min(MaxZoomLevel - log, MaxZoomLevel);
+		}
+
+		public double CartesianScaleFactor(ILocation center)
+		{
+			// Scale Factor is the same everywhere in SwissGrid.
+			return 100;
 		}
 
 		private SwissGridLocation GetSwissGridLocation(ILocation location)

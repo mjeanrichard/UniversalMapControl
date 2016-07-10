@@ -40,5 +40,22 @@ namespace UniversalMapControl.Tests
 			Assert.AreEqual(expected.X, actual.X);
 			Assert.AreEqual(expected.Y, actual.Y);
 		}
+
+
+		[DataTestMethod]
+		[DataRow(1)]
+		[DataRow(5)]
+		[DataRow(10)]
+		[DataRow(17)]
+		public void ZoomFactorLevelRountrip(double zoomLevel)
+		{
+			SwissGridProjection projection = new SwissGridProjection();
+
+			double zoomFactor = projection.GetZoomFactor(zoomLevel);
+			double newZoomLevel = projection.GetZoomLevel(zoomFactor);
+
+			Assert.AreEqual(zoomLevel, newZoomLevel, 0.001);
+		}
+
 	}
 }

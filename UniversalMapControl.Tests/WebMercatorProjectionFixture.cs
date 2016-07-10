@@ -69,5 +69,20 @@ namespace UniversalMapControl.Tests
 				Assert.Fail("The Value for Lat ({0}) is not close enough to the expected Value ({1}).", result.Latitude, lat);
 			}
 		}
+
+		[DataTestMethod]
+		[DataRow(1)]
+		[DataRow(15)]
+		[DataRow(21)]
+		[DataRow(28)]
+		public void ZoomFactorLevelRountrip(double zoomLevel)
+		{
+			Wgs84WebMercatorProjection projection = new Wgs84WebMercatorProjection();
+
+			double zoomFactor = projection.GetZoomFactor(zoomLevel);
+			double newZoomLevel = projection.GetZoomLevel(zoomFactor);
+
+			Assert.AreEqual(zoomLevel, newZoomLevel, 0.001);
+		}
 	}
 }

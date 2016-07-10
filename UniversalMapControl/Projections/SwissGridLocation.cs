@@ -69,8 +69,13 @@ namespace UniversalMapControl.Projections
 
 		public static SwissGridLocation FromWgs84Approx(ILocation location)
 		{
-			double x = WGStoCHy(location.Latitude, location.Longitude);
-			double y = WGStoCHx(location.Latitude, location.Longitude);
+			return FromWgs84Approx(location.Latitude, location.Longitude);
+		}
+
+		public static SwissGridLocation FromWgs84Approx(double latitude, double longitude)
+		{
+			double x = WGStoCHy(latitude, longitude);
+			double y = WGStoCHx(latitude, longitude);
 			SwissGridLocation sg = new SwissGridLocation(x, y);
 			return sg;
 		}

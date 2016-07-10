@@ -61,5 +61,10 @@ namespace UniversalMapControl
 		{
 			return new Vector2(X, Y);
 		}
+
+		public Point ToPoint()
+		{
+			return new Point(X, Y);
+		}
 	}
 }

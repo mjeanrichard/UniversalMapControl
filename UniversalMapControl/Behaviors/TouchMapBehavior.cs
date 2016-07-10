@@ -92,7 +92,7 @@ namespace UniversalMapControl.Behaviors
 		private void OnManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
 		{
 			_headingBeforeManipulation = _map.Heading;
-			_zoomFactorBeforeManipulation = 1 / _map.ViewPortProjection.GetZoomFactor(_map.ZoomLevel);
+			_zoomFactorBeforeManipulation = _map.ViewPortProjection.GetZoomFactor(_map.ZoomLevel);
 			_viewPortCenterBeforeManipulation = _map.ViewPortCenter.ToVector();
 
 			_reverseRotationMatrix = Matrix3x2.CreateRotation(-TransformHelper.DegToRad(_headingBeforeManipulation), _viewPortCenterBeforeManipulation);
@@ -105,19 +105,19 @@ namespace UniversalMapControl.Behaviors
 		protected virtual void UpdateManipulation(ManipulationDelta delta)
 		{
 			double newHeading = _headingBeforeManipulation;
-			double newZoomFact = _zoomFactorBeforeManipulation / delta.Scale;
+			double newZoomFact = _zoomFactorBeforeManipulation * delta.Scale;
 
 			Matrix3x2 m = Matrix3x2.Identity;
 
 			if (TranslationEnabled)
 			{
-				m = Matrix3x2.CreateTranslation(-(float)(delta.Translation.X * _zoomFactorBeforeManipulation), -(float)(delta.Translation.Y * _zoomFactorBeforeManipulation));
+				m = Matrix3x2.CreateTranslation(-(float)(delta.Translation.X / _zoomFactorBeforeManipulation), -(float)(delta.Translation.Y / _zoomFactorBeforeManipulation));
 				m = m * _reverseRotationMatrix;
 			}
 
 			if (ZoomEnabled)
 			{
-				float scaleFactor = (float)(newZoomFact / _zoomFactorBeforeManipulation);
+				float scaleFactor = (float)(_zoomFactorBeforeManipulation / newZoomFact);
 				m = m * Matrix3x2.CreateScale(scaleFactor, _manipulationStartPoint);
 			}
 

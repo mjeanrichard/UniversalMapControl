@@ -19,5 +19,12 @@ namespace UniversalMapControl.Interfaces
 		/// This ZoomLevel implementation is based on the Zoomlevels use in online maps. If the zoomlevel is increased by 1 the scale factor doubles.
 		/// </summary>
 		double GetZoomLevel(double zoomFactor);
+
+		/// <summary>
+		/// Get the cartesian scale factor (Cartesian Units per Meter) at the given location. 
+		/// </summary>
+		/// <param name="center"></param>
+		/// <returns></returns>
+		double CartesianScaleFactor(ILocation center);
 	}
 }

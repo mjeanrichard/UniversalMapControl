@@ -17,6 +17,9 @@ namespace UniversalMapControl.Projections
 		public const long HalfCartesianMapWidth = CartesianMapWidth / 2;
 		public const double LatNorthBound = 85.051128779803d;
 
+		private const int EquatorLengthMeters = 40075000;
+		private const double EquatorMetersPerCartesianUnit = CartesianMapWidth / (double)EquatorLengthMeters;
+
 		public CartesianPoint ToCartesian(ILocation location, bool sanitize = true)
 		{
 			return ToCartesian(location, location.Longitude, sanitize);
@@ -82,8 +85,14 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public double GetZoomLevel(double zoomFactor)
 		{
-			double log = Math.Log(zoomFactor, 2);
+			double log = Math.Log(1 / zoomFactor, 2);
 			return MaxZoomLevel - log;
+		}
+
+		public double CartesianScaleFactor(ILocation center)
+		{
+			double latRad = center.Latitude * Math.PI / 180;
+			return EquatorMetersPerCartesianUnit / Math.Cos(latRad);
 		}
 
 		private double SanitizeLongitude(double longitude)
@@ -136,4 +145,4 @@ namespace UniversalMapControl.Projections
 			return point;
 		}
 	}
-}
+} 

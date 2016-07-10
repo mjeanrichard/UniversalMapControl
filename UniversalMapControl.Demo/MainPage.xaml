@@ -30,10 +30,16 @@
     		<Run FontSize="50" Text="Universal Map Control Example"/>
 		</TextBlock>
 
-		<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4" MapCenter="{Binding MapCenter}" PointerMoved="MapOnPointerMoved" Grid.ColumnSpan="2" Margin="0,0.333,0,75" Grid.RowSpan="2">
-			<!--<umc:Map.ViewPortProjection>
+		<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4" Grid.ColumnSpan="2" Margin="0,0.333,0,75" Grid.RowSpan="2"
+				 MapCenter="{Binding MapCenter}" 
+				 PointerMoved="MapOnPointerMoved">
+
+			<!-- To set a different Porjection uncomment this code. Pleas be aware, that depending on the Layers, the Map will not display anything like this.			
+			<umc:Map.ViewPortProjection>
 				<projections:SwissGridProjection />
-			</umc:Map.ViewPortProjection>-->
+			</umc:Map.ViewPortProjection>
+			-->
+			
 			<interactivity:Interaction.Behaviors>
 				<behaviors:TouchMapBehavior />
 				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
@@ -50,7 +56,7 @@
 				-->
 			</umc:Map.Resources>
 
-			<tiles:TileLayer LayerConfiguration="{StaticResource OSM}" />
+			<tiles:TileLayer x:Name="tileLayer" LayerConfiguration="{StaticResource OSM}" />
 
 			<!-- ItemsControl bound to an Object that implements IHasLocation -->
 			<ItemsControl ItemsSource="{Binding Cities}">
@@ -130,9 +136,6 @@
 			<TextBlock Text="-60" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 			<TextBlock Text="-120" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 
-			<!-- Crosshair; doesn't move with Map -->
-			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
 			<!-- Arrow moving across the map -->
 			<Path Stroke="Red" StrokeThickness="3" umc:MapLayerBase.Location="{Binding MovingTarget}"
@@ -163,6 +166,11 @@
 					<EllipseGeometry RadiusX="1800000" RadiusY="1400000" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
 				</Path.Data>
 			</Path>
+
+
+			<!-- Crosshair; doesn't move with Map -->
+			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
 		</umc:Map>
 
 		<StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
@@ -184,12 +192,15 @@
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="Auto" MinWidth="250" />
 			</Grid.ColumnDefinitions>
-			<TextBlock Grid.Row="0" Grid.Column="0" Text="Mouse Position:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
-			<TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MouseCoordinates}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-			<TextBlock Grid.Row="1" Grid.Column="0" Text="Crosshair:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
-			<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+			<TextBlock Grid.Row="0" Grid.Column="1" Name="_pendingTiles"  FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+			<TextBlock Grid.Row="0" Grid.Column="2" Text="Mouse Position:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+			<TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding MouseCoordinates}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+			<TextBlock Grid.Row="1" Grid.Column="2" Text="Crosshair:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+			<TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
 		</Grid>
 	</Grid>
 </Page>

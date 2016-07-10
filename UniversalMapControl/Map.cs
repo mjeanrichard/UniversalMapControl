@@ -26,10 +26,11 @@ namespace UniversalMapControl
 			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelPropertyChanged));
 
 		private CartesianPoint _viewPortCenter;
+		private IProjection _viewPortProjection;
 
 		public Map()
 		{
-			ViewPortProjection = new Wgs84WebMercatorProjection();
+			_viewPortProjection = new Wgs84WebMercatorProjection();
 			ViewPortTransform = new MatrixTransform();
 
 			ScaleTransform = new MatrixTransform();
@@ -71,7 +72,20 @@ namespace UniversalMapControl
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
-		public IProjection ViewPortProjection { get; set; }
+
+		public IProjection ViewPortProjection
+		{
+			get { return _viewPortProjection; }
+			set
+			{
+				_viewPortProjection = value;
+				if (_viewPortProjection != null)
+				{
+					OnMapCenterChanged(MapCenter);
+				}
+			}
+		}
+
 		public MatrixTransform ViewPortTransform { get; set; }
 
 		public ILocation MapCenter
@@ -157,6 +171,11 @@ namespace UniversalMapControl
 		/// </summary>
 		protected virtual void UpdateViewPortTransform()
 		{
+			if (ViewPortTransform == null)
+			{
+				return;
+			}
+
 			double scaleFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
 
 			float w2 = (float)(ActualWidth / 2f);
@@ -185,8 +204,11 @@ namespace UniversalMapControl
 		protected virtual void OnMapCenterChanged(ILocation newCenter)
 		{
 			MapCenterChangedEvent?.Invoke(this, newCenter);
-			_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
-			UpdateViewPortTransform();
+			if (ViewPortProjection != null)
+			{
+				_viewPortCenter = ViewPortProjection.ToCartesian(MapCenter);
+				UpdateViewPortTransform();
+			}
 		}
 
 

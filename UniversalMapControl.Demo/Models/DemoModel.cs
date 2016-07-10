@@ -66,7 +66,7 @@ namespace UniversalMapControl.Demo.Models
 
 	    public ILocation MapCenter
 	    {
-		    get { return new Wgs84Location(47, 15); }
+		    get { return new Wgs84Location(47.3782614297334, 8.53860050439835); }
 	    }
 
 
