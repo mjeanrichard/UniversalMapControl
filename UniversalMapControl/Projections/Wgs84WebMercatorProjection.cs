@@ -22,6 +22,11 @@ namespace UniversalMapControl.Projections
 
 		public CartesianPoint ToCartesian(ILocation location, bool sanitize = true)
 		{
+			if (location == null)
+			{
+				return new CartesianPoint();
+			}
+
 			return ToCartesian(location, location.Longitude, sanitize);
 		}
 
@@ -33,6 +38,11 @@ namespace UniversalMapControl.Projections
 		/// </summary>
 		public CartesianPoint ToCartesian(ILocation location, double referenceLong, bool sanitize = true)
 		{
+			if (location == null)
+			{
+				return new CartesianPoint();
+			}
+
 			double latitude = location.Latitude;
 			double longitude = location.Longitude;
 			if (sanitize)
@@ -89,8 +99,15 @@ namespace UniversalMapControl.Projections
 			return MaxZoomLevel - log;
 		}
 
+		/// <summary>
+		/// This Method returns a factor that can be used to scale a distance in meters to the according view port length.
+		/// </summary>
 		public double CartesianScaleFactor(ILocation center)
 		{
+			if (center == null)
+			{
+				return 0;
+			}
 			double latRad = center.Latitude * Math.PI / 180;
 			return EquatorMetersPerCartesianUnit / Math.Cos(latRad);
 		}

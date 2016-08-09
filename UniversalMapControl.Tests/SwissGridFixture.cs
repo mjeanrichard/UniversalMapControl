@@ -41,6 +41,15 @@ namespace UniversalMapControl.Tests
 			Assert.AreEqual(expected.Y, actual.Y);
 		}
 
+		[DataTestMethod]
+		[DataRow(753129, 156467, 753162, 156466, 33)]
+		public void CalculateDistance(int x1, int y1, int x2, int y2, double expectedDistance)
+		{
+			double distance = new SwissGridLocation(x1, y1).DistanceTo(new SwissGridLocation(x2, y2));
+
+			Assert.AreEqual(expectedDistance, distance, 0.1);
+		}
+
 
 		[DataTestMethod]
 		[DataRow(1)]

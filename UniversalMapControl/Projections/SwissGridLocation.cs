@@ -29,6 +29,8 @@
 using System;
 using System.Globalization;
 
+using Windows.UI.Xaml.Controls.Primitives;
+
 using UniversalMapControl.Interfaces;
 
 namespace UniversalMapControl.Projections
@@ -38,15 +40,13 @@ namespace UniversalMapControl.Projections
 		private double _longitude;
 		private double _latitude;
 
-		public double X { get; private set; }
-		public double Y { get; private set; }
-
 		public SwissGridLocation() : this(600000, 200000)
 		{
 		}
 
 		public SwissGridLocation(int x, int y) : this((double)x, (double)y)
-		{}
+		{
+		}
 
 		public SwissGridLocation(double x, double y)
 		{
@@ -56,10 +56,8 @@ namespace UniversalMapControl.Projections
 			_longitude = CHtoWGSlng(x, y);
 		}
 
-		public override string ToString()
-		{
-			return string.Format(CultureInfo.CurrentCulture, "{0} // {1}", X, Y);
-		}
+		public double X { get; private set; }
+		public double Y { get; private set; }
 
 		public ILocation ToWgs84Approx()
 		{
@@ -69,6 +67,10 @@ namespace UniversalMapControl.Projections
 
 		public static SwissGridLocation FromWgs84Approx(ILocation location)
 		{
+			if (location == null)
+			{
+				return new SwissGridLocation();
+			}
 			return FromWgs84Approx(location.Latitude, location.Longitude);
 		}
 
@@ -80,7 +82,9 @@ namespace UniversalMapControl.Projections
 			return sg;
 		}
 
-		// Convert WGS lat/long (° dec) to CH y
+		/// <summary>
+		/// Convert WGS lat/long (° dec) to CH y
+		/// </summary>
 		private static double WGStoCHy(double lat, double lng)
 		{
 			// Convert decimal degrees to sexagesimal seconds
@@ -101,7 +105,9 @@ namespace UniversalMapControl.Projections
 			return y;
 		}
 
-		// Convert WGS lat/long (° dec) to CH x
+		/// <summary>
+		/// Convert WGS lat/long (° dec) to CH x
+		/// </summary>
 		private static double WGStoCHx(double lat, double lng)
 		{
 			// Convert decimal degrees to sexagesimal seconds
@@ -123,7 +129,9 @@ namespace UniversalMapControl.Projections
 			return x;
 		}
 
-		// Convert WGS lat/long (° dec) and height to CH h
+		/// <summary>
+		/// Convert WGS lat/long (° dec) and height to CH h
+		/// </summary>
 		private static double WGStoCHh(double lat, double lng, double h)
 		{
 			// Convert decimal degrees to sexagesimal seconds
@@ -142,7 +150,9 @@ namespace UniversalMapControl.Projections
 			return h;
 		}
 
-		// Convert CH y/x to WGS lat
+		/// <summary>
+		/// Convert CH y/x to WGS lat
+		/// </summary>
 		private static double CHtoWGSlat(double y, double x)
 		{
 			// Converts military to civil and  to unit = 1000km
@@ -164,7 +174,9 @@ namespace UniversalMapControl.Projections
 			return lat;
 		}
 
-		// Convert CH y/x to WGS long
+		/// <summary>
+		/// Convert CH y/x to WGS long
+		/// </summary>
 		private static double CHtoWGSlng(double y, double x)
 		{
 			// Converts military to civil and  to unit = 1000km
@@ -185,7 +197,9 @@ namespace UniversalMapControl.Projections
 			return lng;
 		}
 
-		// Convert CH y/x/h to WGS height
+		/// <summary>
+		/// Convert CH y/x/h to WGS height
+		/// </summary>
 		private static double CHtoWGSheight(double y, double x, double h)
 		{
 			// Converts military to civil and  to unit = 1000km
@@ -199,7 +213,9 @@ namespace UniversalMapControl.Projections
 			return h;
 		}
 
-		// Convert angle in decimal degrees to sexagesimal seconds
+		/// <summary>
+		/// Convert angle in decimal degrees to sexagesimal seconds
+		/// </summary>
 		public static double DecToSexAngle(double dec)
 		{
 			int deg = (int)Math.Floor(dec);
@@ -227,6 +243,28 @@ namespace UniversalMapControl.Projections
 		ILocation ILocation.ChangeLongitude(double newLongitude)
 		{
 			return new SwissGridLocation(newLongitude, Y);
+		}
+
+		public string ToString(string format)
+		{
+			return string.Format(CultureInfo.CurrentCulture, format, X, Y);
+		}
+
+		public double DistanceTo(ILocation to)
+		{
+			SwissGridLocation toSg = to as SwissGridLocation;
+			if (toSg == null)
+			{
+				toSg = FromWgs84Approx(to);
+			}
+			double dx = X - toSg.X;
+			double dy = Y - toSg.Y;
+			return Math.Sqrt(dx * dx + dy * dy);
+		}
+
+		public override string ToString()
+		{
+			return string.Format(CultureInfo.CurrentCulture, "{0} // {1}", X, Y);
 		}
 	}
 }

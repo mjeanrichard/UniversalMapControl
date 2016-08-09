@@ -57,10 +57,12 @@ namespace UniversalMapControl.Controls
 		protected override void OnLoaded(object sender, RoutedEventArgs e)
 		{
 			base.OnLoaded(sender, e);
+			ParentMap.ProjectionChanged += (s, args) => Update();
+
 			_ellipse = new EllipseGeometry();
 			_ellipse.Transform = ParentMap.ViewPortTransform;
-			Data = _ellipse;
 			Update();
+			Data = _ellipse;
 		}
 	}
 }

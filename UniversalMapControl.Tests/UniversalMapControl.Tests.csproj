@@ -105,6 +105,7 @@
     </Compile>
     <Compile Include="WebMercatorProjectionFixture.cs" />
     <Compile Include="WebTilerFixture.cs" />
+    <Compile Include="Wgs84LocationFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="UnitTestApp.xaml">

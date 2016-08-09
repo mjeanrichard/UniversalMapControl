@@ -16,12 +16,11 @@ namespace UniversalMapControl
 {
 	public class CanvasMapLayer : UserControl
 	{
-		private readonly Lazy<Map> _parentMap;
+		private Map _parentMap;
 		private CanvasControl _canvas;
 
 		public CanvasMapLayer()
 		{
-			_parentMap = new Lazy<Map>(this.GetParentMap);
 			Loaded += OnLayerLoaded;
 			Unloaded += OnLayerUnloaded;
 		}
@@ -38,6 +37,9 @@ namespace UniversalMapControl
 			_canvas.Draw += OnDraw;
 			_canvas.CreateResources += OnCreateResource;
 			Content = _canvas;
+
+			_parentMap = this.GetParentMap();
+			_parentMap.ProjectionChanged += (s, args) => Invalidate();
 		}
 
 		protected virtual void OnCreateResource(CanvasControl sender, CanvasCreateResourcesEventArgs args)
@@ -81,10 +83,10 @@ namespace UniversalMapControl
 
 		protected Map ParentMap
 		{
-			get { return _parentMap.Value; }
+			get { return _parentMap; }
 		}
 
-		public void Invalidate()
+		public virtual void Invalidate()
 		{
 			if (_canvas != null)
 			{

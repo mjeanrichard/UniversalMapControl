@@ -1,3 +1,5 @@
+using Windows.Foundation.Metadata;
+
 namespace UniversalMapControl.Interfaces
 {
 	public interface ILocation
@@ -12,7 +14,13 @@ namespace UniversalMapControl.Interfaces
 		/// </summary>
 		double Longitude { get; }
 
+		[Deprecated("Do not use.", DeprecationType.Deprecate, 1)]
 		ILocation ChangeLatitude(double newLatitude);
+
+		[Deprecated("Do not use.", DeprecationType.Deprecate, 1)]
 		ILocation ChangeLongitude(double newLongitude);
+
+		string ToString(string format);
+		double DistanceTo(ILocation to);
 	}
 }

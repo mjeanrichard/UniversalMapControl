@@ -6,5 +6,6 @@ namespace UniversalMapControl.Interfaces
 	{
 		void Enqueue(ICanvasBitmapTile tile);
 		int PendingTileCount { get; }
+		int MaxParallelTasks { get; set; }
 	}
 }

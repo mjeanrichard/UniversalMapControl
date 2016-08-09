@@ -22,9 +22,8 @@ namespace UniversalMapControl.Interfaces
 
 		/// <summary>
 		/// Get the cartesian scale factor (Cartesian Units per Meter) at the given location. 
+		/// This factor can be used to scale a distance in meters to the according view port length.
 		/// </summary>
-		/// <param name="center"></param>
-		/// <returns></returns>
 		double CartesianScaleFactor(ILocation center);
 	}
 }

@@ -29,7 +29,7 @@ namespace UniversalMapControl
 			typeof(MapLayerBase),
 			new PropertyMetadata(double.NaN));
 
-		private Lazy<Map> _parentMap;
+		private readonly Lazy<Map> _parentMap;
 
 		protected MapLayerBase()
 		{
@@ -87,7 +87,7 @@ namespace UniversalMapControl
 		protected virtual ILocation GetLocationPropertyValueIfSet(DependencyObject child)
 		{
 			ILocation location = GetLocation(child);
-			if (double.IsNaN(location.Latitude) || double.IsNaN(location.Longitude))
+			if (location == null || double.IsNaN(location.Latitude) || double.IsNaN(location.Longitude))
 			{
 				return null;
 			}
@@ -251,7 +251,6 @@ namespace UniversalMapControl
 						break;
 				}
 			}
-
 
 			return position;
 		}

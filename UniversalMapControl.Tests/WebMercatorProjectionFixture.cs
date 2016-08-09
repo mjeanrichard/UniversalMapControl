@@ -1,5 +1,7 @@
 ﻿using System;
+
 using Windows.Foundation;
+
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
 using UniversalMapControl.Interfaces;

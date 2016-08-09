@@ -106,6 +106,7 @@
   <ItemGroup>
     <Compile Include="Behaviors\AnimatedValuesBehavior.cs" />
     <Compile Include="Behaviors\TouchMapBehavior.cs" />
+    <Compile Include="Behaviors\TouchMapEventArgs.cs" />
     <Compile Include="CanvasMapLayer.cs" />
     <Compile Include="Controls\BaseMapPath.cs" />
     <Compile Include="Controls\MapEllipse.cs" />

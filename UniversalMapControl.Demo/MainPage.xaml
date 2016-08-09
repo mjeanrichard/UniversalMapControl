@@ -13,6 +13,7 @@
 	xmlns:projections="using:UniversalMapControl.Projections" 
 	xmlns:swissTopo="using:UniversalMapControl.Tiles.SwissTopo" 
 	xmlns:default="using:UniversalMapControl.Tiles.Default"
+	xmlns:controls="using:UniversalMapControl.Controls"
 	mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=models:DemoModel, IsDesignTimeCreatable=True }" >
 
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -34,7 +35,7 @@
 				 MapCenter="{Binding MapCenter}" 
 				 PointerMoved="MapOnPointerMoved">
 
-			<!-- To set a different Porjection uncomment this code. Pleas be aware, that depending on the Layers, the Map will not display anything like this.			
+			<!-- To set a different Projection uncomment this code. Please be aware, that depending on the Layers, the Map will not display anything.
 			<umc:Map.ViewPortProjection>
 				<projections:SwissGridProjection />
 			</umc:Map.ViewPortProjection>
@@ -46,13 +47,15 @@
 			</interactivity:Interaction.Behaviors>
 
 			<umc:Map.Resources>
-				<!--<swissTopo:SwissTopoLayerConfig x:Key="SwissTopo" LayerName="SM1" />-->
 				<default:DefaultWebLayerConfig x:Key="OSM" LayerName="OSM1" />
 
 				<!-- 
 				Google Maps Layers. Please make sure that you have the required Licenses before activating GoogleMaps!
-				<tiles:LayerConfiguration x:Key="GoogleMap" LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
-				<tiles:LayerConfiguration x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
+				<default:DefaultWebLayerConfig x:Key="GoogleMap" LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
+				<default:DefaultWebLayerConfig x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
+
+				SwissTopo Maps, requires a valid License Key, must be used with the SwissGridProjection.
+				<swissTopo:SwissTopoLayerConfig x:Key="SwissTopo" LayerName="SM1" LicenseKey="" />
 				-->
 			</umc:Map.Resources>
 

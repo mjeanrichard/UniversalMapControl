@@ -22,6 +22,10 @@ namespace UniversalMapControl.Projections
 
 		public CartesianPoint ToCartesian(ILocation location, bool sanitize = true)
 		{
+			if (location == null)
+			{
+				return new CartesianPoint();
+			}
 			SwissGridLocation sgLocation = GetSwissGridLocation(location);
 			int x = (int)Math.Round(sgLocation.X * 100) - 42000000;
 			int y = 35000000 - (int)Math.Round(sgLocation.Y * 100);

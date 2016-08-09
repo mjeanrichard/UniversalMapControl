@@ -25,6 +25,7 @@ namespace UniversalMapControl
 		public static readonly DependencyProperty ZoomLevelProperty = DependencyProperty.Register(
 			"ZoomLevel", typeof(double), typeof(Map), new PropertyMetadata(0d, ZoomLevelPropertyChanged));
 
+
 		private CartesianPoint _viewPortCenter;
 		private IProjection _viewPortProjection;
 
@@ -45,7 +46,7 @@ namespace UniversalMapControl
 			SizeChanged += Map_SizeChanged;
 
 			Background = new SolidColorBrush(Colors.Transparent);
-			ManipulationMode = ManipulationModes.All;
+			ManipulationMode = ManipulationModes.Rotate | ManipulationModes.Scale | ManipulationModes.TranslateX | ManipulationModes.TranslateY;
 
 			MapCenter = new Wgs84Location(0, 0);
 		}
@@ -72,6 +73,7 @@ namespace UniversalMapControl
 		public event EventHandler<double> MapHeadingChangedEvent;
 		public event EventHandler ViewPortChangedEvent;
 		public event EventHandler<double> ZoomLevelChangedEvent;
+		public event EventHandler ProjectionChanged;
 
 		public IProjection ViewPortProjection
 		{
@@ -79,6 +81,7 @@ namespace UniversalMapControl
 			set
 			{
 				_viewPortProjection = value;
+				OnProjectionChanged();
 				if (_viewPortProjection != null)
 				{
 					OnMapCenterChanged(MapCenter);
@@ -86,11 +89,24 @@ namespace UniversalMapControl
 			}
 		}
 
+		protected virtual void OnProjectionChanged()
+		{
+			ProjectionChanged?.Invoke(this, EventArgs.Empty);
+		}
+
 		public MatrixTransform ViewPortTransform { get; set; }
 
 		public ILocation MapCenter
 		{
-			get { return (ILocation)GetValue(MapCenterProperty); }
+			get
+			{
+				ILocation mapCenter = (ILocation)GetValue(MapCenterProperty);
+				if (mapCenter == null)
+				{
+					return new Wgs84Location();
+				}
+				return mapCenter;
+			}
 			set { SetValue(MapCenterProperty, value); }
 		}
 
@@ -240,7 +256,6 @@ namespace UniversalMapControl
 			Matrix3x2 reverseRotationMatrix = Matrix3x2.CreateRotation(-TransformHelper.DegToRad(Heading), ViewPortCenter.ToVector());
 
 			return new CartesianPoint(Vector2.Transform(ViewPortCenter.ToVector() + delta, reverseRotationMatrix));
-
 		}
 
 		/// <summary>

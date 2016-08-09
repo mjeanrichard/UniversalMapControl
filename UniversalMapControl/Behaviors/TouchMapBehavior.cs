@@ -1,5 +1,7 @@
 using System;
+using System.ComponentModel;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using Windows.Foundation;
 using Windows.System;
@@ -18,7 +20,7 @@ namespace UniversalMapControl.Behaviors
 	/// Adds basic (Translation, Rotation and Zoom) Touch Manipulation to a Map. 
 	/// The Map must have set its ManipulationMode property accodingly.
 	/// </summary>
-	public class TouchMapBehavior : DependencyObject, IBehavior
+	public class TouchMapBehavior : DependencyObject, IBehavior, INotifyPropertyChanged
 	{
 		private Map _map;
 		private double _headingBeforeManipulation;
@@ -34,12 +36,20 @@ namespace UniversalMapControl.Behaviors
 			ZoomEnabled = true;
 			WheelEnabled = true;
 			DoubleTapEnabled = true;
+			AutoUpdateMap = true;
 
 			ZoomWheelDelta = 0.001;
 			DoubleTapDelta = 1;
 		}
 
 		public DependencyObject AssociatedObject { get; private set; }
+
+		public event EventHandler<TouchMapEventArgs> Update;
+
+		/// <summary>
+		/// Determines if the associated map will be updated automatically.
+		/// </summary>
+		public bool AutoUpdateMap { get; set; }
 
 		/// <summary>
 		/// Determines where translations are activated. If set to false the User will not be able to move the map by moving it.
@@ -134,9 +144,22 @@ namespace UniversalMapControl.Behaviors
 				}
 			}
 
-			_map.Heading = newHeading;
-			_map.ZoomLevel = _map.ViewPortProjection.GetZoomLevel(newZoomFact);
-			_map.ViewPortCenter = new CartesianPoint(Vector2.Transform(_viewPortCenterBeforeManipulation, m));
+			double zoomLevel = _map.ViewPortProjection.GetZoomLevel(newZoomFact);
+			CartesianPoint viewPortCenter = new CartesianPoint(Vector2.Transform(_viewPortCenterBeforeManipulation, m));
+			if (Update != null)
+			{
+				TouchMapEventArgs eventArgs = new TouchMapEventArgs();
+				eventArgs.Heading = newHeading;
+				eventArgs.ZoomLevel = zoomLevel;
+				eventArgs.ViewPortCenter = viewPortCenter;
+				OnUpdate(eventArgs);
+			}
+			if (AutoUpdateMap)
+			{
+				_map.Heading = newHeading;
+				_map.ZoomLevel = zoomLevel;
+				_map.ViewPortCenter = viewPortCenter;
+			}
 		}
 
 		protected virtual void UpdateZoomOnlyManipulation(double zoomDelta, Point position)
@@ -205,6 +228,18 @@ namespace UniversalMapControl.Behaviors
 			_map.PointerWheelChanged -= MapOnPointerWheelChanged;
 			_map = null;
 			AssociatedObject = null;
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		protected virtual void OnUpdate(TouchMapEventArgs eventArgs)
+		{
+			Update?.Invoke(this, eventArgs);
 		}
 	}
 }

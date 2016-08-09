@@ -11,6 +11,9 @@ namespace UniversalMapControl.Tiles
 {
 	public class TileLayer : CanvasMapLayer
 	{
+		private ILayerConfiguration _layerConfiguration;
+		private bool _isInitialResourcesLoaded = false;
+
 		public TileLayer()
 		{
 			LayerConfiguration = new DefaultWebLayerConfig();
@@ -18,7 +21,18 @@ namespace UniversalMapControl.Tiles
 			LoadingOverlayColor = Color.FromArgb(100, 150, 150, 150);
 		}
 
-		public ILayerConfiguration LayerConfiguration { get; set; }
+		public ILayerConfiguration LayerConfiguration
+		{
+			get { return _layerConfiguration; }
+			set
+			{
+				_layerConfiguration = value;
+				if (Canvas != null && _isInitialResourcesLoaded)
+				{
+					_layerConfiguration.TileProvider.ResetTiles(ParentMap, Canvas);
+				}
+			}
+		}
 
 		public bool ShowLoadingOverlay { get; set; }
 
@@ -28,6 +42,7 @@ namespace UniversalMapControl.Tiles
 		{
 			// Clear all Tiles and Reload (Display Device might have changed...)
 			LayerConfiguration.TileProvider.ResetTiles(ParentMap, sender);
+			_isInitialResourcesLoaded = true;
 		}
 
 		protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
