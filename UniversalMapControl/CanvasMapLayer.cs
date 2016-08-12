@@ -2,7 +2,6 @@ using System;
 using System.Numerics;
 
 using Windows.Foundation;
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -16,8 +15,14 @@ namespace UniversalMapControl
 {
 	public class CanvasMapLayer : UserControl
 	{
+		private const float OffsetFactor = 100000F;
+
 		private Map _parentMap;
 		private CanvasControl _canvas;
+
+		private float _xOffset = 0;
+		private float _yOffset = 0;
+		private double _currentZoomFactor;
 
 		public CanvasMapLayer()
 		{
@@ -46,25 +51,43 @@ namespace UniversalMapControl
 		{
 		}
 
-		private void OnDraw(CanvasControl sender, CanvasDrawEventArgs args)
+		protected virtual void OnDraw(CanvasControl sender, CanvasDrawEventArgs args)
 		{
 			Map parentMap = ParentMap;
 
 			float w2 = (float)(sender.ActualWidth / 2f);
 			float h2 = (float)(sender.ActualHeight / 2f);
 
-			float zoomFactor = (float)parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
-			Matrix3x2 transform = Matrix3x2.CreateTranslation(w2, h2);
-			transform = Matrix3x2.CreateScale(zoomFactor) * transform;
-			transform = Matrix3x2.CreateTranslation(-parentMap.ViewPortCenter.X, -parentMap.ViewPortCenter.Y) * transform;
-			double heading = parentMap.Heading * Math.PI / 180.0;
-			Vector2 center = parentMap.ViewPortCenter.ToVector();
-			transform = Matrix3x2.CreateRotation((float)heading, center) * transform;
+			double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
+			int factor = (int)(parentMap.ViewPortCenter.X * zoomFactor / OffsetFactor);
+			float newXOffset = factor * OffsetFactor;
+			factor = (int)(parentMap.ViewPortCenter.Y * zoomFactor / OffsetFactor);
+			float newYOffset = factor * OffsetFactor;
+
+			if (zoomFactor != _currentZoomFactor || newXOffset != _xOffset || newYOffset != _yOffset)
+			{
+				_currentZoomFactor = zoomFactor;
+				_xOffset = newXOffset;
+				_yOffset = newYOffset;
+				InvalidateScaledValues();
+			}
+
+			float tx = Convert.ToSingle(_xOffset + -parentMap.ViewPortCenter.X * zoomFactor);
+			float ty = Convert.ToSingle(_yOffset + -parentMap.ViewPortCenter.Y * zoomFactor);
+
+			Matrix3x2 transform = Matrix3x2.CreateTranslation(w2 + tx, h2 + ty);
+
+			float heading = Convert.ToSingle(parentMap.Heading * Math.PI / 180.0);
+			transform = Matrix3x2.CreateRotation(heading, new Vector2(-tx, -ty)) * transform;
 
 			CanvasDrawingSession canvasDrawingSession = args.DrawingSession;
 			canvasDrawingSession.Transform = transform;
 
 			DrawInternal(canvasDrawingSession, parentMap);
+		}
+
+		protected virtual void InvalidateScaledValues()
+		{
 		}
 
 		protected virtual void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
@@ -81,7 +104,34 @@ namespace UniversalMapControl
 			}
 		}
 
-		protected Map ParentMap
+		public Vector2 Scale(CartesianPoint point)
+		{
+			double zoomFactor = ParentMap.ViewPortProjection.GetZoomFactor(ParentMap.ZoomLevel);
+			float x = (float)(point.X * zoomFactor - _xOffset);
+			float y = (float)(point.Y * zoomFactor - _yOffset);
+			return new Vector2(x, y);
+		}
+
+		public Rect Scale(Rect rect)
+		{
+			Rect result = new Rect();
+			double zoomFactor = ParentMap.ViewPortProjection.GetZoomFactor(ParentMap.ZoomLevel);
+			result.X = rect.X * zoomFactor - _xOffset;
+			result.Y = rect.Y * zoomFactor - _yOffset;
+
+			result.Width = rect.Width * zoomFactor;
+			result.Height = rect.Height * zoomFactor;
+
+			return result;
+		}
+
+		public float Scale(double value)
+		{
+			double zoomFactor = ParentMap.ViewPortProjection.GetZoomFactor(ParentMap.ZoomLevel);
+			return (float)(value * zoomFactor);
+		}
+
+		public Map ParentMap
 		{
 			get { return _parentMap; }
 		}

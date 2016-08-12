@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -194,18 +195,18 @@ namespace UniversalMapControl
 
 			double scaleFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
 
-			float w2 = (float)(ActualWidth / 2f);
-			float h2 = (float)(ActualHeight / 2f);
+			double w2 = ActualWidth / 2d;
+			double h2 = ActualHeight / 2d;
 
-			Matrix3x2 vpCenterTranslation = Matrix3x2.CreateTranslation(w2, h2);
-			Matrix3x2 scale = Matrix3x2.CreateScale((float)scaleFactor);
+			MatrixDouble vpCenterTranslation = MatrixDouble.CreateTranslation(w2, h2);
+			MatrixDouble scale = MatrixDouble.CreateScale(scaleFactor);
 
-			Matrix3x2 mapCenterTranslation = Matrix3x2.CreateTranslation(-(float)ViewPortCenter.X, -(float)ViewPortCenter.Y);
+			MatrixDouble mapCenterTranslation = MatrixDouble.CreateTranslation(-ViewPortCenter.X, -ViewPortCenter.Y);
 
 			double heading = Heading * Math.PI / 180.0;
-			Vector2 center = new Vector2((float)ViewPortCenter.X, (float)ViewPortCenter.Y);
-			Matrix3x2 mapRotation = Matrix3x2.CreateRotation((float)heading, center);
-			Matrix3x2 objectRotation = Matrix3x2.CreateRotation((float)heading);
+			Point center = new Point(ViewPortCenter.X, ViewPortCenter.Y);
+			MatrixDouble mapRotation = MatrixDouble.CreateRotation(heading, center);
+			MatrixDouble objectRotation = MatrixDouble.CreateRotation(heading);
 
 			ViewPortTransform.Matrix = (mapRotation * mapCenterTranslation * scale * vpCenterTranslation).ToXamlMatrix();
 			ScaleRotateTransform.Matrix = (objectRotation * scale).ToXamlMatrix();
@@ -229,7 +230,7 @@ namespace UniversalMapControl
 
 
 		/// <summary>
-		/// This Method can be use to convert a Point on the Map to a Location (in the current Porjection).
+		/// This Method can be use to convert a Point on the Map to a Location (in the current Projection).
 		/// </summary>
 		/// <param name="point">A Position on the MapControl (such as the MousePointer)</param>
 		/// <returns>The location in the current Projection.</returns>
@@ -238,6 +239,7 @@ namespace UniversalMapControl
 			try
 			{
 				Point cartesianLocation = ViewPortTransform.Inverse.TransformPoint(point);
+				Debug.WriteLine($"{cartesianLocation.X} / {cartesianLocation.Y}");
 				ILocation position = ViewPortProjection.ToLocation(new CartesianPoint(cartesianLocation));
 				return position;
 			}
@@ -251,11 +253,13 @@ namespace UniversalMapControl
 		public CartesianPoint GetCartesianFromPoint(Point point)
 		{
 			double zoomFactor = 1 / ViewPortProjection.GetZoomFactor(ZoomLevel);
-			Vector2 delta = (point.ToVector2() - RenderSize.ToVector2() / 2) * (float)zoomFactor;
 
-			Matrix3x2 reverseRotationMatrix = Matrix3x2.CreateRotation(-TransformHelper.DegToRad(Heading), ViewPortCenter.ToVector());
+			double x = (point.X - RenderSize.Width / 2d) * zoomFactor + ViewPortCenter.X;
+			double y = (point.Y - RenderSize.Height / 2d) * zoomFactor + ViewPortCenter.Y;
 
-			return new CartesianPoint(Vector2.Transform(ViewPortCenter.ToVector() + delta, reverseRotationMatrix));
+			MatrixDouble reverseRotationMatrix = MatrixDouble.CreateRotation(-TransformHelper.DegToRad(Heading), ViewPortCenter.ToPoint());
+
+			return new CartesianPoint(reverseRotationMatrix.Transform(new Point(x, y)));
 		}
 
 		/// <summary>

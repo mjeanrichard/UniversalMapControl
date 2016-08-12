@@ -235,16 +235,6 @@ namespace UniversalMapControl.Projections
 			get { return _longitude; }
 		}
 
-		ILocation ILocation.ChangeLatitude(double newLatitude)
-		{
-			return new SwissGridLocation(X, newLatitude);
-		}
-
-		ILocation ILocation.ChangeLongitude(double newLongitude)
-		{
-			return new SwissGridLocation(newLongitude, Y);
-		}
-
 		public string ToString(string format)
 		{
 			return string.Format(CultureInfo.CurrentCulture, format, X, Y);

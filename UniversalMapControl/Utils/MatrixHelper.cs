@@ -9,19 +9,19 @@ namespace UniversalMapControl.Utils
 	{
 		private const double RadFactor = Math.PI / 180.0;
 
-		public static Matrix ToXamlMatrix(this Matrix3x2 m)
+		public static Matrix ToXamlMatrix(this MatrixDouble m)
 		{
 			return new Matrix(m.M11, m.M12, m.M21, m.M22, m.M31, m.M32);
 		}
 
-		public static Matrix3x2 ToMatrix(this Matrix m)
+		public static MatrixDouble ToMatrix(this Matrix m)
 		{
-			return new Matrix3x2((float)m.M11, (float)m.M12, (float)m.M21, (float)m.M22, (float)m.OffsetX, (float)m.OffsetY);
+			return new MatrixDouble(m.M11, m.M12, m.M21, m.M22, m.OffsetX, m.OffsetY);
 		}
 
-		public static float DegToRad(double degrees)
+		public static double DegToRad(double degrees)
 		{
-			return (float)(degrees * RadFactor);
+			return degrees * RadFactor;
 		}
 	}
 }

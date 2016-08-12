@@ -14,13 +14,11 @@ namespace UniversalMapControl.Interfaces
 		/// </summary>
 		double Longitude { get; }
 
-		[Deprecated("Do not use.", DeprecationType.Deprecate, 1)]
-		ILocation ChangeLatitude(double newLatitude);
-
-		[Deprecated("Do not use.", DeprecationType.Deprecate, 1)]
-		ILocation ChangeLongitude(double newLongitude);
+		/// <summary>
+		/// Returns the distance in meters to the provided location.
+		/// </summary>
+		double DistanceTo(ILocation to);
 
 		string ToString(string format);
-		double DistanceTo(ILocation to);
 	}
 }

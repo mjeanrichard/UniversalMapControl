@@ -45,7 +45,7 @@ namespace UniversalMapControl
 		public static void SetLatitude(DependencyObject child, double value)
 		{
 			ILocation location = GetLocation(child);
-			SetLocation(child, location.ChangeLatitude(value));
+			SetLocation(child, new Wgs84Location(value, location.Longitude));
 		}
 
 		public static double GetLongitude(DependencyObject child)
@@ -57,7 +57,7 @@ namespace UniversalMapControl
 		public static void SetLongitude(DependencyObject child, double value)
 		{
 			ILocation location = GetLocation(child);
-			SetLocation(child, location.ChangeLongitude(value));
+			SetLocation(child, new Wgs84Location(location.Latitude, value));
 		}
 
 		public static ILocation GetLocation(DependencyObject child)

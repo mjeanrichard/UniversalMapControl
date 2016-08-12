@@ -1,3 +1,4 @@
+using Windows.Foundation;
 using Windows.UI;
 
 using Microsoft.Graphics.Canvas;
@@ -62,7 +63,8 @@ namespace UniversalMapControl.Tiles
 					CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
 					if (canvasBitmap != null)
 					{
-						sb.Draw(canvasBitmap, tile.Bounds);
+						Rect scale = Scale(tile.Bounds);
+						sb.Draw(canvasBitmap, scale);
 					}
 					else if (ShowLoadingOverlay)
 					{
