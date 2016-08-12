@@ -78,8 +78,10 @@ namespace UniversalMapControl.Tiles
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 			ThreadPool.RunAsync(o =>
 			{
+#if ENABLE_ETW_ACTIVITY_SCOPE
 				using (MapEventSource.StartActivityScope())
 				{
+#endif
 					try
 					{
 						MapEventSource.Log.TileLoaderTaskStarting(_taskCount);
@@ -90,7 +92,9 @@ namespace UniversalMapControl.Tiles
 						Interlocked.Decrement(ref _taskCount);
 						MapEventSource.Log.TileLoaderTaskCompleted(_taskCount);
 					}
+#if ENABLE_ETW_ACTIVITY_SCOPE
 				}
+#endif
 			});
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 		}

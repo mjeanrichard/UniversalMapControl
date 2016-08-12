@@ -8,13 +8,14 @@ namespace UniversalMapControl.Utils
 	{
 		public static MapEventSource Log = new MapEventSource();
 
+#if ENABLE_ETW_ACTIVITY_SCOPE
 		public static IDisposable StartActivityScope()
 		{
 			return new ActivityScope();
 		}
+#endif
 
 		// Tile Loader
-
 		[Event(500, Message = "Starting a new Downloader Task ({0} Tasks are now running).", Level = EventLevel.Verbose)]
 		public void TileLoaderTaskStarting(int taskCount)
 		{
