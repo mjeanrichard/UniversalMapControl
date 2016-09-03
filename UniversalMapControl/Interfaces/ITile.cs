@@ -4,21 +4,21 @@ using Windows.Foundation;
 
 namespace UniversalMapControl.Interfaces
 {
-	public enum TileState
-	{
-		LoadPending,
-		Loaded,
-		TileDoesNotExist
-	}
+    public enum TileState
+    {
+        LoadPending,
+        Loaded,
+        TileDoesNotExist
+    }
 
-	public interface ITile : IDisposable
-	{
-		bool IsDisposed { get; }
-		Rect Bounds { get; }
-		int TileSet { get; }
+    public interface ITile : IDisposable
+    {
+        bool IsDisposed { get; }
+        Rect Bounds { get; }
+        int TileSet { get; }
 
-		TileState State { get; set; }
+        TileState State { get; set; }
 
-		string CacheKey { get; }
-	}
+        string CacheKey { get; }
+    }
 }

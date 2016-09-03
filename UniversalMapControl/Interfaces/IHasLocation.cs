@@ -1,7 +1,7 @@
 namespace UniversalMapControl.Interfaces
 {
-	public interface IHasLocation
-	{
-		ILocation Location { get; }
-	}
+    public interface IHasLocation
+    {
+        ILocation Location { get; }
+    }
 }

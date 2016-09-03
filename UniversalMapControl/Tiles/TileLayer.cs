@@ -10,77 +10,77 @@ using UniversalMapControl.Tiles.Default;
 
 namespace UniversalMapControl.Tiles
 {
-	public class TileLayer : CanvasMapLayer
-	{
-		private ILayerConfiguration _layerConfiguration;
-		private bool _isInitialResourcesLoaded = false;
+    public class TileLayer : CanvasMapLayer
+    {
+        private ILayerConfiguration _layerConfiguration;
+        private bool _isInitialResourcesLoaded = false;
 
-		public TileLayer()
-		{
-			LayerConfiguration = new DefaultWebLayerConfig();
-			ShowLoadingOverlay = false;
-			LoadingOverlayColor = Color.FromArgb(100, 150, 150, 150);
-		}
+        public TileLayer()
+        {
+            LayerConfiguration = new DefaultWebLayerConfig();
+            ShowLoadingOverlay = false;
+            LoadingOverlayColor = Color.FromArgb(100, 150, 150, 150);
+        }
 
-		public ILayerConfiguration LayerConfiguration
-		{
-			get { return _layerConfiguration; }
-			set
-			{
-				_layerConfiguration = value;
-				if (Canvas != null && _isInitialResourcesLoaded)
-				{
-					_layerConfiguration.TileProvider.ResetTiles(ParentMap, Canvas);
-				}
-			}
-		}
+        public ILayerConfiguration LayerConfiguration
+        {
+            get { return _layerConfiguration; }
+            set
+            {
+                _layerConfiguration = value;
+                if ((Canvas != null) && _isInitialResourcesLoaded)
+                {
+                    _layerConfiguration.TileProvider.ResetTiles(ParentMap, Canvas);
+                }
+            }
+        }
 
-		public bool ShowLoadingOverlay { get; set; }
+        public bool ShowLoadingOverlay { get; set; }
 
-		public Color LoadingOverlayColor { get; set; }
+        public Color LoadingOverlayColor { get; set; }
 
-		protected override void OnCreateResource(CanvasControl sender, CanvasCreateResourcesEventArgs args)
-		{
-			// Clear all Tiles and Reload (Display Device might have changed...)
-			LayerConfiguration.TileProvider.ResetTiles(ParentMap, sender);
-			_isInitialResourcesLoaded = true;
-		}
+        protected override void OnCreateResource(CanvasControl sender, CanvasCreateResourcesEventArgs args)
+        {
+            // Clear all Tiles and Reload (Display Device might have changed...)
+            LayerConfiguration.TileProvider.ResetTiles(ParentMap, sender);
+            _isInitialResourcesLoaded = true;
+        }
 
-		protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
-		{
-			LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
-			double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
+        protected override void DrawInternal(CanvasDrawingSession drawingSession, Map parentMap)
+        {
+            LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
+            double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
 
-			using (var sb = drawingSession.CreateSpriteBatch(CanvasSpriteSortMode.None, CanvasImageInterpolation.Linear, CanvasSpriteOptions.ClampToSourceRect))
-			{
-				foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
-				{
-					if (tile.State == TileState.TileDoesNotExist)
-					{
-						DrawInexistentTile(drawingSession, tile, parentMap);
-						continue;
-					}
-					CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
-					if (canvasBitmap != null)
-					{
-						Rect scale = Scale(tile.Bounds);
-						sb.Draw(canvasBitmap, scale);
-					}
-					else if (ShowLoadingOverlay)
-					{
-						DrawLoadingTile(drawingSession, tile, parentMap);
-					}
-				}
-			}
-		}
+            using (var sb = drawingSession.CreateSpriteBatch(CanvasSpriteSortMode.None, CanvasImageInterpolation.Linear, CanvasSpriteOptions.ClampToSourceRect))
+            {
+                foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
+                {
+                    if (tile.State == TileState.TileDoesNotExist)
+                    {
+                        DrawInexistentTile(drawingSession, tile, parentMap);
+                        continue;
+                    }
+                    CanvasBitmap canvasBitmap = tile.GetCanvasBitmap();
+                    if (canvasBitmap != null)
+                    {
+                        Rect scale = Scale(tile.Bounds);
+                        sb.Draw(canvasBitmap, scale);
+                    }
+                    else if (ShowLoadingOverlay)
+                    {
+                        DrawLoadingTile(drawingSession, tile, parentMap);
+                    }
+                }
+            }
+        }
 
-		protected virtual void DrawInexistentTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
-		{
-		}
+        protected virtual void DrawInexistentTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
+        {
+        }
 
-		protected virtual void DrawLoadingTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
-		{
-			drawingSession.FillRectangle(tile.Bounds, LoadingOverlayColor);
-		}
-	}
+        protected virtual void DrawLoadingTile(CanvasDrawingSession drawingSession, ICanvasBitmapTile tile, Map parentMap)
+        {
+            drawingSession.FillRectangle(tile.Bounds, LoadingOverlayColor);
+        }
+    }
 }

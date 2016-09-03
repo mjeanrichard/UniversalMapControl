@@ -1,5 +1,5 @@
 using System;
-using Windows.Foundation;
+
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -11,7 +11,7 @@ namespace UniversalMapControl
     {
         public MapItemsPanel()
         {
-            this.Loaded += ItemsMapLayer_Loaded;
+            Loaded += ItemsMapLayer_Loaded;
         }
 
         private void ItemsMapLayer_Loaded(object sender, RoutedEventArgs e)
@@ -30,7 +30,7 @@ namespace UniversalMapControl
         {
             ContentPresenter contentPresenter = element as ContentPresenter;
 
-            if (contentPresenter != null && contentPresenter.Content != null)
+            if ((contentPresenter != null) && (contentPresenter.Content != null))
             {
                 IHasLocation location = contentPresenter.Content as IHasLocation;
                 if (location != null)

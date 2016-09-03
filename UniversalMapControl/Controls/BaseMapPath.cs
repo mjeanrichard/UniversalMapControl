@@ -5,18 +5,18 @@ using UniversalMapControl.Utils;
 
 namespace UniversalMapControl.Controls
 {
-	public abstract class BaseMapPath : Path
-	{
-		public BaseMapPath()
-		{
-			Loaded += OnLoaded;
-		}
+    public abstract class BaseMapPath : Path
+    {
+        public BaseMapPath()
+        {
+            Loaded += OnLoaded;
+        }
 
-		protected Map ParentMap { get; private set; }
+        protected Map ParentMap { get; private set; }
 
-		protected virtual void OnLoaded(object sender, RoutedEventArgs e)
-		{
-			ParentMap = this.GetParentMap();
-		}
-	}
+        protected virtual void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            ParentMap = this.GetParentMap();
+        }
+    }
 }
