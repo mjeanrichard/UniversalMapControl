@@ -1,3 +1,5 @@
+using System;
+
 using Windows.Foundation;
 using Windows.UI;
 
@@ -7,6 +9,7 @@ using Microsoft.Graphics.Canvas.UI.Xaml;
 
 using UniversalMapControl.Interfaces;
 using UniversalMapControl.Tiles.Default;
+using UniversalMapControl.Utils;
 
 namespace UniversalMapControl.Tiles
 {
@@ -14,6 +17,7 @@ namespace UniversalMapControl.Tiles
     {
         private ILayerConfiguration _layerConfiguration;
         private bool _isInitialResourcesLoaded = false;
+        private bool _isSpriteBatchSupported = false;
 
         public TileLayer()
         {
@@ -42,6 +46,8 @@ namespace UniversalMapControl.Tiles
         protected override void OnCreateResource(CanvasControl sender, CanvasCreateResourcesEventArgs args)
         {
             // Clear all Tiles and Reload (Display Device might have changed...)
+
+            _isSpriteBatchSupported = CanvasSpriteBatch.IsSupported(sender.Device);
             LayerConfiguration.TileProvider.ResetTiles(ParentMap, sender);
             _isInitialResourcesLoaded = true;
         }
@@ -51,7 +57,7 @@ namespace UniversalMapControl.Tiles
             LayerConfiguration.TileProvider.RefreshTiles(ParentMap);
             double zoomFactor = parentMap.ViewPortProjection.GetZoomFactor(parentMap.ZoomLevel);
 
-            using (var sb = drawingSession.CreateSpriteBatch(CanvasSpriteSortMode.None, CanvasImageInterpolation.Linear, CanvasSpriteOptions.ClampToSourceRect))
+            using (BatchSpriteWrapper spriteBatch = BatchSpriteWrapper.Create(_isSpriteBatchSupported, drawingSession))
             {
                 foreach (ICanvasBitmapTile tile in LayerConfiguration.TileProvider.GetTiles(zoomFactor))
                 {
@@ -64,7 +70,7 @@ namespace UniversalMapControl.Tiles
                     if (canvasBitmap != null)
                     {
                         Rect scale = Scale(tile.Bounds);
-                        sb.Draw(canvasBitmap, scale);
+                        spriteBatch.Draw(canvasBitmap, scale);
                     }
                     else if (ShowLoadingOverlay)
                     {

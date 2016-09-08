@@ -144,6 +144,7 @@
     <Compile Include="Tiles\Default\DefaultWebTileLoader.cs" />
     <Compile Include="Tiles\TileProvider.cs" />
     <Compile Include="Utils\DoubleMatrix.cs" />
+    <Compile Include="Utils\BatchSpriteWrapper.cs" />
     <Compile Include="Utils\MapEventSource.cs" />
     <Compile Include="Utils\MatrixHelper.cs" />
     <Compile Include="Utils\XamlHelper.cs" />
