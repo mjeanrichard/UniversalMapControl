@@ -20,23 +20,13 @@ namespace UniversalMapControl.Tiles
         {
             StorageFolder folder = await OpenFolder(tile).ConfigureAwait(false);
             string filename = string.Format(CultureInfo.InvariantCulture, "{0}.tile", tile.CacheKey);
-            IStorageItem storageItem = await folder.TryGetItemAsync(filename).AsTask().ConfigureAwait(false);
-            if (storageItem == null)
+            IStorageFile storageFile = await folder.TryGetItemAsync(filename).AsTask().ConfigureAwait(false) as IStorageFile;
+            if (storageFile == null)
             {
                 return null;
             }
 
-            StorageFile file;
-            try
-            {
-                file = await folder.GetFileAsync(filename).AsTask().ConfigureAwait(false);
-            }
-            catch (FileNotFoundException)
-            {
-                return null;
-            }
-
-            IRandomAccessStreamWithContentType stream = await file.OpenReadAsync().AsTask().ConfigureAwait(false);
+            IRandomAccessStreamWithContentType stream = await storageFile.OpenReadAsync().AsTask().ConfigureAwait(false);
             return stream;
         }
 
