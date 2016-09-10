@@ -44,7 +44,7 @@ namespace UniversalMapControl.Tiles
         {
             ApplicationData appData = ApplicationData.Current;
             string folderName = string.Format(CultureInfo.InvariantCulture, "UMCCache\\{0}\\{1}", LayerName, tile.TileSet);
-            return await appData.LocalFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists).AsTask().ConfigureAwait(false);
+            return await appData.LocalCacheFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists).AsTask().ConfigureAwait(false);
         }
 
         public async Task<bool> TryLoadAsync(ICanvasBitmapTile tile)
