@@ -7,6 +7,6 @@ namespace UniversalMapControl.Tiles
         ITileProvider TileProvider { get; }
         ITileLoader TileLoader { get; }
         string LayerName { get; }
-        ITileCache TileCache { get; set; }
+        ITileCache TileCache { get; }
     }
 }

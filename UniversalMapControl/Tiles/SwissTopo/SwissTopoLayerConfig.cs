@@ -6,17 +6,23 @@ namespace UniversalMapControl.Tiles.SwissTopo
     {
         private readonly SwissGridTileLoader _tileLoader;
 
-        public SwissTopoLayerConfig()
+        public SwissTopoLayerConfig() : this("SwissTopo", "")
+        {
+        }
+
+        public SwissTopoLayerConfig(string name, string licenseKey)
         {
             TileCache = new FileSystemTileCache();
-            LayerName = "SwissTopo";
 
             ITiler tiler = new SwissTopoTiler();
             _tileLoader = new SwissGridTileLoader(TileCache, tiler);
             TileProvider = new TileProvider(tiler, _tileLoader);
+
+            LicenseKey = licenseKey;
+            LayerName = name;
         }
 
-        public ITileCache TileCache { get; set; }
+        public ITileCache TileCache { get; }
 
         public string LicenseKey
         {
@@ -35,7 +41,7 @@ namespace UniversalMapControl.Tiles.SwissTopo
         public string LayerName
         {
             get { return TileCache.LayerName; }
-            set { TileCache.LayerName = value; }
+            private set { TileCache.LayerName = value; }
         }
 
         public ITileProvider TileProvider { get; private set; }

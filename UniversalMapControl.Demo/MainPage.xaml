@@ -19,8 +19,8 @@
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition/>
-			<ColumnDefinition Width="179*"/>
-		</Grid.ColumnDefinitions>
+            <ColumnDefinition Width="179*"/>
+        </Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition />
@@ -55,7 +55,7 @@
 				<default:DefaultWebLayerConfig x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
 
 				SwissTopo Maps, requires a valid License Key, must be used with the SwissGridProjection.
-				<swissTopo:SwissTopoLayerConfig x:Key="SwissTopo" LayerName="SM1" LicenseKey="" />
+				<swissTopo:SwissTopoLayerConfig LicenseKey="" />
 				-->
 			</umc:Map.Resources>
 
