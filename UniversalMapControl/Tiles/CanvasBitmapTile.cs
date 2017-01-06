@@ -52,14 +52,7 @@ namespace UniversalMapControl.Tiles
                 _cBitmap.Dispose();
                 _cBitmap = null;
             }
-            // TODO: Remove this catch after the Fix in Win2d
-            try
-            {
-                _cBitmap = await CanvasBitmap.LoadAsync(canvas, imageStream);
-            }
-            catch (InvalidCastException)
-            {
-            }
+            _cBitmap = await CanvasBitmap.LoadAsync(canvas, imageStream);
             if (!IsDisposed)
             {
                 await canvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => canvas.Invalidate()).AsTask().ConfigureAwait(false);

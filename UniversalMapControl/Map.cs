@@ -115,9 +115,11 @@ namespace UniversalMapControl
             set { SetValue(HeadingProperty, value); }
         }
 
+        private double _zoomLevel;
+
         public double ZoomLevel
         {
-            get { return (double)GetValue(ZoomLevelProperty); }
+            get { return _zoomLevel; }
             set
             {
                 if (value < MinZoomLevel)
@@ -176,9 +178,11 @@ namespace UniversalMapControl
 
         protected virtual void OnZoomLevelChanged(double newZoomLevel)
         {
+            _zoomLevel = newZoomLevel;
             ZoomLevelChangedEvent?.Invoke(this, newZoomLevel);
             UpdateViewPortTransform();
         }
+
 
         /// <summary>
         /// Calculates the ViewPortTransfrom for the Current Heading and ViewPortCenter. 
