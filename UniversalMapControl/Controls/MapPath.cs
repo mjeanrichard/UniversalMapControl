@@ -6,13 +6,16 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 
 using UniversalMapControl.Interfaces;
-using UniversalMapControl.Projections;
 
 namespace UniversalMapControl.Controls
 {
     public class MapPath : BaseMapPath
     {
-        public static readonly DependencyProperty PathItemsProperty = DependencyProperty.Register("PathItems", typeof(ObservableCollection<ILocation>), typeof(MapPath), new PropertyMetadata(new Wgs84Location(), PathItemsPropertyChanged));
+        public static readonly DependencyProperty PathItemsProperty = DependencyProperty.Register("PathItems", typeof(ObservableCollection<string>), typeof(MapPath), new PropertyMetadata(new ObservableCollection<string>(), PathItemsPropertyChanged));
+
+        public static readonly DependencyProperty IsClosedProperty = DependencyProperty.Register("IsClosed", typeof(bool), typeof(MapPath), new PropertyMetadata(false, PathPropertiesChanged));
+
+        public static readonly DependencyProperty IsFilledProperty = DependencyProperty.Register("IsFilled", typeof(bool), typeof(MapPath), new PropertyMetadata(false, PathPropertiesChanged));
 
         private static void PathItemsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -20,21 +23,39 @@ namespace UniversalMapControl.Controls
             mapPath.OnPathItemsChanged((ObservableCollection<ILocation>)e.NewValue);
         }
 
-        public ObservableCollection<ILocation> PathItems
+        private static void PathPropertiesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get { return (ObservableCollection<ILocation>)GetValue(PathItemsProperty); }
+            MapPath mapPath = (MapPath)d;
+            mapPath.Invalidate();
+        }
+
+        public bool IsClosed
+        {
+            get { return (bool)GetValue(IsClosedProperty); }
+            set { SetValue(IsClosedProperty, value); }
+        }
+
+        public bool IsFilled
+        {
+            get { return (bool)GetValue(IsFilledProperty); }
+            set { SetValue(IsFilledProperty, value); }
+        }
+
+        public ObservableCollection<string> PathItems
+        {
+            get { return (ObservableCollection<string>)GetValue(PathItemsProperty); }
             set { SetValue(PathItemsProperty, value); }
         }
 
 
         private void OnPathItemsChanged(ObservableCollection<ILocation> newLocations)
         {
-            UpdatePath();
+            Invalidate();
         }
 
-        public virtual void UpdatePath()
+        protected override void Invalidate()
         {
-            if ((ParentMap == null) || (PathItems.Count < 2))
+            if (ParentMap == null || PathItems.Count < 2)
             {
                 Data = new PathGeometry();
                 return;
@@ -43,17 +64,19 @@ namespace UniversalMapControl.Controls
             PathGeometry pathGeometry = new PathGeometry();
             pathGeometry.Transform = ParentMap.ViewPortTransform;
             PathFigure pathFigure = new PathFigure();
-            pathFigure.IsClosed = false;
-            pathFigure.IsFilled = false;
+            pathFigure.IsClosed = IsClosed;
+            pathFigure.IsFilled = IsFilled;
             pathGeometry.Figures.Add(pathFigure);
 
-            CartesianPoint startPoint = ParentMap.ViewPortProjection.ToCartesian(PathItems.First());
+            ILocation location = ParentMap.ViewPortProjection.ParseLocation(PathItems.First());
+            CartesianPoint startPoint = ParentMap.ViewPortProjection.ToCartesian(location);
             pathFigure.StartPoint = new Point(startPoint.X, startPoint.Y);
 
             PolyLineSegment segment = new PolyLineSegment();
-            foreach (ILocation point in PathItems.Skip(1))
+            foreach (string stringLocation in PathItems.Skip(1))
             {
-                CartesianPoint cartesianPoint = ParentMap.ViewPortProjection.ToCartesian(point);
+                location = ParentMap.ViewPortProjection.ParseLocation(stringLocation);
+                CartesianPoint cartesianPoint = ParentMap.ViewPortProjection.ToCartesian(location);
                 segment.Points.Add(new Point(cartesianPoint.X, cartesianPoint.Y));
             }
             pathFigure.Segments.Add(segment);

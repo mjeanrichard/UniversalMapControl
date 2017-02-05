@@ -2,211 +2,238 @@
     x:Class="UniversalMapControl.Demo.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-	xmlns:umc="using:UniversalMapControl"
-	xmlns:behaviors="using:UniversalMapControl.Behaviors"
-	xmlns:tiles="using:UniversalMapControl.Tiles"
-	xmlns:utils="using:UniversalMapControl.Utils"
-	xmlns:models="using:UniversalMapControl.Demo.Models" 
-	xmlns:projections="using:UniversalMapControl.Projections" 
-	xmlns:swissTopo="using:UniversalMapControl.Tiles.SwissTopo" 
-	xmlns:default="using:UniversalMapControl.Tiles.Default"
-	xmlns:controls="using:UniversalMapControl.Controls"
-	mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=models:DemoModel, IsDesignTimeCreatable=True }" >
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:umc="using:UniversalMapControl"
+    xmlns:behaviors="using:UniversalMapControl.Behaviors"
+    xmlns:tiles="using:UniversalMapControl.Tiles"
+    xmlns:utils="using:UniversalMapControl.Utils"
+    xmlns:models="using:UniversalMapControl.Demo.Models"
+    xmlns:projections="using:UniversalMapControl.Projections"
+    xmlns:swissTopo="using:UniversalMapControl.Tiles.SwissTopo"
+    xmlns:default="using:UniversalMapControl.Tiles.Default"
+    xmlns:controls="using:UniversalMapControl.Controls"
+    xmlns:objectModel="using:System.Collections.ObjectModel"
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=models:DemoModel, IsDesignTimeCreatable=True }">
 
-	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition/>
-            <ColumnDefinition Width="179*"/>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="179*" />
         </Grid.ColumnDefinitions>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="auto" />
-			<RowDefinition />
-			<RowDefinition Height="auto" />
-		</Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0"  Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="367.242,0,374,817.667" Grid.RowSpan="2">
-    		<Run FontSize="50" Text="Universal Map Control Example"/>
-		</TextBlock>
+        <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="367.242,0,374,817.667" Grid.RowSpan="2">
+            <Run FontSize="50" Text="Universal Map Control Example" />
+        </TextBlock>
 
-		<umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4" Grid.ColumnSpan="2" Margin="0,0.333,0,75" Grid.RowSpan="2"
-				 MapCenter="{Binding MapCenter}" 
-				 PointerMoved="MapOnPointerMoved">
+        <umc:Map Name="map" Grid.Row="1" Grid.Column="0" Heading="0" ZoomLevel="4" Grid.ColumnSpan="2" Margin="0,0.333,0,75" Grid.RowSpan="2"
+                 MapCenter="{Binding MapCenter}"
+                 PointerMoved="MapOnPointerMoved">
 
-			<!-- To set a different Projection uncomment this code. Please be aware, that depending on the Layers, the Map will not display anything.
-			<umc:Map.ViewPortProjection>
-				<projections:SwissGridProjection />
-			</umc:Map.ViewPortProjection>
-			-->
-			
-			<interactivity:Interaction.Behaviors>
-				<behaviors:TouchMapBehavior />
-				<behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
-			</interactivity:Interaction.Behaviors>
+            <!-- To set a different Projection uncomment this code. Please be aware, that depending on the Layers, the Map will not display anything.
+            <umc:Map.ViewPortProjection>
+                <projections:SwissGridProjection />
+            </umc:Map.ViewPortProjection>
+            -->
 
-			<umc:Map.Resources>
-				<default:DefaultWebLayerConfig x:Key="OSM" LayerName="OSM1" />
+            <interactivity:Interaction.Behaviors>
+                <behaviors:TouchMapBehavior />
+                <behaviors:AnimatedValuesBehavior x:Name="animatedBehavior" />
+            </interactivity:Interaction.Behaviors>
 
-				<!-- 
-				Google Maps Layers. Please make sure that you have the required Licenses before activating GoogleMaps!
-				<default:DefaultWebLayerConfig x:Key="GoogleMap" LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
-				<default:DefaultWebLayerConfig x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
+            <umc:Map.Resources>
+                <default:DefaultWebLayerConfig x:Key="OSM" LayerName="OSM1" />
 
-				SwissTopo Maps, requires a valid License Key, must be used with the SwissGridProjection.
-				<swissTopo:SwissTopoLayerConfig LicenseKey="" />
-				-->
-			</umc:Map.Resources>
+                <!-- 
+                Google Maps Layers. Please make sure that you have the required Licenses before activating GoogleMaps!
+                <default:DefaultWebLayerConfig x:Key="GoogleMap" LayerName="GoogleMaps" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=m&amp;x={x}&amp;y={y}&amp;z={z}" />
+                <default:DefaultWebLayerConfig x:Key="GoogleSat" LayerName="GooglMapsSatellite" UrlPattern="http://mt{RND-1;2;3}.google.com/vt/lyrs=y&amp;x={x}&amp;y={y}&amp;z={z}" />
 
-			<tiles:TileLayer x:Name="tileLayer" LayerConfiguration="{StaticResource OSM}" />
+                SwissTopo Maps, requires a valid License Key, must be used with the SwissGridProjection.
+                <swissTopo:SwissTopoLayerConfig LicenseKey="" />
+                -->
+            </umc:Map.Resources>
 
-			<!-- ItemsControl bound to an Object that implements IHasLocation -->
-			<ItemsControl ItemsSource="{Binding Cities}">
-				<ItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<umc:MapItemsPanel />
-					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-				<ItemsControl.ItemContainerStyle>
-					<Style TargetType="ContentPresenter">
-						<Setter Property="VerticalAlignment" Value="Center" />
-						<Setter Property="HorizontalAlignment" Value="Center" />
-					</Style>
-				</ItemsControl.ItemContainerStyle>
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<Grid>
-							<Ellipse Stroke="DeepSkyBlue"  Width="30" Height="30" StrokeThickness="6" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7" />
-							<Border Background="DodgerBlue" Margin="0,55,0,0" Padding="2,2,2,0">
-								<TextBlock Text="{Binding Label}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15"/>
-							</Border>
-						</Grid>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
+            <tiles:TileLayer x:Name="tileLayer" LayerConfiguration="{StaticResource OSM}" />
 
-			<!-- ItemsControl bound directly to the Model -->
-			<ItemsControl ItemsSource="{Binding Peaks}">
-				<ItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<umc:MapItemsPanel />
-					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-				<ItemsControl.ItemContainerStyle>
-					<Style TargetType="ContentPresenter">
-						<Setter Property="VerticalAlignment" Value="Center" />
-						<Setter Property="HorizontalAlignment" Value="Center" />
-						<!-- Binding Helper to allow Binding to the Attached Property 'Location' of the Map -->
-						<Setter Property="utils:XamlHelper.LocationBinding" Value="PeakLocation" />
-					</Style>
-				</ItemsControl.ItemContainerStyle>
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<Grid>
-							<Path Stroke="DarkGreen" StrokeThickness="3" umc:MapLayerBase.Location="{Binding PeakLocation}" Margin="20,80,0,0" HorizontalAlignment="Center">
-								<Path.Data>
-									<PathGeometry>
-										<PathGeometry.Figures>
-											<PathFigureCollection>
-												<PathFigure IsClosed="False" StartPoint="0,0">
-													<PathFigure.Segments>
-														<PathSegmentCollection>
-															<LineSegment Point="10,-30" />
-															<LineSegment Point="20,-15" />
-															<LineSegment Point="30,-23" />
-															<LineSegment Point="40,0" />
-														</PathSegmentCollection>
-													</PathFigure.Segments>
-												</PathFigure>
-											</PathFigureCollection>
-										</PathGeometry.Figures>
-									</PathGeometry>
-								</Path.Data>
-							</Path>
-							<Border Background="DarkOliveGreen" Margin="20,80,0,0" Padding="2,2,2,0">
-								<TextBlock Text="{Binding PeakName}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" />
-							</Border>
-						</Grid>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
+            <!-- ItemsControl bound to an Object that implements IHasLocation -->
+            <ItemsControl ItemsSource="{Binding Cities}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <umc:MapItemsPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Ellipse Stroke="DeepSkyBlue" Width="30" Height="30" StrokeThickness="6" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7" />
+                            <Border Background="DodgerBlue" Margin="0,55,0,0" Padding="2,2,2,0">
+                                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-			<TextBlock Text="0" FontSize="30"    umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="60" FontSize="30"   umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="120" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="180" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="180" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-60" FontSize="30"  umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
-			<TextBlock Text="-120" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+            <!-- ItemsControl bound directly to the Model -->
+            <ItemsControl ItemsSource="{Binding Peaks}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <umc:MapItemsPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <!-- Binding Helper to allow Binding to the Attached Property 'Location' of the Map -->
+                        <Setter Property="utils:XamlHelper.LocationBinding" Value="PeakLocation" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Path Stroke="DarkGreen" StrokeThickness="3" umc:MapLayerBase.Location="{Binding PeakLocation}" Margin="20,80,0,0" HorizontalAlignment="Center">
+                                <Path.Data>
+                                    <PathGeometry>
+                                        <PathGeometry.Figures>
+                                            <PathFigureCollection>
+                                                <PathFigure IsClosed="False" StartPoint="0,0">
+                                                    <PathFigure.Segments>
+                                                        <PathSegmentCollection>
+                                                            <LineSegment Point="10,-30" />
+                                                            <LineSegment Point="20,-15" />
+                                                            <LineSegment Point="30,-23" />
+                                                            <LineSegment Point="40,0" />
+                                                        </PathSegmentCollection>
+                                                    </PathFigure.Segments>
+                                                </PathFigure>
+                                            </PathFigureCollection>
+                                        </PathGeometry.Figures>
+                                    </PathGeometry>
+                                </Path.Data>
+                            </Path>
+                            <Border Background="DarkOliveGreen" Margin="20,80,0,0" Padding="2,2,2,0">
+                                <TextBlock Text="{Binding PeakName}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="0" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+            <TextBlock Text="60" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+            <TextBlock Text="120" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+            <TextBlock Text="180" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="180" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+            <TextBlock Text="-60" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-50" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
+            <TextBlock Text="-120" FontSize="30" umc:MapLayerBase.Latitude="0" umc:MapLayerBase.Longitude="-100" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" />
 
 
-			<!-- Arrow moving across the map -->
-			<Path Stroke="Red" StrokeThickness="3" umc:MapLayerBase.Location="{Binding MovingTarget}"
+            <!-- Arrow moving across the map -->
+            <Path Stroke="Red" StrokeThickness="3" umc:MapLayerBase.Location="{Binding MovingTarget}"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Center">
-				<Path.Data>
-					<PathGeometry>
-						<PathGeometry.Figures>
-							<PathFigureCollection>
-								<PathFigure IsClosed="True" StartPoint="0,0">
-									<PathFigure.Segments>
-										<PathSegmentCollection>
-											<LineSegment Point="30,20" />
-											<LineSegment Point="0,40" />
-											<LineSegment Point="10,20" />
-										</PathSegmentCollection>
-									</PathFigure.Segments>
-								</PathFigure>
-							</PathFigureCollection>
-						</PathGeometry.Figures>
-					</PathGeometry>
-				</Path.Data>
-			</Path>
+                <Path.Data>
+                    <PathGeometry>
+                        <PathGeometry.Figures>
+                            <PathFigureCollection>
+                                <PathFigure IsClosed="True" StartPoint="0,0">
+                                    <PathFigure.Segments>
+                                        <PathSegmentCollection>
+                                            <LineSegment Point="30,20" />
+                                            <LineSegment Point="0,40" />
+                                            <LineSegment Point="10,20" />
+                                        </PathSegmentCollection>
+                                    </PathFigure.Segments>
+                                </PathFigure>
+                            </PathFigureCollection>
+                        </PathGeometry.Figures>
+                    </PathGeometry>
+                </Path.Data>
+            </Path>
 
-			<!-- Circle around Mallorca; scales and rotates with the Map -->
-			<Path Stroke="Blue" StrokeThickness="3" umc:MapLayerBase.Latitude="39.624148" umc:MapLayerBase.Longitude="2.9">
-				<Path.Data>
-					<EllipseGeometry RadiusX="1800000" RadiusY="1400000" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
-				</Path.Data>
-			</Path>
+            <!-- Circle around Mallorca; scales and rotates with the Map -->
+            <Path Stroke="Blue" StrokeThickness="3" umc:MapLayerBase.Latitude="39.624148" umc:MapLayerBase.Longitude="2.9">
+                <Path.Data>
+                    <EllipseGeometry RadiusX="1800000" RadiusY="1400000" Transform="{Binding ScaleRotateTransform, ElementName=map}" />
+                </Path.Data>
+            </Path>
 
+            <!-- Circle with 1km radius and center in Berne -->
+            <!--
+            <controls:MapEllipse Center="46.9451,7.4410" RadiusX="1000" RadiusY="1000" Stroke="Red" StrokeThickness="2" />
+            -->
 
-			<!-- Crosshair; doesn't move with Map -->
-			<Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-			<Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
-		</umc:Map>
+            <!-- Path around Sardinia -->
+            <controls:MapPath Stroke="Green" StrokeThickness="2" IsFilled="True" IsClosed="True" Opacity="0.5" Fill="GreenYellow">
+                <controls:MapPath.PathItems>
+                    <x:String>41.3768086,9.4207764</x:String>
+                    <x:String>41.2839985,9.1323853</x:String>
+                    <x:String>40.8761414,8.5144043</x:String>
+                    <x:String>40.9384150,8.3276367</x:String>
+                    <x:String>41.0917722,8.4265137</x:String>
+                    <x:String>41.1703845,8.2672119</x:String>
+                    <x:String>40.7722219,8.0749512</x:String>
+                    <x:String>40.5137992,8.1188965</x:String>
+                    <x:String>40.5096228,8.2287598</x:String>
+                    <x:String>40.1326910,8.4045410</x:String>
+                    <x:String>40.0360265,8.2397461</x:String>
+                    <x:String>39.3045499,8.2891846</x:String>
+                    <x:String>39.2109752,8.1024170</x:String>
+                    <x:String>38.8610976,8.3990479</x:String>
+                    <x:String>38.7969083,8.8659668</x:String>
+                    <x:String>39.0746437,9.1571045</x:String>
+                    <x:String>39.0021103,9.6020508</x:String>
+                    <x:String>40.5472002,9.8822021</x:String>
+                    <x:String>40.9550113,9.7998047</x:String>
+                </controls:MapPath.PathItems>
+            </controls:MapPath>
 
-		<StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
-			<StackPanel Orientation="Vertical" Margin="5,0">
-				<TextBlock Text="Heading:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
-				<Slider Width="200" Minimum="0" Maximum="360"  Value="{Binding TargetHeading, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="5" LargeChange="45" Height="35" />
-				<TextBlock Text="{Binding Heading, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
-			</StackPanel>
-			<StackPanel Orientation="Vertical" Margin="5,0">
-				<TextBlock Text="Zoom Level:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
-				<Slider Width="200" Minimum="0" Maximum="25" Value="{Binding TargetZoom, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" Height="35" />
-				<TextBlock Text="{Binding ZoomLevel, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
-			</StackPanel>
-		</StackPanel>
-		<Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
-			<Grid.RowDefinitions>
-				<RowDefinition />
-				<RowDefinition />
-			</Grid.RowDefinitions>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="Auto" MinWidth="250" />
-			</Grid.ColumnDefinitions>
-			<TextBlock Grid.Row="0" Grid.Column="1" Name="_pendingTiles"  FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
-			<TextBlock Grid.Row="0" Grid.Column="2" Text="Mouse Position:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
-			<TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding MouseCoordinates}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-			<TextBlock Grid.Row="1" Grid.Column="2" Text="Crosshair:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
-			<TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-		</Grid>
-	</Grid>
+            <!-- Crosshair; doesn't move with Map -->
+            <Line X1="0" X2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Line Y1="0" Y2="100" Stroke="Yellow" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </umc:Map>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
+            <StackPanel Orientation="Vertical" Margin="5,0">
+                <TextBlock Text="Heading:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
+                <Slider Width="200" Minimum="0" Maximum="360" Value="{Binding TargetHeading, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="5" LargeChange="45" Height="35" />
+                <TextBlock Text="{Binding Heading, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="5,0">
+                <TextBlock Text="Zoom Level:" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="15" />
+                <Slider Width="200" Minimum="0" Maximum="25" Value="{Binding TargetZoom, ElementName=animatedBehavior, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" Height="35" />
+                <TextBlock Text="{Binding ZoomLevel, ElementName=map}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="15" />
+            </StackPanel>
+        </StackPanel>
+        <Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0.333,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" MinWidth="250" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="1" Name="_pendingTiles" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Mouse Position:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+            <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding MouseCoordinates}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="Crosshair:" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,0" />
+            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding MapCenter, ElementName=map}" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+        </Grid>
+    </Grid>
 </Page>
-
-
-

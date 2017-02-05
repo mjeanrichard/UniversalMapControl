@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 using UniversalMapControl.Interfaces;
 
@@ -81,6 +82,16 @@ namespace UniversalMapControl.Projections
                 return sgLocation;
             }
             return SwissGridLocation.FromWgs84Approx(location);
+        }
+
+        public ILocation ParseLocation(string location)
+        {
+            string[] parts = location.Split(new[] { "//", "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2)
+            {
+                throw new ArgumentException($"'{location}' is a invalid SwissGrid Location.", nameof(location));
+            }
+            return new SwissGridLocation(int.Parse(parts[0], CultureInfo.InvariantCulture), int.Parse(parts[1], CultureInfo.InvariantCulture));
         }
     }
 }

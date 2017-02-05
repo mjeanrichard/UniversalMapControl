@@ -11,58 +11,61 @@ namespace UniversalMapControl.Controls
 
         public static readonly DependencyProperty RadiusYProperty = DependencyProperty.Register("RadiusY", typeof(double), typeof(MapEllipse), new PropertyMetadata(default(double), OnLayoutPropertyChanged));
 
-        public static readonly DependencyProperty CenterProperty = DependencyProperty.Register("Center", typeof(ILocation), typeof(MapEllipse), new PropertyMetadata(default(ILocation), OnLayoutPropertyChanged));
+        public static readonly DependencyProperty CenterProperty = DependencyProperty.Register("Center", typeof(string), typeof(MapEllipse), new PropertyMetadata(default(string), OnLayoutPropertyChanged));
 
         private EllipseGeometry _ellipse;
 
         private static void OnLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((MapEllipse)d).Update();
+            ((MapEllipse)d).Invalidate();
         }
 
+        /// <summary>
+        /// X Radius of the Ellipse in Meters
+        /// </summary>
         public double RadiusX
         {
             get { return (double)GetValue(RadiusXProperty); }
             set { SetValue(RadiusXProperty, value); }
         }
 
+        /// <summary>
+        /// Y Radius of the Ellipse in Meters
+        /// </summary>
         public double RadiusY
         {
             get { return (double)GetValue(RadiusYProperty); }
             set { SetValue(RadiusYProperty, value); }
         }
 
-        public ILocation Center
+        public string Center
         {
-            get { return (ILocation)GetValue(CenterProperty); }
+            get { return (string)GetValue(CenterProperty); }
             set { SetValue(CenterProperty, value); }
         }
 
-        private void Update()
+        protected override void Invalidate()
         {
-            ILocation center = Center;
-
-            if ((ParentMap == null) || (center == null))
+            string stringCenter = Center;
+            if (ParentMap == null || string.IsNullOrWhiteSpace(stringCenter))
             {
                 return;
             }
+            if (_ellipse == null)
+            {
+                _ellipse = new EllipseGeometry();
+                _ellipse.Transform = ParentMap.ViewPortTransform;
+                Data = _ellipse;
+            }
+
             IProjection viewPortProjection = ParentMap.ViewPortProjection;
+            ILocation center = viewPortProjection.ParseLocation(stringCenter);
+
             double scaleFactor = viewPortProjection.CartesianScaleFactor(center);
             _ellipse.RadiusY = RadiusY * scaleFactor;
             _ellipse.RadiusX = RadiusX * scaleFactor;
             _ellipse.Center = viewPortProjection.ToCartesian(center).ToPoint();
             InvalidateMeasure();
-        }
-
-        protected override void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            base.OnLoaded(sender, e);
-            ParentMap.ProjectionChanged += (s, args) => Update();
-
-            _ellipse = new EllipseGeometry();
-            _ellipse.Transform = ParentMap.ViewPortTransform;
-            Update();
-            Data = _ellipse;
         }
     }
 }

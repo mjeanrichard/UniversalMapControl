@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 using UniversalMapControl.Interfaces;
 
@@ -160,6 +161,16 @@ namespace UniversalMapControl.Projections
                 point.Y = -HalfCartesianMapWidth;
             }
             return point;
+        }
+
+        public ILocation ParseLocation(string location)
+        {
+            string[] parts = location.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2)
+            {
+                throw new ArgumentException($"'{location}' is a invalid WGS84 Location.", nameof(location));
+            }
+            return new Wgs84Location(double.Parse(parts[0], CultureInfo.InvariantCulture), double.Parse(parts[1], CultureInfo.InvariantCulture));
         }
     }
 }

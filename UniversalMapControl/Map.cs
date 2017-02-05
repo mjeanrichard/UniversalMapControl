@@ -6,6 +6,9 @@ using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
+
+using Microsoft.Xaml.Interactions.Core;
 
 using UniversalMapControl.Interfaces;
 using UniversalMapControl.Projections;
@@ -266,7 +269,7 @@ namespace UniversalMapControl
         /// <summary>
         /// This function calculates the smallest axis-aligned bounding box possible for the current ViewPort. 
         /// This means that if the current Map has a Heading that is not a multiple of 90° 
-        /// this function will a bounding box that is bigger than the actual ViewPort.
+        /// this function will return a bounding box that is bigger than the actual ViewPort.
         /// </summary>
         public virtual Rect GetViewportBounds()
         {
@@ -277,11 +280,30 @@ namespace UniversalMapControl
             Point topLeft = new Point(ViewPortCenter.X - halfWidth, ViewPortCenter.Y - halfHeight);
             Point bottomRight = new Point(ViewPortCenter.X + halfWidth, ViewPortCenter.Y + halfHeight);
 
-            RotateTransform rotation = new RotateTransform { Angle = Heading, CenterY = ViewPortCenter.Y, CenterX = ViewPortCenter.X };
+            RotateTransform rotation = new RotateTransform { Angle = Heading, CenterX = ViewPortCenter.X, CenterY = ViewPortCenter.Y };
 
             Rect rect = new Rect(topLeft, bottomRight);
             rect = rotation.TransformBounds(rect);
             return rect;
+        }
+
+        public virtual void ZoomToRect(ILocation l1, ILocation l2)
+        {
+            CartesianPoint c1 = ViewPortProjection.ToCartesian(l1);
+            CartesianPoint c2 = ViewPortProjection.ToCartesian(l2);
+
+            Rect bounds = new Rect(c1.ToPoint(), c2.ToPoint());
+            RotateTransform rotation = new RotateTransform { Angle = Heading, CenterX = bounds.X / 2d, CenterY = bounds.Y / 2d };
+            Rect rotatedBounds = rotation.TransformBounds(bounds);
+
+            double zoomFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
+            double fullZoomX = RenderSize.Width / rotatedBounds.Width;
+            double fullZoomY = RenderSize.Height / rotatedBounds.Height;
+
+            double zoomLevel = ViewPortProjection.GetZoomLevel(Math.Min(fullZoomX, fullZoomY));
+
+            ViewPortCenter = new CartesianPoint((long)Math.Round(bounds.X + bounds.Width / 2d), (long)Math.Round(bounds.Y + bounds.Height / 2d));
+            ZoomLevel = zoomLevel;
         }
     }
 }
