@@ -287,7 +287,7 @@ namespace UniversalMapControl
             return rect;
         }
 
-        public virtual void ZoomToRect(ILocation l1, ILocation l2)
+        public virtual void ZoomToRect(ILocation l1, ILocation l2, double zoomCorrectionFactor = 0.9d)
         {
             CartesianPoint c1 = ViewPortProjection.ToCartesian(l1);
             CartesianPoint c2 = ViewPortProjection.ToCartesian(l2);
@@ -296,11 +296,10 @@ namespace UniversalMapControl
             RotateTransform rotation = new RotateTransform { Angle = Heading, CenterX = bounds.X / 2d, CenterY = bounds.Y / 2d };
             Rect rotatedBounds = rotation.TransformBounds(bounds);
 
-            double zoomFactor = ViewPortProjection.GetZoomFactor(ZoomLevel);
             double fullZoomX = RenderSize.Width / rotatedBounds.Width;
             double fullZoomY = RenderSize.Height / rotatedBounds.Height;
 
-            double zoomLevel = ViewPortProjection.GetZoomLevel(Math.Min(fullZoomX, fullZoomY));
+            double zoomLevel = ViewPortProjection.GetZoomLevel(Math.Min(fullZoomX, fullZoomY) * zoomCorrectionFactor);
 
             ViewPortCenter = new CartesianPoint((long)Math.Round(bounds.X + bounds.Width / 2d), (long)Math.Round(bounds.Y + bounds.Height / 2d));
             ZoomLevel = zoomLevel;

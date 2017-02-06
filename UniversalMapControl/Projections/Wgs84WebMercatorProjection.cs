@@ -88,6 +88,7 @@ namespace UniversalMapControl.Projections
         /// </summary>
         public double GetZoomFactor(double zoomLevel)
         {
+            zoomLevel = SanitizeZoomLevel(zoomLevel);
             return 1 / Math.Pow(2, MaxZoomLevel - zoomLevel);
         }
 
@@ -96,8 +97,9 @@ namespace UniversalMapControl.Projections
         /// </summary>
         public double GetZoomLevel(double zoomFactor)
         {
+            zoomFactor = SanitizeZoomFactor(zoomFactor);
             double log = Math.Log(1 / zoomFactor, 2);
-            return MaxZoomLevel - log;
+            return SanitizeZoomLevel(MaxZoomLevel - log);
         }
 
         /// <summary>
@@ -111,6 +113,24 @@ namespace UniversalMapControl.Projections
             }
             double latRad = center.Latitude * Math.PI / 180;
             return EquatorMetersPerCartesianUnit / Math.Cos(latRad);
+        }
+
+        private double SanitizeZoomFactor(double zoomFactor)
+        {
+            return zoomFactor <= 0 ? double.Epsilon : zoomFactor;
+        }
+
+        private double SanitizeZoomLevel(double zoomLevel)
+        {
+            if (zoomLevel < 0)
+            {
+                return 0;
+            }
+            if (zoomLevel > MaxZoomLevel)
+            {
+                return MaxZoomLevel;
+            }
+            return zoomLevel;
         }
 
         private double SanitizeLongitude(double longitude)
